@@ -192,26 +192,32 @@ class Main:
 				else:
 					ladderid = int(args[0])
 					if ( ladderid in self.ladderlist ):
-						whitelist = bool(args[1])
+						whitelist = int(args[1]) != 0
 						keyname = args[2]
 						value = args[3]
 						if whitelist:
 							if ( keyname in self.ladderoptions[ladderid].restrictedoptions ):
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
 							else:
-								currentvalues = self.ladderoptions[ladderid].allowedoptions[keyname]
+								if keyname in  self.ladderoptions[ladderid].allowedoptions:
+									currentvalues = self.ladderoptions[ladderid].allowedoptions[keyname]
+								else:
+									currentvalues = []
 								if ( not value in currentvalues ):
 									currentvalues.append(value)
-									self.ladderoptions[ladderid].allowedoptions.Update([keyname,currentvalues])
+									self.ladderoptions[ladderid].allowedoptions[keyname] = currentvalues
 									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the whitelist." )
 						else:
 							if( keyname in self.ladderoptions[ladderid].allowedoptions ):
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
 							else:
-								currentvalues = self.ladderoptions[ladderid].restrictedoptions[keyname]
+								if keyname in self.ladderoptions[ladderid].restrictedoptions:
+									currentvalues = self.ladderoptions[ladderid].restrictedoptions[keyname]
+								else:
+									currentvalues = []
 								if ( not value in currentvalues ):
 									currentvalues.append(value)
-									self.ladderoptions[ladderid].restrictedoptions.Update([keyname,currentvalues])
+									self.ladderoptions[ladderid].restrictedoptions[keyname] = currentvalues
 									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the blacklist." )
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
@@ -224,17 +230,17 @@ class Main:
 					if ( ladderid in self.ladderlist ):
 						keyname = args[1]
 						value = args[2]
-						indisableoptions = False
-						indenableoptions = False
+						indisabledoptions = False
+						inenabledoptions = False
 						if keyname in self.ladderoptions[ladderid].restrictedoptions:
-							indisableoptions = True
+							indisabledoptions = True
 						if keyname in self.ladderoptions[ladderid].allowedoptions:
 							inenabledoptions = True
-						if not indisableoptions and not indenableoptions:
+						if not indisabledoptions and not inenabledoptions:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Key doesn't exist in both whitelist and blackist." )
 						else:
 							currentvalues = dict()
-							if indisableoptions:
+							if indisabledoptions:
 								currentvalues = self.ladderoptions[ladderid].restrictedoptions[keyname]
 							else:
 								currentvalues = self.ladderoptions[ladderid].allowedoptions[keyname]
@@ -249,13 +255,13 @@ class Main:
 									if len(currentvalues) == 0:
 										del self.ladderoptions[ladderid].allowedoptions[keyname]
 									else:
-										self.ladderoptions[ladderid].allowedoptions.Update([keyname,currentvalues])
+										self.ladderoptions[ladderid].allowedoptions[keyname] = currentvalues
 									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option removed from the whitelist." )
 								else:
 									if len(currentvalues) == 0:
 										del self.ladderoptions[ladderid].restrictedoptions[keyname]
 									else:
-										self.ladderoptions[ladderid].restrictedoptions.Update([keyname,currentvalues])
+										self.ladderoptions[ladderid].restrictedoptions[keyname] = currentvalues
 									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option removed from the blacklist." )
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
@@ -276,60 +282,60 @@ class Main:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Whitelisted options ( if a key is present, no other value except for those listed will be allowed for such key ):" )
 						for key in whitelist:
 							allowedvalues = whitelist[key]
-							for valueindex in allowedvalues:
-								self.notifyuser( socket, fromwho, fromwhere, ispm, key + ": " + allowedvalues[valueindex] )
+							for value in allowedvalues:
+								self.notifyuser( socket, fromwho, fromwhere, ispm, key + ": " + value )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Blacklisted options ( if a value is present for a key, such value won't be allowed ):" )
 						for key in blacklist:
 							disabledvalues = blacklist[key]
-							for valueindex in disabledvalues:
-								self.notifyuser( socket, fromwho, fromwhere, ispm, key + ": " + disabledvalues[valueindex] )						
+							for value in disabledvalues:
+								self.notifyuser( socket, fromwho, fromwhere, ispm, key + ": " + value )						
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderaddmap":
 			if ( fromwho in self.app.config["admins"] ):
-				if len(args) != 3 or not args[0].isdigit() or not args[1].isdigit():
+				if len(args) < 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
 					if ( ladderid in self.ladderlist ):
-						whitelist = bool(args[1])
-						mapname = args[2]
+						whitelist = int(args[1]) != 0
+						mapname = " ".join(args[2:])
 						if whitelist:
 							if (len(self.ladderoptions[ladderid].restrictedmaps) != 0 ):
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for maps." )
 							else:
-								if ( not value in self.ladderoptions[ladderid].allowedmaps ):
+								if ( not mapname in self.ladderoptions[ladderid].allowedmaps ):
 									self.ladderoptions[ladderid].allowedmaps.append(mapname)
 									self.notifyuser( socket, fromwho, fromwhere, ispm, "Map added to the whitelist." )
 						else:
-							if( len(self.ladderoptions[ladderid].restrictedoptions) != 0 ):
+							if( len(self.ladderoptions[ladderid].allowedmaps) != 0 ):
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for maps." )
 							else:
-								if ( not value in self.ladderoptions[ladderid].restrictedmaps ):
+								if ( not mapname in self.ladderoptions[ladderid].restrictedmaps ):
 									self.ladderoptions[ladderid].restrictedmaps.append(mapname)
 									self.notifyuser( socket, fromwho, fromwhere, ispm, "Map added to the blacklist." )
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderremovemap":
 			if ( fromwho in self.app.config["admins"] ):
-				if len(args) != 2 or not args[0].isdigit():
+				if len(args) < 2 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
 					if ( ladderid in self.ladderlist ):
-						mapname = args[1]
-						indisableoptions = False
-						indenableoptions = False
+						mapname = " ".join(args[1:])
+						indisabledmaps = False
+						inenabledmaps = False
 						if mapname in self.ladderoptions[ladderid].restrictedmaps:
-							indisableoptions = True
+							indisabledmaps = True
 						if mapname in self.ladderoptions[ladderid].allowedmaps:
-							inenabledoptions = True
-						if not indisableoptions and not indenableoptions:
+							inenabledmaps = True
+						if not indisabledmaps and not inenabledmaps:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Map doesn't exist in both whitelist and blackist." )
 						else:
-							if indisableoptions:
+							if indisabledmaps:
 								self.ladderoptions[ladderid].restrictedmaps.remove(mapname)
-								self.notifyuser( socket, fromwho, fromwhere, ispm, "Map removed rom blacklist." )
+								self.notifyuser( socket, fromwho, fromwhere, ispm, "Map removed from blacklist." )
 							else:
 								self.ladderoptions[ladderid].allowedmaps.remove(mapname)
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Map removed from whitelist." )
@@ -341,25 +347,25 @@ class Main:
 			else:
 				ladderid = int(args[0])
 				if ( ladderid in self.ladderlist ):
-					indisableoptions = False
-					indenableoptions = False
+					indisabledmaps = False
+					indenabledmaps = False
 					if len(self.ladderoptions[ladderid].restrictedmaps) > 0:
-						indisableoptions = True
+						indisabledmaps = True
 					if len(self.ladderoptions[ladderid].allowedmaps) > 0:
-						inenabledoptions = True
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder :" + self.ladderlist[ladderid] )
-					if not indisableoptions and not indenableoptions:
+						indenabledmaps = True
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder: " + self.ladderlist[ladderid] )
+					if not indisabledmaps and not indenabledmaps:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "No map restrictions are in place." )
 					else:
 						maplist = []
-						if indisableoptions:
+						if indisabledmaps:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Blacklisted maps:" )
 							maplist = self.ladderoptions[ladderid].restrictedmaps
 						else:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Whitelisted maps:" )
 							maplist = self.ladderoptions[ladderid].allowedmaps
-						for mapindex in maplist:
-							self.notifyuser( socket, fromwho, fromwhere, ispm, maplist[mapindex] )
+						for mapname in maplist:
+							self.notifyuser( socket, fromwho, fromwhere, ispm, mapname )
 				else:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!score":
