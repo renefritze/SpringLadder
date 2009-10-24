@@ -100,6 +100,8 @@ class Main:
 		self.tsc = tasc
 		self.bans = []
 		self.app = tasc.main
+		self.channels = parselist(self.app.config["channelautojoinlist"],",")
+		self.admins = parselist(self.app.config["admins"])
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
 			ispm = true
@@ -135,12 +137,34 @@ class Main:
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 				except:
 					pass
+		if command == "!ladderjoinchannel":
+			if ( fromwho in self.admins):
+				if len(args) < 1:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				else:
+					channel = " ".join(args[0:])
+					socket.send("JOIN " + channel + "\n")
+					if not channel in self.channels:
+						self.channels.append(channel)
+						self.app.config["channelautojoinlist"] = ','.join(self.channels)
+						self.app.SaveConfig()
+		if command == "!ladderleavechannel":
+			if ( fromwho in self.admins):
+				if len(args) != 1:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				else:
+					channel = args[0]
+					if channel in self.channels:
+						socket.send("LEAVE " + channel + "\n")
+						self.channels.remove(channel)
+						self.app.config["channelautojoinlist"] = ','.join(self.channels)
+						self.app.SaveConfig()		
 		if command == "!ladderlist":
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Available ladders, format name: ID:" )
 			for i in self.ladderlist:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, self.ladderlist[i] + ": " + str(i) )
 		if command == "!ladderadd":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) < 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder name can't be empty." )
 				else:
@@ -149,7 +173,7 @@ class Main:
 					self.ladderoptions[ladderid] = LadderOptions()
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) )
 		if command == "!ladderremove":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) != 1 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -161,7 +185,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangemod":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) < 2 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -172,7 +196,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangecontrolteamsize":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -192,7 +216,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangeallysize":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -212,7 +236,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )						
 		if command == "!ladderaddoption":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) != 4 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -248,7 +272,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderremoveoption":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) != 3 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -259,7 +283,7 @@ class Main:
 						indisabledoptions = False
 						inenabledoptions = False
 						if keyname in self.ladderoptions[ladderid].restrictedoptions:
-							indisabledoptions = True
+							indisabledoptions = True					
 						if keyname in self.ladderoptions[ladderid].allowedoptions:
 							inenabledoptions = True
 						if not indisabledoptions and not inenabledoptions:
@@ -318,7 +342,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderaddmap":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) < 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -343,7 +367,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderremovemap":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) < 2 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -428,6 +452,11 @@ class Main:
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
 		if command == "SAIDPRIVATE" and len(args) > 1 and args[1].startswith("!"):
 			self.oncommandfromuser(args[0],"PM",True,args[1],args[2:],socket)
+		if command == "FORCELEAVECHANNEL" and len(args) > 1:
+			if args[0] in self.channels:
+				self.channels.remove(args[0])
+				self.app.config["channelautojoinlist"] = ','.join(self.channels)
+				self.app.SaveConfig()
 	def updatestatus(self,socket):
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
 	def onloggedin(self,socket):
