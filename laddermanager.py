@@ -53,8 +53,8 @@ class Main:
 			d.update([("serveraddr",self.app.config["serveraddr"])])
 			d.update([("serverport",self.app.config["serverport"])])
 			d.update([("admins",self.app.config["admins"])])
-			d.update([("nick",self.app.config["nick"]) + str(slot) )])
-			d.update([("password",self.app.config["password"])])])
+			d.update([("nick",self.app.config["nick"])+str(slot)])
+			d.update([("password",self.app.config["password"])])
 			d.update([("plugins","channels,ladderbot,help")])
 			d.update([("bans",self.app.config["bans"])])
 			d.update([("battleid",str(battleid))])
@@ -74,6 +74,7 @@ class Main:
 		self.bans = []
 		self.app = tasc.main
 	def queryladderidexists(ladderid):
+		pass
 	def notifyuser( socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
 			ispm = true
@@ -112,7 +113,7 @@ class Main:
 			for i in self.ladderlist:
 				notifyuser( socket, fromwho, fromwhere, ispm, ladderlist[i] + ": " + str(i) )
 		if command == "!addladder":
-			if ( fromwho in self.app.config["admins"]) ):
+			if ( fromwho in self.app.config["admins"] ):
 				if len(args) < 1:
 					notifyuser( socket, fromwho, fromwhere, ispm, "Ladder name can't be empty." )
 				else:
@@ -120,63 +121,65 @@ class Main:
 					self.ladderlist[ladderid] = " ".join(args[0:])
 					self.ladderoptions[ladderid] = LadderOptions()
 					notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) )
-		if command == "!deleteladder":
-			if ( fromwho in self.app.config["admins"]) ):
+		if command == "!removeladder":
+			if ( fromwho in self.app.config["admins"] ):
 				if len(args) != 1 or not args[0].isdigit():
 					notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
 					if ( queryladderidexists(ladderid) ):
+						del self.ladderlist[ladderid]
+						del self.ladderoptions[ladderid]
 					else:
 						notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!changeladdermod":
-			if ( fromwho in self.app.config["admins"]) ):
+			if ( fromwho in self.app.config["admins"]):
 				if len(args) < 2 or not args[0].isdigit():
 					notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
 					if ( queryladderidexists(ladderid) ):
-						ladderoptions[ladderid].modname = " ".join(args[1:])
+						self.ladderoptions[ladderid].modname = " ".join(args[1:])
 					else:
 						notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!changeladdercontrolteamsize":
-			if ( fromwho in self.app.config["admins"]) ):
+			if ( fromwho in self.app.config["admins"]):
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 					notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
 					if ( queryladderidexists(ladderid) ):
 						if len(args) == 2: # min = max
-							ladderoptions[ladderid].controlteamminsize = int(args[1])
-							ladderoptions[ladderid].controlteamminsize = int(args[1])
-						else if len(args) == 3: # separate min & max
+							self.ladderoptions[ladderid].controlteamminsize = int(args[1])
+							self.ladderoptions[ladderid].controlteamminsize = int(args[1])
+						elif len(args) == 3: # separate min & max
 							if ( not args[2].isdigit() ):
 								notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )							
 							else:
-								ladderoptions[ladderid].controlteamminsize = int(args[1])
-								ladderoptions[ladderid].controlteamminsize = int(args[2])
+								self.ladderoptions[ladderid].controlteamminsize = int(args[1])
+								self.ladderoptions[ladderid].controlteamminsize = int(args[2])
 					else:
 						notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!changeladderallysize":
-			if ( fromwho in self.app.config["admins"]) ):
+			if ( fromwho in self.app.config["admins"]):
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 					notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
 					if ( queryladderidexists(ladderid) ):
 						if len(args) == 2: # min = max
-							ladderoptions[ladderid].allyminsize = int(args[1])
-							ladderoptions[ladderid].allymaxsize = int(args[1])
-						else if len(args) == 3: # separate min & max
+							self.ladderoptions[ladderid].allyminsize = int(args[1])
+							self.ladderoptions[ladderid].allymaxsize = int(args[1])
+						elif len(args) == 3: # separate min & max
 							if ( not args[2].isdigit() ):
 								notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )							
 							else:
-								ladderoptions[ladderid].allyminsize = int(args[1])
-								ladderoptions[ladderid].allymaxsize = int(args[2])
+								self.ladderoptions[ladderid].allyminsize = int(args[1])
+								self.ladderoptions[ladderid].allymaxsize = int(args[2])
 					else:
 						notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )						
 		if command == "!addladderoption":
-			if ( fromwho in self.app.config["admins"]) ):
+			if ( fromwho in self.app.config["admins"]):
 				if len(args) != 4 or not args[0].isdigit() or not args[1].isdigit():
 					notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -206,7 +209,7 @@ class Main:
 					else:
 						notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!removeladderoption":
-			if ( fromwho in self.app.config["admins"]) ):
+			if ( fromwho in self.app.config["admins"] ):
 				if len(args) != 3 or not args[0].isdigit():
 					notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -218,7 +221,7 @@ class Main:
 						indenableoptions = False
 						if keyname in self.ladderoptions[ladderid].restrictedoptions:
 							indisableoptions = True
-						if keyname in self.ladderoptions[ladderid].allowedoptions ):
+						if keyname in self.ladderoptions[ladderid].allowedoptions:
 							inenabledoptions = True
 						if not indisableoptions and not indenableoptions:
 							notifyuser( socket, fromwho, fromwhere, ispm, "Key doesn't exist in both whitelist and blackist." )
@@ -237,13 +240,13 @@ class Main:
 								currentvalues.remove(value)
 								if inenabledoptions:
 									if len(currentvalues) == 0:
-										self.ladderoptions[ladderid].allowedoptions.remove(keyname)
+										del self.ladderoptions[ladderid].allowedoptions[keyname]
 									else:
 										self.ladderoptions[ladderid].allowedoptions.Update([keyname,currentvalues])
 									notifyuser( socket, fromwho, fromwhere, ispm, "Option removed from the whitelist." )
 								else:
 									if len(currentvalues) == 0:
-										self.ladderoptions[ladderid].restrictedoptions.remove(keyname)
+										del self.ladderoptions[ladderid].restrictedoptions[keyname]
 									else:
 										self.ladderoptions[ladderid].restrictedoptions.Update([keyname,currentvalues])
 									notifyuser( socket, fromwho, fromwhere, ispm, "Option removed from the blacklist." )
@@ -271,7 +274,7 @@ class Main:
 					else:
 						notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!addladdermap":
-			if ( fromwho in self.app.config["admins"]) ):
+			if ( fromwho in self.app.config["admins"] ):
 				if len(args) != 3 or not args[0].isdigit() or not args[1].isdigit():
 					notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -296,7 +299,7 @@ class Main:
 					else:
 						notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!removeladdermap":
-			if ( fromwho in self.app.config["admins"]) ):
+			if ( fromwho in self.app.config["admins"] ):
 				if len(args) != 2 or not args[0].isdigit():
 					notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -307,7 +310,7 @@ class Main:
 						indenableoptions = False
 						if mapname in self.ladderoptions[ladderid].restrictedmaps:
 							indisableoptions = True
-						if mapname in self.ladderoptions[ladderid].allowedmaps ):
+						if mapname in self.ladderoptions[ladderid].allowedmaps:
 							inenabledoptions = True
 						if not indisableoptions and not indenableoptions:
 							notifyuser( socket, fromwho, fromwhere, ispm, "Map doesn't exist in both whitelist and blackist." )
@@ -325,7 +328,7 @@ class Main:
 				notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 			else:
 				ladderid = int(args[0])
-				if ( queryladderidexists(ladderid) )
+				if ( queryladderidexists(ladderid) ):
 					indisableoptions = False
 					indenableoptions = False
 					if len(self.ladderoptions[ladderid].restrictedmaps) > 0:
