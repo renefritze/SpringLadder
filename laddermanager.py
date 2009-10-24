@@ -98,7 +98,7 @@ class Main:
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
 				try:
-					battleid = self.users[fromwho].battleid
+					battleid = self.tsc.users[fromwho].battleid
 					if ( battleid == -1 ):
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "You are not in a battle." )
 					else:
