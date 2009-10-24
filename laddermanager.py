@@ -74,6 +74,7 @@ class Main:
 		self.tsc = tasc
 		self.bans = []
 		self.app = tasc.main
+		self.channels = parselist(self.app.config["channelautojoinlist"],",")
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
 			ispm = true
@@ -116,8 +117,9 @@ class Main:
 				else:
 					channel = " ".join(args[0:])
 					socket.send("JOIN " + channel + "\n")
-					if not channel in self.app.config["channelautojoinlist"]:
-						self.app.config["channelautojoinlist"].append(channel)
+					if not channel in self.channels:
+						self.channels.append(channel)
+						self.app.config["channelautojoinlist"] = ','.join(self.channels)
 						self.app.SaveConfig()
 		if command == "!ladderleavechannel":
 			if ( fromwho in self.app.config["admins"]):
@@ -125,9 +127,10 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					channel = args[0]
-					socket.send("LEAVE " + channel + "\n")
-					if channel in self.app.config["channelautojoinlist"]:
-						self.app.config["channelautojoinlist"].remove(channel)
+					if channel in self.channels:
+						socket.send("LEAVE " + channel + "\n")
+						self.channels.remove(channel)
+						self.app.config["channelautojoinlist"] = ','.join(self.channels)
 						self.app.SaveConfig()		
 		if command == "!ladderlist":
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Available ladders, format name: ID:" )
@@ -443,8 +446,9 @@ class Main:
 		if command == "SAIDPRIVATE" and len(args) > 1 and args[1].startswith("!"):
 			self.oncommandfromuser(args[0],"PM",True,args[1],args[2:],socket)
 		if command == "FORCELEAVECHANNEL" and len(args) > 1:
-			if args[0] in self.app.config["channelautojoinlist"]:
-				self.app.config["channelautojoinlist"].remove(args[0])
+			if args[0] in self.channels:
+				self.channels.remove(args[0])
+				self.app.config["channelautojoinlist"] = ','.join(self.channels)
 				self.app.SaveConfig()
 	def updatestatus(self,socket):
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
