@@ -75,6 +75,7 @@ class Main:
 		self.bans = []
 		self.app = tasc.main
 		self.channels = parselist(self.app.config["channelautojoinlist"],",")
+		self.admins = parselist(self.app.config["admins"])
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
 			ispm = true
@@ -111,7 +112,7 @@ class Main:
 				except:
 					pass
 		if command == "!ladderjoinchannel":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) < 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -122,7 +123,7 @@ class Main:
 						self.app.config["channelautojoinlist"] = ','.join(self.channels)
 						self.app.SaveConfig()
 		if command == "!ladderleavechannel":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) != 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -137,7 +138,7 @@ class Main:
 			for i in self.ladderlist:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, self.ladderlist[i] + ": " + str(i) )
 		if command == "!ladderadd":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) < 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder name can't be empty." )
 				else:
@@ -146,7 +147,7 @@ class Main:
 					self.ladderoptions[ladderid] = LadderOptions()
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) )
 		if command == "!ladderremove":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) != 1 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -158,7 +159,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangemod":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) < 2 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -169,7 +170,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangecontrolteamsize":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -189,7 +190,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangeallysize":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -209,7 +210,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )						
 		if command == "!ladderaddoption":
-			if ( fromwho in self.app.config["admins"]):
+			if ( fromwho in self.admins):
 				if len(args) != 4 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -245,7 +246,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderremoveoption":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) != 3 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -315,7 +316,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderaddmap":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) < 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -340,7 +341,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderremovemap":
-			if ( fromwho in self.app.config["admins"] ):
+			if ( fromwho in self.admins ):
 				if len(args) < 2 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -418,7 +419,7 @@ class Main:
 		if command == "!help":
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Hello, I am a bot to manage and keep stats of ladder games." )
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "You can use the following commands:" )
-			if fromwho in self.app.config["admins"]:
+			if fromwho in self.admins:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderjoinchannel channelname password : make the bot join a new channel and add to the autojoin list" )
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderleavechannel channelname : make the bot leave a chanel and remove it from the autojoin list" )
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderadd laddername : creates a new ladder" )
