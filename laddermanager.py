@@ -84,7 +84,7 @@ class Main:
 		else:
 			pm( socket, fromwho, message )
 	def spawnbot( self,  socket, battleid, ladderid ):	
-		slot = len(botstatus)
+		slot = len(self.botstatus)
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,socket,battleid,ladderid,self)))
 		self.botstatus[slot] = True
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
@@ -95,22 +95,23 @@ class Main:
 			if len(args) > 1:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax or command not found, use !help for a list of available commands and their usage." )
 			else:
+				battleid = -2
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
 				try:
 					battleid = self.tsc.users[fromwho].battleid
-					if ( battleid == -1 ):
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "You are not in a battle." )
-					else:
-						if ( battleswithbots[battleid] == True ):
-							self.notifyuser( socket, fromwho, fromwhere, ispm, "A ladder bot is already present in your battle." )
-						else:
-							if ( laderid == -1 or ladderid in self.ladderlist ):
-								self.spawnbot( self, socket, battleid, ladderid )
-							else:
-								self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 				except:
 					bad("User " + fromwho + " not found")
+				if ( battleid < 0 ):
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "You are not in a battle." )
+				else:
+					if ( battleid in self.battleswithbots ):
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "A ladder bot is already present in your battle." )
+					else:
+						if ( ladderid == -1 or ladderid in self.ladderlist ):
+							self.spawnbot( socket, battleid, ladderid )
+						else:
+							self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderjoinchannel":
 			if ( fromwho in self.admins):
 				if len(args) < 1:
