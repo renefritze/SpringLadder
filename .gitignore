@@ -7,3 +7,4 @@ colors.py
 testplugin.py
 utilities.py
 *.pyc
+*~
