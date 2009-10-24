@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from colors import *
 from ParseConfig import *
 import commands
@@ -8,15 +9,40 @@ import signal
 import traceback
 import subprocess
 import sqlalchemy
+
+helpstring_admin = """!ladderadd laddername : creates a new ladder
+!ladderremove ladderID : deletes a ladder
+!ladderchangemod ladderID modname : sets the mod for given ladder ID
+!ladderchangecontrolteamsize ladderID value : sets the control team size (player ID) used by the ladder
+!ladderchangecontrolteamsize ladderID min max : sets the control team size (player ID) used by the ladder
+!ladderchangeallysize ladderID value : sets the ally team size used by the ladder
+!ladderchangeallysize ladderID min max : sets the ally team size used by the ladder
+!ladderaddoption ladderID blacklist/whitelist optionkey optionvalue : adds a new rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a given key cannot have a whitelist and blacklist at the same time
+!ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed
+!ladderaddmap ladderID blacklist/whitelist mapname : adds a new map rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a ladder cannot have a map whitelist and blacklist at the same time
+!ladderremovemap ladderID mapname : removes mapname from the ladder map rules"""
+
+
+helpstring_user = """!ladderlist : lists available ladders with their IDs
+!ladder : requests a bot to join your current game to monitor and submit scores
+!ladder ladderID: requests a bot to join your current game to monitor and submit scores got given ladderID
+!ladderlistoptions ladderID : lists enforced options for given ladderID
+!ladderlistmaps ladderID : lists enforced maps for given ladderID
+!score ladderID : lists scores for all the players for the given ladderID
+!score playername : lists scores for the given player in all ladders
+!score ladderID playername : lists score for the given player for the given ladderID"""
+
 def pm(s,p,m):
 	try:
-		print yellow+"PM To:%s, Message: %s" %(p,m) + normal
-		s.send("SAYPRIVATE %s %s\n" %(p,m))
+		for line in m.split('\n'):
+			print yellow+"PM To:%s, Message: %s" %(p,line) + normal
+			s.send("SAYPRIVATE %s %s\n" %(p,line))
 	except:
 		pass
 def saychannel( socket, channel, message ):
-		print purple+"Channel :%s, Message: %s" %(channel,message) + normal
-		socket.send("SAY " + channel + " " + message + "\n")
+		for line in message.split('\n'):
+			print purple+"Channel :%s, Message: %s" %(channel,line) + normal
+			socket.send("SAY %s %s\n" %(channel,line) )
 class OptionEntry:
 	 def __init__(self):
 	 	self.valuelist = []
@@ -393,28 +419,10 @@ class Main:
 					if ladderid != -1 and len(playername) != 0: # print player's score for given ladder
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Stub" )
 		if command == "!help":
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "Hello, I am a bot to manage and keep stats of ladder games." )
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "You can use the following commands:" )
+			self.notifyuser( socket, fromwho, fromwhere, ispm, "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 			if fromwho in self.app.config["admins"]:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderadd laddername : creates a new ladder" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderremove ladderID : deletes a ladder" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderchangemod ladderID modname : sets the mod for given ladder ID" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderchangecontrolteamsize ladderID value : sets the control team size (player ID) used by the ladder" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderchangecontrolteamsize ladderID min max : sets the control team size (player ID) used by the ladder" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderchangeallysize ladderID value : sets the ally team size used by the ladder" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderchangeallysize ladderID min max : sets the ally team size used by the ladder" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderaddoption ladderID blacklist/whitelist optionkey optionvalue : adds a new rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a given key cannot have a whitelist and blacklist at the same time" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderaddmap ladderID blacklist/whitelist mapname : adds a new map rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a ladder cannot have a map whitelist and blacklist at the same time" )
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderremovemap ladderID mapname : removes mapname from the ladder map rules" )
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderlist : lists available ladders with their IDs" )	
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladder : requests a bot to join your current game to monitor and submit scores" )	
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladder ladderID: requests a bot to join your current game to monitor and submit scores got given ladderID" )	
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderlistoptions ladderID : lists enforced options for given ladderID" )	
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderlistmaps ladderID : lists enforced maps for given ladderID" )
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "!score ladderID : lists scores for all the players for the given ladderID" )			
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "!score playername : lists scores for the given player in all ladders" )
-			self.notifyuser( socket, fromwho, fromwhere, ispm, "!score ladderID playername : lists score for the given player for the given ladderID" )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_admin )
+			self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
