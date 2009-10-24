@@ -109,6 +109,26 @@ class Main:
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 				except:
 					pass
+		if command == "!joinchannel":
+			if ( fromwho in self.app.config["admins"]):
+				if len(args) < 1:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				else:
+					channel = " ".join(args[0:])
+					socket.send("JOIN " + channel + "\n")
+					if not channel in self.app.config["channelautojoinlist"]:
+						self.app.config["channelautojoinlist"].append(channel)
+						self.app.SaveConfig()
+		if command == "!leavechannel":
+			if ( fromwho in self.app.config["admins"]):
+				if len(args) != 1:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				else:
+					channel = args[0]
+					socket.send("LEAVE " + channel + "\n")
+					if channel in self.app.config["channelautojoinlist"]:
+						self.app.config["channelautojoinlist"].remove(channel)
+						self.app.SaveConfig()		
 		if command == "!ladderlist":
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Available ladders, format name: ID:" )
 			for i in self.ladderlist:
@@ -420,6 +440,10 @@ class Main:
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
 		if command == "SAIDPRIVATE" and len(args) > 1 and args[1].startswith("!"):
 			self.oncommandfromuser(args[0],"PM",True,args[1],args[2:],socket)
+		if command == "FORCELEAVECHANNEL" and len(args) > 1:
+			if args[0] in self.app.config["channelautojoinlist"]:
+				self.app.config["channelautojoinlist"].remove(args[0])
+				self.app.SaveConfig()
 	def updatestatus(self,socket):
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
 	def onloggedin(self,socket):
