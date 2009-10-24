@@ -1,5 +1,6 @@
 Client.py
 Main.py
+Main.conf
 ParseConfig.py
 Plugin.py
 colors.py
