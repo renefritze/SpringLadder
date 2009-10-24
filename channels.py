@@ -7,5 +7,5 @@ class Main:
 	def oncommandfromserver(self,command,args,socket):
 		pass
 	def onloggedin(self,socket):
-		for channel in self.app.config["channelautojoinlist"]
+		for channel in self.app.config["channelautojoinlist"]:
 			socket.send("JOIN " + channel + "\n")		
