@@ -109,7 +109,7 @@ class Main:
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 				except:
 					pass
-		if command == "!joinchannel":
+		if command == "!ladderjoinchannel":
 			if ( fromwho in self.app.config["admins"]):
 				if len(args) < 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
@@ -119,7 +119,7 @@ class Main:
 					if not channel in self.app.config["channelautojoinlist"]:
 						self.app.config["channelautojoinlist"].append(channel)
 						self.app.SaveConfig()
-		if command == "!leavechannel":
+		if command == "!ladderleavechannel":
 			if ( fromwho in self.app.config["admins"]):
 				if len(args) != 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
@@ -416,6 +416,8 @@ class Main:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Hello, I am a bot to manage and keep stats of ladder games." )
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "You can use the following commands:" )
 			if fromwho in self.app.config["admins"]:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderjoinchannel channelname password : make the bot join a new channel and add to the autojoin list" )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderleavechannel channelname : make the bot leave a chanel and remove it from the autojoin list" )
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderadd laddername : creates a new ladder" )
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderremove ladderID : deletes a ladder" )
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "!ladderchangemod ladderID modname : sets the mod for given ladder ID" )
