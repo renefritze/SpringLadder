@@ -1,0 +1,10 @@
+Client.py
+Main.py
+ParseConfig.py
+Plugin.py
+colors.py
+init
+run.sh
+testplugin.py
+utilities.py
+*.pyc
