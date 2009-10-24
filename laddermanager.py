@@ -83,7 +83,7 @@ class Main:
 			d.update([("admins",self.app.config["admins"])])
 			d.update([("nick",nick)])
 			d.update([("password",self.app.config["password"])])
-			d.update([("plugins","ladderbot")])
+			d.update([("plugins","ladderslave")])
 			d.update([("bans",self.app.config["bans"])])
 			d.update([("battleid",str(battleid))])
 			d.update([("ladderid",str(ladderid))])
