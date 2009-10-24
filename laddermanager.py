@@ -75,7 +75,7 @@ class Main:
 		self.bans = []
 		self.app = tasc.main
 		self.channels = parselist(self.app.config["channelautojoinlist"],",")
-		self.admins = parselist(self.app.config["admins"])
+		self.admins = parselist(self.app.config["admins"],",")
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
 			ispm = true
@@ -95,7 +95,7 @@ class Main:
 			if len(args) > 1:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax or command not found, use !help for a list of available commands and their usage." )
 			else:
-				if ( args[0].isdigit() ):
+				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
 				try:
 					battleid = self.users[self.args[0]].battleid
