@@ -1,4 +1,7 @@
 #!/bin/bash
 
 export PYTHONPATH=$(pwd):$PYTHONPATH
-python Main.py
+while [ 1 ]; do
+	python Main.py
+	sleep 1
+done
