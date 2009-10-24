@@ -73,9 +73,9 @@ class Main:
 		self.tsc = tasc
 		self.bans = []
 		self.app = tasc.main
-	def queryladderidexists(ladderid):
+	def queryladderidexists(self,ladderid):
 		pass
-	def notifyuser( socket, fromwho, fromwhere, ispm, message ):
+	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
 			ispm = true
 		if not ispm:
@@ -87,6 +87,8 @@ class Main:
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,socket,battleid,ladderid,self)))
 		self.botstatus[slot] = True
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
+		if fromwho == self.app.config["nick"]:
+			return
 		if command == "!ladder":
 			ladderid = -1
 			if len(args) > 1:
@@ -399,9 +401,9 @@ class Main:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "!score ladderID playername : lists score for the given player for the given ladderID" )
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
-			self.oncommandfromuser(self,args[1],args[0],False,args[2:],socket)
+			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
 		if command == "SAIDPRIVATE" and len(args) > 1 and args[1].startswith("!"):
-			self.oncommandfromuser(self,args[0],"PM",True,args[1:],socket)
+			self.oncommandfromuser(args[0],"PM",True,args[1],args[2:],socket)
 	def updatestatus(self,socket):
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
 	def onloggedin(self,socket):
