@@ -49,14 +49,15 @@ class Main:
 	
 	sql = sqlalchemy.create_engine('sqlite:///:memory:', echo=True)
 	def botthread(self,slot,battleid,ladderid,ist):
+		nick = self.app.config["nick"]+str(slot)
 		try:
 			d = dict()
 			d.update([("serveraddr",self.app.config["serveraddr"])])
 			d.update([("serverport",self.app.config["serverport"])])
 			d.update([("admins",self.app.config["admins"])])
-			d.update([("nick",self.app.config["nick"])+str(slot)])
+			d.update([("nick",nick)])
 			d.update([("password",self.app.config["password"])])
-			d.update([("plugins","channels,ladderbot,help")])
+			d.update([("plugins","ladderbot")])
 			d.update([("bans",self.app.config["bans"])])
 			d.update([("battleid",str(battleid))])
 			d.update([("ladderid",str(ladderid))])
@@ -85,7 +86,7 @@ class Main:
 			pm( socket, fromwho, message )
 	def spawnbot( self,  socket, battleid, ladderid ):	
 		slot = len(self.botstatus)
-		self.threads.append(thread.start_new_thread(self.botthread,(slot,socket,battleid,ladderid,self)))
+		self.threads.append(thread.start_new_thread(self.botthread,(slot,socket,battleid,ladderid)))
 		self.botstatus[slot] = True
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
 		if fromwho == self.app.config["nick"]:
