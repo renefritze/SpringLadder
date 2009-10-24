@@ -233,7 +233,7 @@ class Main:
 						indisabledoptions = False
 						inenabledoptions = False
 						if keyname in self.ladderoptions[ladderid].restrictedoptions:
-							indisabledoptions = True
+							indisabledoptions = True					
 						if keyname in self.ladderoptions[ladderid].allowedoptions:
 							inenabledoptions = True
 						if not indisabledoptions and not inenabledoptions:
