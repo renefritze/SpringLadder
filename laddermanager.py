@@ -98,7 +98,7 @@ class Main:
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
 				try:
-					battleid = self.users[self.args[0]].battleid
+					battleid = self.users[fromwho].battleid
 					if ( battleid == -1 ):
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "You are not in a battle." )
 					else:
@@ -110,7 +110,7 @@ class Main:
 							else:
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 				except:
-					pass
+					bad("User " + fromwho + " not found")
 		if command == "!ladderjoinchannel":
 			if ( fromwho in self.admins):
 				if len(args) < 1:
