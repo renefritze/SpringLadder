@@ -47,9 +47,6 @@ def saychannel( socket, channel, message ):
 		for line in message.split('\n'):
 			print purple+"Channel :%s, Message: %s" %(channel,line) + normal
 			socket.send("SAY %s %s\n" %(channel,line) )
-class OptionEntry:
-	 def __init__(self):
-	 	self.valuelist = []
 class LadderOptions:
 	 def __init__(self):
 	 	self.modname = ""
