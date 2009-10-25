@@ -156,7 +156,7 @@ class Main:
 		if command == "JOINBATTLEFAILED":
 			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] )
 			self.KillBot()
-		if command == "":
+		if command == "FORCEQUITBATTLE":
 			log( "kicked from battle: " + str(self.battleid) )
 			self.KillBot()
 		if command == "SETSCRIPTTAGS":
@@ -171,7 +171,6 @@ class Main:
 					key = key[4:]
 				value = pieces[1]
 				self.battleoptions[key] = value
-			self.checkvalidoptionssetup()
 		if command == "REQUESTBATTLESTATUS":
 			socket.send("MYBATTLESTATUS \n")
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
