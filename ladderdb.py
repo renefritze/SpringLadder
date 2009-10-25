@@ -9,9 +9,15 @@ class ElementExistsException( Exception ):
 	def __init__(self, element):
 		self.element = element
 
+	def __str__(self):
+		return "Element %s already exists in db"%(self.element)
+
 class ElementNotFoundException( Exception ):
 	def __init__(self, element):
 		self.element = element
+
+	def __str__(self):
+		return "Element %s not found in db"%(self.element)
 
 class LadderDB:
 	def __init__(self,alchemy_uri):
@@ -24,7 +30,6 @@ class LadderDB:
 
 	def AddLadder(self, name ):
 		session = self.sessionmaker()
-
 		ladder = session.query( Ladder ).filter( Ladder.name == name ).first()
 
 		if not ladder: #no existing ladder with same name
@@ -35,6 +40,18 @@ class LadderDB:
 		else:
 			raise ElementExistsException( ladder )
 
+	def RemoveLadder(self, id ):
+		session = self.sessionmaker()
+
+		ladder = session.query( Ladder ).filter( Ladder.id == id ).first()
+
+		if ladder:
+			session.delete( ladder )
+			session.commit()
+			session.close()
+		else:
+			raise ElementNotFoundException( Ladder(id) )
+			
 	def AddOption(self, ladderID, blacklist, optionkey, optionvalue  ):
 		session = self.sessionmaker()
 

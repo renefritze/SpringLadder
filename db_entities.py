@@ -13,7 +13,10 @@ class Ladder(Base):
 	#description = Column( whatever type means variable lengh text ( TEXT ?? ) )
 
 	def __init__(self, name):
-		self.name = 'name'
+		self.name = name
+
+	def __str__(self):
+		return "Ladder %s"%(self.name)
 
 
 class Option(Base):

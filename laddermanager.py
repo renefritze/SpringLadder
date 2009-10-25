@@ -9,7 +9,7 @@ import signal
 import traceback
 import subprocess
 from db_entities import *
-from ladderdb import LadderDB
+from ladderdb import *
 
 helpstring_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -173,6 +173,10 @@ class Main:
 					self.ladderlist[ladderid] = " ".join(args[0:])
 					self.ladderoptions[ladderid] = LadderOptions()
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) )
+					try:
+						self.db.AddLadder( args[0] )
+					except ElementExistsException, e:
+						print "Error",e
 		if command == "!ladderremove":
 			if ( fromwho in self.admins ):
 				if len(args) != 1 or not args[0].isdigit():
@@ -182,7 +186,11 @@ class Main:
 					if ( ladderid in self.ladderlist ):
 						del self.ladderlist[ladderid]
 						del self.ladderoptions[ladderid]
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder removed." )
+						try:
+							self.db.RemoveLadder( args[0] )
+							self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder removed." )
+						except ElementNotFoundException, e:
+							print "Error",e
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangemod":
