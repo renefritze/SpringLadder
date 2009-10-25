@@ -163,7 +163,7 @@ class LadderDB:
 		source_ladder = session.query(Ladder).filter( Ladder.id == source_id ).first()
 		if not source_ladder:
 			raise ElementNotFoundException( Ladder( source_id ) )
-		else
+		else:
 			target_ladder = Ladder( target_name )
 			target_ladder.min_team_size 	= source_ladder.min_team_size
 			target_ladder.max_team_size 	= source_ladder.max_team_size 	
@@ -175,6 +175,12 @@ class LadderDB:
 			target_ladder.max_team_count 	= source_ladder.max_team_count
 			session.add( target_ladder )
 			session.commit()
+			source_options = session.query( Option ).filter( Option.ladder_id == source_id )
+			for opt in source_options:
+				new_opt = Option( opt.key, opt.value, opt.is_whitelist )
+				new_opt.ladder_id = target_ladder.id
+				session.add( new_opt )
+				session.commit()
 		session.close()
 
 		

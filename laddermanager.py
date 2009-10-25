@@ -312,6 +312,16 @@ class Main:
 			if fromwho in self.app.config["admins"]:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_admin )
 			self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
+		if command == "!laddercopy" and fromwho in self.admins:
+			if len(args) != 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				source_id = args[0]
+				target_name = args[1]
+				try:
+					self.db.CopyLadder( source_id, target_name )
+				except:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't copy ladder" )
 			
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
