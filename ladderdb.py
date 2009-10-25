@@ -42,10 +42,10 @@ class LadderDB:
 			raise ElementExistsException( ladder )
 		return ladderid
 
-	def RemoveLadder(self, id ):
+	def RemoveLadder(self, ladder_id ):
 		session = self.sessionmaker()
 
-		ladder = session.query( Ladder ).filter( Ladder.id == id ).first()
+		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
 
 		if ladder:
 			session.delete( ladder )
@@ -53,6 +53,16 @@ class LadderDB:
 			session.close()
 		else:
 			raise ElementNotFoundException( Ladder(id) )
+	
+	def GetLadderName(self, ladder_id):
+		session = self.sessionmaker()
+
+		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
+		laddername = ""
+		if ladder:
+			laddername = ladder.name
+		session.close()
+		return laddername
 			
 	def LadderExists(self, id ):
 		session = self.sessionmaker()
@@ -109,7 +119,8 @@ class LadderDB:
 		return count == 1
 		
 	def DeleteOption( self, ladder_id, whitelist_only, keyname, value ):
-		option = filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).first()
+		session = self.sessionmaker()
+		option = session.query( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).first()
 		if option:
 			session.delete( option )
 			session.commit()
