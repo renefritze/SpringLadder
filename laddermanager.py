@@ -185,7 +185,7 @@ class Main:
 								return
 							ladder.max_team_size = int(args[2])
 						self.db.SetLadder( ladder )
-						print ladder
+						print self.db.GetLadder( ladderid )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder control team size changed." )
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
@@ -206,7 +206,7 @@ class Main:
 								return
 							ladder.max_ally_size = int(args[2])
 						self.db.SetLadder( ladder )
-						print ladder
+						print self.db.GetLadder( ladderid )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder ally size changed." )
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
@@ -227,7 +227,7 @@ class Main:
 								return
 							ladder.max_team_count = int(args[2])
 						self.db.SetLadder( ladder )
-						print ladder
+						print self.db.GetLadder( ladderid )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder control team count changed." )
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
