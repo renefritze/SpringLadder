@@ -52,11 +52,11 @@ class Main:
 		try:
 			self.gamestarted = 0
 			self.u.reset()
-			if self.ingame == 1:
+			if self.ingame == True:
 				saybattle( self.socket, battleid, "Error: game is already running")
 				return
 			self.output = ""
-			self.ingame = 1
+			self.ingame = True
 			if self.ladderid == -1 and self.CheckValidSetup(self.ladderid,False):
 				saybattleex(socket, battleid, "won't submit to the ladder the score results")
 			else:
@@ -94,8 +94,7 @@ class Main:
 			loge(socket,"*** EXCEPTION: END")
 			os.chdir(cwd)
 		os.chdir(cwd)
-		self.ingame = 0
-		self.gamestarted = 0
+		self.ingame = False
 		
 	def KillBot(self):
 		if platform.system() == "Windows":
