@@ -258,14 +258,14 @@ class Main:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderaddoption":
 			if fromwho in self.admins:
-				if len(args) != 4 or not args[0].isdigit() or not args[1].isdigit():
+				if len(args) < 4 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
 					if self.db.LadderExists( ladderid ):
 						whitelist = int(args[1]) != 0
 						keyname = args[2]
-						value = args[3]
+						value = " ".join(args[3:])
 						if self.db.GetOptionKeyExists(ladderid, not whitelist, keyname ):
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
 						else:
@@ -283,13 +283,13 @@ class Main:
 					
 		if command == "!ladderremoveoption":
 			if ( fromwho in self.admins ):
-				if len(args) != 3 or not args[0].isdigit():
+				if len(args) < 3 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
 					if self.db.LadderExists( ladderid ):
 						keyname = args[1]
-						value = args[2]
+						value = " ".join(args[2:])
 						indisabledoptions = self.db.GetOptionKeyExists(ladderid, False, keyname )
 						inenabledoptions = self.db.GetOptionKeyExists(ladderid, True, keyname )
 						if not indisabledoptions and not inenabledoptions:
