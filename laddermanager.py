@@ -269,7 +269,12 @@ class Main:
 						"""self.notifyuser( socket, fromwho, fromwhere, ispm, "Min control team size: " + str(self.ladderoptions[ladderid].controlteamminsize) )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max control team size: " + str(self.ladderoptions[ladderid].controlteammaxsize) )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Min ally size: " + str(self.ladderoptions[ladderid].allyminsize) )
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max ally size: " + str(self.ladderoptions[ladderid].allymaxsize) )"""
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max ally size: " + str(self.ladderoptions[ladderid].allymaxsize) )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Min control team amount: " + str(self.ladderoptions[ladderid].controlteammincount) )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max control team amount: " + str(self.ladderoptions[ladderid].controlteammaxcount) )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Min ally amount: " + str(self.ladderoptions[ladderid].allymincount) )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max ally amount: " + str(self.ladderoptions[ladderid].allymaxcount) )
+						"""
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Whitelisted options ( if a key is present, no other value except for those listed will be allowed for such key ):" )
 						for opt in self.db.GetFilteredOptions( ladderid, True ):
 							self.notifyuser( socket, fromwho, fromwhere, ispm, opt.key + ": " + opt.value )
