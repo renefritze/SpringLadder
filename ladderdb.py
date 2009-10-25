@@ -99,9 +99,9 @@ class LadderDB:
 		
 	def GetOptionExists(self, ladder_id, whitelist_only, keyname ):
 		session = self.sessionmaker()
-		values = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).first()
+		count = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).count()
 		session.close()
-		return values	
+		return count == 1	
 	
 	def GetOptionValues(self, ladder_id, whitelist_only, keyname ):
 		session = self.sessionmaker()
