@@ -286,6 +286,10 @@ class Main:
 						saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 				else:
 					saybattle( self.socket, self.battleid,"Invalid ladder ID.")
+		if command == "!ladderlist":
+			saybattle( self.socket, self.battleid, "Available ladders, format name: ID:" )
+			for l in self.db.GetLadderList(Ladder.name):
+				saybattle( self.socket, self.battleid, "%s: %d" %(l.name, l.id ) )
 			if command == "!ladder":
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
