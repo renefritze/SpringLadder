@@ -60,7 +60,7 @@ class Main:
 				return
 			self.output = ""
 			self.ingame = 1
-			if self.ladderid == -1 and self.checkvalidsetup():
+			if self.ladderid == -1 and self.CheckValidSetup(self.ladderid,False):
 				saybattleex(socket, battleid, "won't submit to the ladder the score results")
 			else:
 				saybattleex(socket, battleid, "is gonna submit to the ladder the score results")
@@ -191,7 +191,6 @@ class Main:
 			self.battleoptions["modname"] = args[12]
 		if command == "UPDATEBATTLEINFO" and len(args) > 4 and int(args[0]) == self.battleid:
 			self.battleoptions["mapname"] = args[4]
-			self.checkgeneraloptionssetup()
 		
 				if args[1] == "!startgame" and args[0] == self.battleowner:
 						s.send("MYSTATUS 1\n")
