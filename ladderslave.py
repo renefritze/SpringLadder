@@ -23,12 +23,14 @@ def log(message):
 	print green + message + normal
 	
 def saybattle( socket,battleid,message):
-	print yellow+"Battle:%i, Message: %s" %(battleid,message) + normal
-	socket.send("SAYBATTLE %s\n" % message)
+	for line in message.split('\n'):
+		print yellow+"Battle:%i, Message: %s" %(battleid,line) + normal
+		socket.send("SAYBATTLE %s\n" % line)
 		
 def saybattleex(socket,battleid,message):
-	print green+"Battle:%i, Message: %s" %(battleid,message) + normal
-	socket.send("SAYBATTLEEX %s\n" % message)
+	for line in message.split('\n'):
+		print green+"Battle:%i, Message: %s" %(battleid,line) + normal
+		socket.send("SAYBATTLEEX %s\n" % line)
 
 bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1)+str(n&1) or '0'
 
