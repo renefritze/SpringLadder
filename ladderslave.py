@@ -159,6 +159,7 @@ class Main:
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
+				self.CheckValidSetup( ladderid, True )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battleoptions["battletype"] = args[1]
 			self.battleoptions["mapname"] = args[10]
