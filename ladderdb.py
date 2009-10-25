@@ -52,18 +52,38 @@ class LadderDB:
 		else:
 			raise ElementNotFoundException( Ladder(id) )
 			
-	def AddOption(self, ladderID, blacklist, optionkey, optionvalue  ):
+	def AddOption(self, ladderID, is_whitelist, optionkey, optionvalue  ):
 		session = self.sessionmaker()
 
-		option = session.query( Option ).filter( Option.key == optionkey ).first()
+		option = session.query( Option ).filter( Option.ladder_id == ladderID ).filter( Option.key == optionkey ).first()
 		#should this reset an key.val pair if already exists?
+		if option:
+			option.value = optionvalue
+			option.is_whitelist = is_whitelist
+			session.commit()
+		else:
+			option = Option( optionkey, optionvalue, is_whitelist )
+			option.ladder_id = ladderID
+			session.add( option )
+			session.commit()
+		session.close()
 			
 	def GetLadderList(self,order):
 		'''second parameter determines order of returned list (Ladder.name/Ladder.id for example) '''
 		session = self.sessionmaker()
-
 		ladders = session.query(Ladder).order_by(order)
 		session.close()
-
 		return ladders
+
+	def GetOptions(self, ladder_id ):
+		session = self.sessionmaker()
+		options = session.query( Option ).filter( Option.ladder_id == ladder_id ).order_by( Option.key )
+		session.close()
+		return options
+
+	def GetFilteredOptions(self, ladder_id, whitelist_only ):
+		session = self.sessionmaker()
+		options = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).order_by( Option.key )
+		session.close()
+		return options
 
