@@ -12,6 +12,7 @@ import platform
 import sys
 from db_entities import *
 from ladderdb import *
+from colors import *
 
 if platform.system() == "Windows":
 	import win32api
@@ -22,18 +23,19 @@ def log(message):
 	print green + message + normal
 	
 def saybattle( socket,battleid,message):
+	print 'saybattle'
 	try:
-		print orange+"Battle:%i, Message: %s" %(battleid,message) + normal
+		print yellow+"Battle:%i, Message: %s" %(battleid,message) + normal
 		socket.send("SAYBATTLE %s\n" % message)
 	except:
-		pass
+		print red,"error in saybattle" ,normal
 		
 def saybattleex(socket,battleid,message):
 	try:
-		print pink+"Battle:%i, Message: %s" %(battleid,message) + normal
+		print green+"Battle:%i, Message: %s" %(battleid,message) + normal
 		socket.send("SAYBATTLEEX %s\n" % message)
 	except:
-		pass
+		print red,"error in saybattleex" ,normal
 	 	
 class Main:
 	sock = 0
@@ -187,6 +189,7 @@ class Main:
 				elif self.db.LadderExists( ladderid ):
 					laddername = self.db.GetLadderName( ladderid )
 					if self.CheckValidSetup( ladderid ):
+						print 'zelly'
 						saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 					else:
 						saybattle( self.socket, self.battleid, "The following settings are not compatible with " + laddername + ":" )
