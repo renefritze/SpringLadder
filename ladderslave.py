@@ -57,7 +57,7 @@ class Main:
 				return
 			self.output = ""
 			self.ingame = True
-			if self.ladderid == -1 and self.CheckValidSetup(self.ladderid,False):
+			if self.ladderid == -1 and self.db.LadderExists( ladderid ) and self.CheckValidSetup(self.ladderid):
 				saybattleex(socket, battleid, "won't submit to the ladder the score results")
 			else:
 				saybattleex(socket, battleid, "is gonna submit to the ladder the score results")
