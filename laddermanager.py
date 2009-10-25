@@ -50,7 +50,7 @@ class Main:
 	ladderlist = dict() # id -> ladder name
 	ladderoptions = dict() # id -> ladder options
 	
-	def botthread(self,slot,battleid,ladderid,ist):
+	def botthread(self,slot,battleid,ladderid):
 		nick = self.app.config["nick"]+str(slot)
 		try:
 			d = dict()
@@ -91,7 +91,7 @@ class Main:
 			
 	def spawnbot( self,  socket, battleid, ladderid ):	
 		slot = len(self.botstatus)
-		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,ladderid,"dummy")))
+		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,ladderid)))
 		self.botstatus[slot] = True
 		
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
