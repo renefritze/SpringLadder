@@ -12,7 +12,7 @@ import traceback
 import platform
 import sys
 if platform.system() == "Windows":
-  import win32api
+	import win32api
 from utilities import *
 def log(message):
 	print green + message + normal
@@ -71,12 +71,12 @@ class Main:
 			socket.send("MYSTATUS 1\n")
 			st = time.time()
 			if platform.system() == "Linux":
-			  log("*** Starting spring: command line \"%s\"" % (self.app.config["springdedpath"]+" "+os.path.join(os.environ['HOME'],"%f.txt" % g )))
-			  self.pr = subprocess.Popen((self.app.config["springdedpath"],os.path.join(os.environ['HOME'],"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+				log("*** Starting spring: command line \"%s\"" % (self.app.config["springdedpath"]+" "+os.path.join(os.environ['HOME'],"%f.txt" % g )))
+				self.pr = subprocess.Popen((self.app.config["springdedpath"],os.path.join(os.environ['HOME'],"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 			else:
-			  log("*** Starting spring: command line \"%s\"" % (self.app.config["springdedpath"]+" "+os.path.join(os.environ['USERPROFILE'],"%f.txt" % g )))
-			  os.chdir("\\".join(self.app.config["springdedpath"].replace("/","\\").split("\\")[:self.app.config["springdedpath"].replace("/","\\").count("\\")]))
-			  self.pr = subprocess.Popen((self.app.config["springdedpath"],os.path.join(os.environ['USERPROFILE'],"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+				log("*** Starting spring: command line \"%s\"" % (self.app.config["springdedpath"]+" "+os.path.join(os.environ['USERPROFILE'],"%f.txt" % g )))
+				os.chdir("\\".join(self.app.config["springdedpath"].replace("/","\\").split("\\")[:self.app.config["springdedpath"].replace("/","\\").count("\\")]))
+				self.pr = subprocess.Popen((self.app.config["springdedpath"],os.path.join(os.environ['USERPROFILE'],"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 			l = self.pr.stdout.readline()
 			while len(l) > 0:
 				self.output += l
@@ -105,10 +105,10 @@ class Main:
 		self.gamestarted = 0
 	def killbot(self):
 		if platform.system() == "Windows":
-		  handle = win32api.OpenProcess(1, 0, os.getpid())
-		  win32api.TerminateProcess(handle, 0)
+			handle = win32api.OpenProcess(1, 0, os.getpid())
+			win32api.TerminateProcess(handle, 0)
 		else:
-		  os.kill(os.getpid(),signal.SIGKILL)
+			os.kill(os.getpid(),signal.SIGKILL)
 	def checkvalidsetup(self):
 		return self.checkvalidplayersetup() and self.checkvalidoptionssetup() and self.checkgeneraloptionssetup()
 	def checkvalidplayersetup(self):
