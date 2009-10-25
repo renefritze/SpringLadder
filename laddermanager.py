@@ -46,10 +46,6 @@ def saychannel( socket, channel, message ):
 			print purple+"Channel :%s, Message: %s" %(channel,line) + normal
 			socket.send("SAY %s %s\n" %(channel,line) )
 			
-class LadderScores:
-	def __init__(self):
-		self.playerscores = [] # player id -> score
-		
 class Main:
 	botpid = dict() # slot -> bot pid
 	botstatus = dict() # slot -> bot already spawned
