@@ -89,10 +89,9 @@ class Main:
 		else:
 			pm( socket, fromwho, message )
 			
-	def spawnbot( self,  socket, battleid, ladderid ):	
+	def spawnbot( self,  socket, battleid, ladderid ):
 		slot = len(self.botstatus)
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,ladderid)))
-		self.botstatus[slot] = True
 		
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
 		if fromwho == self.app.config["nick"]:
@@ -333,6 +332,20 @@ class Main:
 				self.channels.remove(args[0])
 				self.app.config["channelautojoinlist"] = ','.join(self.channels)
 				self.app.SaveConfig()
+		if command == "ADDUSER" and len(args) > 0:
+			name = args[0]
+			basebotname = self.app.config["nick"]
+			if name.startswith(basebotname):
+				name = name[len(basebotname):] # truncate prefix
+				if name.isdigit():
+					self.botstatus.append(int(name))
+		if command == "REMOVEUSER" and len(args) > 0:
+			name = args[0]
+			basebotname = self.app.config["nick"]
+			if name.startswith(basebotname):
+				name = name[len(basebotname):] # truncate prefix
+				if name.isdigit():
+					self.botstatus.remove(int(name))		
 				
 	def updatestatus(self,socket):
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
