@@ -135,8 +135,36 @@ class Main:
 	def CheckValidSetup( self, ladderid ):
 		return self.CheckvalidPlayerSetup(ladderid) and self.CheckValidOptionsSetup(ladderid)
 		
-	def CheckvalidPlayerSetup( self,ladderid ):
-		pass
+	def CheckvalidPlayerSetup( self, ladderid ):
+		teamcount = len(self.teams)
+		allycount = len(self.allies)
+		if teamcount < self.db.GetLadderOption( ladderid, min_team_count ):
+			return False
+		if teamcount > self.db.GetLadderOption( ladderid, max_team_count ):
+			return False
+		if allycount < self.db.GetLadderOption( ladderid, min_ally_count ):
+			return False
+		if allycount > self.db.GetLadderOption( ladderid, max_ally_count ):
+			return False
+		minteamsize = self.db.GetLadderOption( ladderid, min_team_size )
+		maxteamsize = self.db.GetLadderOption( ladderid, max_team_size )
+		minallysize = self.db.GetLadderOption( ladderid, min_ally_size )
+		maxallysize = self.db.GetLadderOption( ladderid, max_team_size )
+		for team in self.teams:
+			teamsize = self.teams[team]
+			if teamsize < minteamsize:
+				return False
+			if teamsize > maxteamsize:
+				return False
+		for ally in self.allies:
+			allysize = self.allies[ally]
+			if allysize < minallysize:
+				return False
+			if allysize > maxallysize:
+				return False
+		return True		
+			
+		
 	def CheckValidOptionsSetup( self, ladderid ):
 		IsOk = True
 		for key in self.battleoptions:
