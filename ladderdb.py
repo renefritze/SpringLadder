@@ -20,9 +20,9 @@ class ElementNotFoundException( Exception ):
 		return "Element %s not found in db"%(self.element)
 
 class LadderDB:
-	def __init__(self,alchemy_uri):
+	def __init__(self,alchemy_uri, verbose=False):
 		print "loading db at " + alchemy_uri
-		self.engine = create_engine(alchemy_uri, echo=True)
+		self.engine = create_engine(alchemy_uri, echo=verbose)
 		self.metadata = Base.metadata
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)

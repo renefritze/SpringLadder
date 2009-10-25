@@ -64,6 +64,7 @@ class Main:
 			d.update([("battleid",str(battleid))])
 			d.update([("ladderid",str(ladderid))])
 			d.update([("alchemy-uri",self.app.config["alchemy-uri"])])
+			d.update([("alchemy-verbose",self.app.config["alchemy-verbose"])])
 			writeconfigfile(nick+".cfg",d)
 			p = subprocess.Popen(("python","Main.py","-c", "%s" % (nick+".cfg")),stdout=sys.stdout)
 			self.botpid[slot] = p.pid
@@ -79,7 +80,7 @@ class Main:
 		self.app = tasc.main
 		self.channels = parselist(self.app.config["channelautojoinlist"],",")
 		self.admins = parselist(self.app.config["admins"],",")
-		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0] )
+		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], parselist(self.app.config["alchemy-verbose"],",")[0] )
 		
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
