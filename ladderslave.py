@@ -248,7 +248,6 @@ class Main:
 		if command == "JOINBATTLE":
 			self.joinedbattle = True
 			log( "joined battle: " + str(self.battleid) )
-			self.socket.send( "MYBATTLESTATUS 4194816 255\n" )#spectator+synced/white 
 		if command == "JOINBATTLEFAILED":
 			self.joinedbattle = False
 			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] ) )
@@ -274,7 +273,7 @@ class Main:
 				value = pieces[1]
 				self.battleoptions[key] = value
 		if command == "REQUESTBATTLESTATUS":
-			self.socket.send("MYBATTLESTATUS \n")
+			self.socket.send( "MYBATTLESTATUS 4194816 255\n" )#spectator+synced/white 
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
 			who = args[0]
 			command = args[1]
