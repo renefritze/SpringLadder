@@ -68,7 +68,6 @@ class Main:
 			p = subprocess.Popen(("python","Main.py","-c", "%s" % (nick+".cfg")),stdout=sys.stdout)
 			self.botpid[slot] = p.pid
 			p.wait()
-			self.ul.remove(r)
 		except:
 			print '-'*60
 			traceback.print_exc(file=sys.stdout)
