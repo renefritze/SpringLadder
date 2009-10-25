@@ -169,7 +169,7 @@ class Main:
 			log( "battle closed: " + str(self.battleid) )
 			self.KillBot()			
 		if command == "SETSCRIPTTAGS":
-			for option in args:
+			for option in args[0].split():
 				pieces = parselist( option, "=" )
 				if len(pieces) != 2:
 					error( "parsing error of option string: " + option )
@@ -180,6 +180,7 @@ class Main:
 					key = key[4:]
 				value = pieces[1]
 				self.battleoptions[key] = value
+			print self.battleoptions #only for dbg
 		if command == "REQUESTBATTLESTATUS":
 			self.socket.send("MYBATTLESTATUS \n")
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
