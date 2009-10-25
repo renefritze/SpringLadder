@@ -160,7 +160,7 @@ class Main:
 			self.joinedbattle = True
 		if command == "JOINBATTLEFAILED":
 			self.joinedbattle = False
-			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] )
+			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] ) )
 			self.KillBot()
 		if command == "FORCEQUITBATTLE":
 			self.joinedbattle = False
@@ -239,7 +239,7 @@ class Main:
 				if platform.system() == "Linux":
 					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
 				else:
-				f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
+					f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
 				self.script = ""
 				f.write(self.script)
 				f.close()
