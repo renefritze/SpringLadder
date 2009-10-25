@@ -46,7 +46,7 @@ def saychannel( socket, channel, message ):
 class Main:
 	botpid = dict() # slot -> bot pid
 	botstatus = [] # slot -> bot already spawned
-	battleswithbots = dict() # battle id -> bot already in
+	battleswithbots = [] # battle id -> bot already in
 	ladderlist = dict() # id -> ladder name
 	ladderoptions = dict() # id -> ladder options
 	
@@ -346,8 +346,29 @@ class Main:
 			if name.startswith(basebotname):
 				name = name[len(basebotname):] # truncate prefix
 				if name.isdigit():
-					self.botstatus.remove(int(name))		
-				
+					self.botstatus.remove(int(name))
+		if command == "JOINEDBATTLE" and len(args) > 1:
+			name = args[1]
+			battleid = int(args[0])
+			basebotname = self.app.config["nick"]
+			if name.startswith(basebotname):
+				name = name[len(basebotname):] # truncate prefix
+				if name.isdigit():
+					number = int(name)
+					if number in self.botstatus:
+						if not battleid in self.battleswithbots:
+							self.battleswithbots.append(battleid)
+		if command == "LEFTBATTLE" and len(args) > 1:
+			name = args[1]
+			battleid = int(args[0])
+			basebotname = self.app.config["nick"]
+			if name.startswith(basebotname):
+				name = name[len(basebotname):] # truncate prefix
+				if name.isdigit():
+					number = int(name)
+					if number in self.botstatus:
+						if battleid in self.battleswithbots:
+							self.battleswithbots.remove(battleid)
 	def updatestatus(self,socket):
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
 	def onloggedin(self,socket):
