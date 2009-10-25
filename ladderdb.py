@@ -145,7 +145,7 @@ class LadderDB:
 		if not ladder:
 			raise ElementNotFoundException( Ladder( ladderID ) )
 		else:
-			return ladder.vars()[field]#not tested
+			return getattr(ladder, field)
 
 	def SetLadder(self, ladder ):
 		session = self.sessionmaker()

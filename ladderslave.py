@@ -357,13 +357,14 @@ class Main:
 		self.teams = dict()
 		self.allies = dict()
 		for bs in self.battle_statusmap.values():
-			if not bs.team in self.teams:
-				self.teams[bs.team] = 1
-			else:
-				self.teams[bs.team] += 1
-			if not bs.ally in self.allies:
-				self.allies[bs.ally] = 1
-			else:
-				self.allies[bs.ally] += 1
+			if not bs.spec:
+				if not bs.team in self.teams:
+					self.teams[bs.team] = 1
+				else:
+					self.teams[bs.team] += 1
+				if not bs.ally in self.allies:
+					self.allies[bs.ally] = 1
+				else:
+					self.allies[bs.ally] += 1
 		print self.allies
 		print self.teams
