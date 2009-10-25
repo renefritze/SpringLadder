@@ -54,7 +54,7 @@ class Ladder(Base):
 		self.max_team_count = 2
 
 	def __str__(self):
-		return "Ladder(id:%d) %s\n\tteam-size (%d/%d)\n\tally-size (%d/%d)"%(self.id,self.name,self.min_team_size,self.max_team_size,self.min_ally_size,self.max_ally_size)
+		return "Ladder(id:%d) %s\n\tteam-size (%d/%d)\n\tally-size (%d/%d)"%(self.id,self.name,self.min_team_size,self.max_team_size,self.min_ally_size,self.max_ally_size,self.min_team_count,self.max_team_count,self.min_ally_count,self.max_ally_count)
 
 
 class Option(Base):
