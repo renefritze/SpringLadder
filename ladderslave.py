@@ -155,13 +155,20 @@ class Main:
 			pass
 		if command == "JOINBATTLEFAILED":
 			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] )
-			self.killbot()
+			self.KillBot()
+		if command == "":
+			log( "kicked from battle: " + str(self.battleid) )
+			self.KillBot()
 		if command == "SETSCRIPTTAGS":
 			for option in args:
 				pieces = parselist( option, "=" )
 				if len(pieces) != 2:
 					error( "parsing error of option string: " + option )
 				key = pieces[0]
+				if key.startswith("/game/"): # strip prefix
+					key = key[5:]
+				elif key.startswith("game/"):#  strip prefix
+					key = key[4:]
 				value = pieces[1]
 				self.battleoptions[key] = value
 			self.checkvalidoptionssetup()
