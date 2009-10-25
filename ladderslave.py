@@ -159,6 +159,9 @@ class Main:
 		if command == "FORCEQUITBATTLE":
 			log( "kicked from battle: " + str(self.battleid) )
 			self.KillBot()
+		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
+			log( "battle closed: " + str(self.battleid) )
+			self.KillBot()			
 		if command == "SETSCRIPTTAGS":
 			for option in args:
 				pieces = parselist( option, "=" )
