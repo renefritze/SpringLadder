@@ -52,10 +52,11 @@ class BattleStatus:
 		self.team = int( sstr[-5:-2], 2)+1
 		self.ally = int( sstr[-9:-6], 2)+1
 		self.side = int( sstr[-27:-24], 2)+1
+		self.spec = int ( sstr[-10], 2) == 0
 		self.nick = nick
 
 	def __str__(self):
-		return "nick: %s -- team:%d ally:%d side:%d"%(self.nick,self.team,self.ally,self.side)
+		return "nick: %s -- team:%d ally:%d side:%d spec:%d"%(self.nick,self.team,self.ally,self.side,self.spec)
 
 class Main:
 	sock = 0
