@@ -260,7 +260,7 @@ class Main:
 						if not indisabledoptions and not inenabledoptions:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Key doesn't exist in both whitelist and blackist." )
 						else:
-							if self.db.GetOptionKeyExists( ladderid, inenabledoptions, keyname, value ):
+							if not self.db.GetOptionKeyValueExists( ladderid, inenabledoptions, keyname, value ):
 								message = "blacklisted"
 								if inenabledoptions:
 									message = "whitelisted"
@@ -278,34 +278,21 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
-					"""if False:( ladderid in self.ladderlist ):
-						whitelist = self.ladderoptions[ladderid].allowedoptions
-						blacklist = self.ladderoptions[ladderid].restrictedoptions
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder: " + self.ladderlist[ladderid] )
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "modname: " + self.ladderoptions[ladderid].modname )
+					if self.db.LadderExists( ladderid ):
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder: " + self.db.GetLadderName(ladderid) )
+						"""self.notifyuser( socket, fromwho, fromwhere, ispm, "modname: " + self.ladderoptions[ladderid].modname )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Min control team size: " + str(self.ladderoptions[ladderid].controlteamminsize) )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max control team size: " + str(self.ladderoptions[ladderid].controlteammaxsize) )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Min ally size: " + str(self.ladderoptions[ladderid].allyminsize) )
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max ally size: " + str(self.ladderoptions[ladderid].allymaxsize) )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max ally size: " + str(self.ladderoptions[ladderid].allymaxsize) )"""
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Whitelisted options ( if a key is present, no other value except for those listed will be allowed for such key ):" )
-						for key in whitelist:
-							allowedvalues = whitelist[key]
-							for value in allowedvalues:
-								self.notifyuser( socket, fromwho, fromwhere, ispm, key + ": " + value )
+						for opt in self.db.GetFilteredOptions( ladderid, True ):
+							self.notifyuser( socket, fromwho, fromwhere, ispm, opt.key + ": " + opt.value )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Blacklisted options ( if a value is present for a key, such value won't be allowed ):" )
-						for key in blacklist:
-							disabledvalues = blacklist[key]
-							for value in disabledvalues:
-								self.notifyuser( socket, fromwho, fromwhere, ispm, key + ": " + value )						
+						for opt in self.db.GetFilteredOptions( ladderid, False ):
+							self.notifyuser( socket, fromwho, fromwhere, ispm, opt.key + ": " + opt.value )
 					else:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )"""
-
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "Whitelisted options ( if a key is present, no other value except for those listed will be allowed for such key ):" )
-					for opt in self.db.GetFilteredOptions( ladderid, True ):
-						self.notifyuser( socket, fromwho, fromwhere, ispm, opt.key + ": " + opt.value )
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "Blacklisted options ( if a value is present for a key, such value won't be allowed ):" )
-					for opt in self.db.GetFilteredOptions( ladderid, False ):
-						self.notifyuser( socket, fromwho, fromwhere, ispm, opt.key + ": " + opt.value )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderaddmap":
 			if ( fromwho in self.admins ):
 				if len(args) < 3 or not args[0].isdigit() or not args[1].isdigit():
