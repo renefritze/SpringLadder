@@ -8,11 +8,8 @@ import sys
 import signal
 import traceback
 import subprocess
-from sqlalchemy import *
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import *
-from datetime import datetime
 from db_entities import *
+from ladderdb import *
 
 helpstring_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -90,7 +87,7 @@ class Main:
 		self.app = tasc.main
 		self.channels = parselist(self.app.config["channelautojoinlist"],",")
 		self.admins = parselist(self.app.config["admins"],",")
-		self.db_init( parselist(self.app.config["alchemy-uri"],",")[0] )
+		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0] )
 		
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
@@ -131,7 +128,7 @@ class Main:
 						else:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderjoinchannel":
-			if ( fromwho in self.admins):
+			if fromwho in self.admins:
 				if len(args) < 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -142,7 +139,7 @@ class Main:
 						self.app.config["channelautojoinlist"] = ','.join(self.channels)
 						self.app.SaveConfig()
 		if command == "!ladderleavechannel":
-			if ( fromwho in self.admins):
+			if fromwho in self.admins:
 				if len(args) != 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -154,8 +151,10 @@ class Main:
 						self.app.SaveConfig()		
 		if command == "!ladderlist":
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Available ladders, format name: ID:" )
-			for i in self.ladderlist:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, self.ladderlist[i] + ": " + str(i) )
+			#for i in self.ladderlist:
+				#self.notifyuser( socket, fromwho, fromwhere, ispm, self.ladderlist[i] + ": " + str(i) )
+			for l in self.db.GetLadderList(Ladder.id):
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "%s: %d" %(l.name, l.id ) )
 		if command == "!ladderadd":
 			if ( fromwho in self.admins ):
 				if len(args) < 1:
@@ -165,6 +164,10 @@ class Main:
 					self.ladderlist[ladderid] = " ".join(args[0:])
 					self.ladderoptions[ladderid] = LadderOptions()
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) )
+					try:
+						self.db.AddLadder( args[0] )
+					except ElementExistsException, e:
+						print "Error",e
 		if command == "!ladderremove":
 			if ( fromwho in self.admins ):
 				if len(args) != 1 or not args[0].isdigit():
@@ -174,11 +177,15 @@ class Main:
 					if ( ladderid in self.ladderlist ):
 						del self.ladderlist[ladderid]
 						del self.ladderoptions[ladderid]
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder removed." )
+						try:
+							self.db.RemoveLadder( args[0] )
+							self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder removed." )
+						except ElementNotFoundException, e:
+							print "Error",e
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangemod":
-			if ( fromwho in self.admins):
+			if fromwho in self.admins:
 				if len(args) < 2 or not args[0].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -189,7 +196,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangecontrolteamsize":
-			if ( fromwho in self.admins):
+			if fromwho in self.admins:
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -209,7 +216,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangeallysize":
-			if ( fromwho in self.admins):
+			if fromwho in self.admins:
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -229,7 +236,7 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )						
 		if command == "!ladderaddoption":
-			if ( fromwho in self.admins):
+			if fromwho in self.admins:
 				if len(args) != 4 or not args[0].isdigit() or not args[1].isdigit():
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
@@ -456,12 +463,3 @@ class Main:
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
 	def onloggedin(self,socket):
 		self.updatestatus(socket)	
-
-	def db_init( self, alchemy_uri ):
-		print "loading db at " + alchemy_uri
-		self.engine = create_engine(alchemy_uri, echo=True)
-		self.metadata = Base.metadata
-		self.metadata.bind = self.engine
-		self.metadata.create_all(self.engine)
-		self.sessionmaker = sessionmaker( bind=self.engine )
-		
