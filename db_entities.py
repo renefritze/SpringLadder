@@ -66,7 +66,7 @@ class Option(Base):
 		self.is_whitelist = is_whitelist
 
 	def __str__(self):
-		return "Option %s -> %s (%s)"%(self.key, self.value, "wl" if self.is_whitelist else "bl")
+		return "Option(id:%d) %s -> %s (%s)"%(self.id,self.key, self.value, "wl" if self.is_whitelist else "bl")
 
 class Match(Base):
 	__tablename__ = 'matches'
@@ -84,3 +84,5 @@ class Player(Base):
 	def __init__(self, nick):
 		self.nick = nick
 
+	def __str__(self):
+		return "Player(id:%d) %s "%(self.id, self.nick)
