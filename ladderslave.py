@@ -180,7 +180,7 @@ class Main:
 			who = args[0]
 			command = args[1]
 			args = args[2:]
-			if command == "!checksetup":
+			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -200,6 +200,9 @@ class Main:
 						self.socket.saybattle(self.battleid,"Ladder reporting disabled.")
 				else:
 					self.socket.saybattle(self.battleid,"Invalid command syntax, check !help for usage.")
+			if command == "!ladderleave":
+				log( "leaving battle: " + str(self.battleid) )
+				self.KillBot()
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battleoptions["battletype"] = args[1]
 			self.battleoptions["mapname"] = args[10]
