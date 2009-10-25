@@ -18,7 +18,8 @@ helpstring_admin = """!ladderadd laddername : creates a new ladder
 !ladderchangeallysize ladderID value : sets the ally team size used by the ladder
 !ladderchangeallysize ladderID min max : sets the ally team size used by the ladder
 !ladderaddoption ladderID blacklist/whitelist optionkey optionvalue : adds a new rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a given key cannot have a whitelist and blacklist at the same time
-!ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed"""
+!ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed
+!laddercopy source_id target_name : copy ladder with source_id to new ladder named target_name including all options"""
 
 
 helpstring_user = """!ladderlist : lists available ladders with their IDs
@@ -312,6 +313,16 @@ class Main:
 			if fromwho in self.app.config["admins"]:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_admin )
 			self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
+		if command == "!laddercopy" and fromwho in self.admins:
+			if len(args) != 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				source_id = args[0]
+				target_name = args[1]
+				try:
+					self.db.CopyLadder( source_id, target_name )
+				except:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't copy ladder" )
 			
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):

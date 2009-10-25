@@ -175,6 +175,12 @@ class LadderDB:
 			target_ladder.max_team_count 	= source_ladder.max_team_count
 			session.add( target_ladder )
 			session.commit()
+			source_options = session.query( Option ).filter( Option.ladder_id == source_id )
+			for opt in source_options:
+				new_opt = Option( opt.key, opt.value, opt.is_whitelist )
+				new_opt.ladder_id = target_ladder.id
+				session.add( new_opt )
+				session.commit()
 		session.close()
 
 		
