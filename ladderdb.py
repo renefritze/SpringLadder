@@ -38,6 +38,7 @@ class LadderDB:
 			session.commit()
 			ladderid = ladder.id
 			session.close()
+			self.AddOption( ladderid, True, "battletype", "0" )#default for all ladders
 		else:
 			raise ElementExistsException( ladder )
 		return ladderid
@@ -156,5 +157,25 @@ class LadderDB:
 			existing_ladder = ladder
 			session.commit()
 			session.close()
+
+	def CopyLadder( self, source_id, target_name ):
+		session = self.sessionmaker()
+		source_ladder = session.query(Ladder).filter( Ladder.id == source_id ).first()
+		if not source_ladder:
+			raise ElementNotFoundException( Ladder( source_id ) )
+		else
+			target_ladder = Ladder( target_name )
+			target_ladder.min_team_size 	= source_ladder.min_team_size
+			target_ladder.max_team_size 	= source_ladder.max_team_size 	
+			target_ladder.min_ally_size 	= source_ladder.min_ally_size
+			target_ladder.max_ally_size 	= source_ladder.max_ally_size
+			target_ladder.min_ally_count 	= source_ladder.min_ally_count
+			target_ladder.max_ally_count 	= source_ladder.max_ally_count
+			target_ladder.min_team_count 	= source_ladder.min_team_count
+			target_ladder.max_team_count 	= source_ladder.max_team_count
+			session.add( target_ladder )
+			session.commit()
+		session.close()
+
 		
 
