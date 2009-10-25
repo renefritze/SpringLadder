@@ -244,7 +244,7 @@ class Main:
 						indisabledoptions = self.db.GetOptionKeyExists(ladderid, False, keyname )
 						inenabledoptions = self.db.GetOptionKeyExists(ladderid, True, keyname )
 						if not indisabledoptions and not inenabledoptions:
-							self.notifyuser( socket, fromwho, fromwhere, ispm, "Key doesn't exist in both whitelist and blackist." )
+							self.notifyuser( socket, fromwho, fromwhere, ispm, "Key doesn't exist in either whitelist and blackist." )
 						else:
 							if not self.db.GetOptionKeyValueExists( ladderid, inenabledoptions, keyname, value ):
 								message = "blacklisted"
