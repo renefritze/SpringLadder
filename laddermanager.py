@@ -8,11 +8,8 @@ import sys
 import signal
 import traceback
 import subprocess
-from sqlalchemy import *
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import *
-from datetime import datetime
 from db_entities import *
+from ladderdb import LadderDB
 
 helpstring_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -105,7 +102,7 @@ class Main:
 		self.app = tasc.main
 		self.channels = parselist(self.app.config["channelautojoinlist"],",")
 		self.admins = parselist(self.app.config["admins"],",")
-		self.db_init( parselist(self.app.config["alchemy-uri"],",")[0] )
+		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0] )
 		
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
@@ -467,12 +464,3 @@ class Main:
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
 	def onloggedin(self,socket):
 		self.updatestatus(socket)	
-
-	def db_init( self, alchemy_uri ):
-		print "loading db at " + alchemy_uri
-		self.engine = create_engine(alchemy_uri, echo=True)
-		self.metadata = Base.metadata
-		self.metadata.bind = self.engine
-		self.metadata.create_all(self.engine)
-		self.sessionmaker = sessionmaker( bind=self.engine )
-		
