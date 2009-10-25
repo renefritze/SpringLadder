@@ -15,8 +15,12 @@ helpstring_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
 !ladderchangecontrolteamsize ladderID value : sets the control team size (player ID) used by the ladder
 !ladderchangecontrolteamsize ladderID min max : sets the control team size (player ID) used by the ladder
-!ladderchangeallysize ladderID value : sets the ally team size used by the ladder
-!ladderchangeallysize ladderID min max : sets the ally team size used by the ladder
+!ladderchangecontrolteamcount ladderID value : sets the control team count (player ID) used by the ladder
+!ladderchangecontrolteamcount ladderID min max : sets the control team count (player ID) used by the ladder
+!ladderchangeallysize ladderID value : sets the ally size used by the ladder
+!ladderchangeallysize ladderID min max : sets the ally size used by the ladder
+!ladderchangeallycount ladderID value : sets the ally count used by the ladder
+!ladderchangeallycount ladderID min max : sets the ally count used by the ladder
 !ladderaddoption ladderID blacklist/whitelist optionkey optionvalue : adds a new rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a given key cannot have a whitelist and blacklist at the same time
 !ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed
 !laddercopy source_id target_name : copy ladder with source_id to new ladder named target_name including all options"""
