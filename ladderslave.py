@@ -191,7 +191,6 @@ class Main:
 					key = key[5:]
 				value = pieces[1]
 				self.battleoptions[key] = value
-			print self.battleoptions #only for dbg
 		if command == "REQUESTBATTLESTATUS":
 			self.socket.send("MYBATTLESTATUS \n")
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
@@ -209,7 +208,6 @@ class Main:
 				elif self.db.LadderExists( ladderid ):
 					laddername = self.db.GetLadderName( ladderid )
 					if self.CheckValidSetup( ladderid ):
-						print 'zelly'
 						saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 					else:
 						saybattle( self.socket, self.battleid, "The following settings are not compatible with " + laddername + ":" )
