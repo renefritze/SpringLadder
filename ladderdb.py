@@ -63,12 +63,13 @@ class LadderDB:
 	def AddOption(self, ladderID, is_whitelist, optionkey, optionvalue  ):
 		session = self.sessionmaker()
 
-		option = session.query( Option ).filter( Option.ladder_id == ladderID ).filter( Option.key == optionkey ).first()
+		if not self.LadderExists( ladderID ):
+			raise ElementNotFoundException( Ladder( ladderID ) )
+	
+		option = session.query( Option ).filter( Option.ladder_id == ladderID ).filter( Option.key == optionkey ).filter( Option.value == optionvalue ).first()
 		#should this reset an key.val pair if already exists?
 		if option:
-			option.value = optionvalue
-			option.is_whitelist = is_whitelist
-			session.commit()
+			raise ElementExistsException( option )
 		else:
 			option = Option( optionkey, optionvalue, is_whitelist )
 			option.ladder_id = ladderID

@@ -238,11 +238,15 @@ class Main:
 						if self.db.GetOptionKeyExists(ladderid, not whitelist, keyname ):
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
 						else:
-							self.db.AddOption( ladderid, whitelist, keyname, value )
-							message = "blacklist"
-							if whitelist:
-								message = "whitelist"
-							self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the " + message + "." )
+							try:
+								self.db.AddOption( ladderid, whitelist, keyname, value )
+								message = "blacklist"
+								if whitelist:
+									message = "whitelist"
+								self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the " + message + "." )
+							except ElementExistsException, e:
+								self.notifyuser( socket, fromwho, fromwhere, ispm, "Option already in db" )
+								print e
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 					
