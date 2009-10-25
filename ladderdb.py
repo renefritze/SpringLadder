@@ -38,6 +38,7 @@ class LadderDB:
 			session.commit()
 			ladderid = ladder.id
 			session.close()
+			self.AddOption( ladderid, True, "battletype", "0" )#default for all ladders
 		else:
 			raise ElementExistsException( ladder )
 		return ladderid
