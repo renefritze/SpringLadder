@@ -6,7 +6,6 @@ import thread
 import signal
 import os
 import time
-import udpinterface
 import subprocess
 import traceback
 import platform
@@ -104,7 +103,6 @@ class Main:
 		self.gamestarted = 0
 		
 	def KillBot(self):
-		self.socket.close()
 		if platform.system() == "Windows":
 			handle = win32api.OpenProcess(1, 0, os.getpid())
 			win32api.TerminateProcess(handle, 0)
@@ -248,4 +246,4 @@ class Main:
 	def onloggedin(self,socket):
 		if self.ingame == True:
 			socket.send("MYSTATUS 1\n")
-		socket.send("JOINBATTLE " + self.battleid + "\n")
+		socket.send("JOINBATTLE " + str(self.battleid) + "\n")
