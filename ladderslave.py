@@ -21,7 +21,7 @@ from utilities import *
 def log(message):
 	print green + message + normal
 	
-def saybattle(socket,battleid,message):
+def saybattle( socket,battleid,message):
 	try:
 		print orange+"Battle:%i, Message: %s" %(battleid,message) + normal
 		s.send("SAYBATTLE %s\n" % message)
@@ -58,7 +58,7 @@ class Main:
 			self.gamestarted = 0
 			self.u.reset()
 			if self.ingame == 1:
-				saybattle(socket, battleid, "Error: game is already running")
+				saybattle( self.socket, battleid, "Error: game is already running")
 				return
 			self.output = ""
 			self.ingame = 1
@@ -83,7 +83,7 @@ class Main:
 			log("*** Spring has exited with status %i" % status )
 			et = time.time()
 			if status != 0:
-				saybattle(socket,self.battleid,"Error: Spring Exited with status %i" % status)
+				saybattle( self.socket,self.battleid,"Error: Spring Exited with status %i" % status)
 				g = self.output.split("\n")
 				for h in g:
 					log("*** STDOUT+STDERR: "+h)
@@ -112,7 +112,7 @@ class Main:
 	def CheckValidSetup( self, ladderid, echofailures ):
 		if self.ladderid == -1:
 			if echofailures:
-				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+				saybattle( self.socket, self.battleid,"No ladder has been chosen.")
 			return False
 		else:
 			return self.CheckvalidPlayerSetup(ladderid,echofailures) and self.CheckValidOptionsSetup(ladderid,echofailures)
@@ -120,13 +120,13 @@ class Main:
 	def CheckvalidPlayerSetup( self,ladderid , echofailures ):
 		if self.ladderid == -1:
 			if echofailures:
-				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+				saybattle( self.socket, self.battleid,"No ladder has been chosen.")
 			return False
 			
 	def CheckValidOptionsSetup( self, ladderid, echofailures ):
 		if self.ladderid == -1:
 			if echofailures:
-				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+				saybattle( self.socket, self.battleid,"No ladder has been chosen.")
 			return False
 		IsOk = True
 		for key in self.battleoptions:
@@ -134,7 +134,7 @@ class Main:
 			OptionOk = self.CheckOptionOk( ladderid, key, value )
 			if not OptionOk:
 				IsOk = False
-				self.socket.saybattle(self.battleid,"Incompatible battle option detected: " + key + "=" + value )
+				saybattle( self.socket, self.battleid,"Incompatible battle option detected: " + key + "=" + value )
 			
 	def CheckOptionOk( self, ladderid, keyname, value ):
 		if self.db.GetOptionKeyValueExists( self.ladderid, False, key, value ): # option in the blacklist
@@ -156,6 +156,7 @@ class Main:
 		self.socket = s
 		if command == "JOINBATTLE":
 			self.joinedbattle = True
+			log( "joined battle: " + str(self.battleid) )
 			self.socket.send( "MYBATTLESTATUS 512 255\n" )#spectator/white 
 		if command == "JOINBATTLEFAILED":
 			self.joinedbattle = False
@@ -198,20 +199,20 @@ class Main:
 					ladderid = int(args[0])
 					if ladderid != -1:
 						if self.db.LadderExists( ladderid ):
-							self.socket.saybattle(self.battleid,"Enabled ladder reporting for ladder: " + self.db.GetLadderName( ladderid ) )
+							saybattle( self.socket, self.battleid,"Enabled ladder reporting for ladder: " + self.db.GetLadderName( ladderid ) )
 							self.ladderid = ladderid
 							self.CheckValidSetup( ladderid, True )
 						else:
-							self.socket.saybattle(self.battleid,"Invalid ladder ID.")
+							saybattle( self.socket, self.battleid,"Invalid ladder ID.")
 					else:
 						self.ladderid = ladderid
-						self.socket.saybattle(self.battleid,"Ladder reporting disabled.")
+						saybattle( self.socket, self.battleid,"Ladder reporting disabled.")
 				else:
-					self.socket.saybattle(self.battleid,"Invalid command syntax, check !help for usage.")
+					saybattle( self.socket, self.battleid,"Invalid command syntax, check !help for usage.")
 			if command == "!ladderleave":
 				self.joinedbattle = False
 				log( "leaving battle: " + str(self.battleid) )
-				socket.send("LEAVEBATTLE\n")
+				self.socket.send("LEAVEBATTLE\n")
 				self.KillBot()
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder == args[3]
