@@ -235,7 +235,7 @@ class Main:
 						whitelist = int(args[1]) != 0
 						keyname = args[2]
 						value = args[3]
-						if self.db.GetOptionExists(ladderid, not whitelist, keyname ):
+						if self.db.GetOptionKeyExists(ladderid, not whitelist, keyname ):
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
 						else:
 							self.db.AddOption( ladderid, whitelist, keyname, value )
@@ -255,35 +255,22 @@ class Main:
 					if self.db.LadderExists( ladderid ):
 						keyname = args[1]
 						value = args[2]
-						indisabledoptions = self.db.GetOptionValues(ladderid, not whitelist, keyname )
-						inenabledoptions = self.db.GetOptionValues(ladderid, not whitelist, keyname )
+						indisabledoptions = self.db.GetOptionKeyExists(ladderid, False, keyname )
+						inenabledoptions = self.db.GetOptionKeyExists(ladderid, True, keyname )
 						if not indisabledoptions and not inenabledoptions:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Key doesn't exist in both whitelist and blackist." )
 						else:
-							currentvalues = dict()
-							if indisabledoptions:
-								currentvalues = self.ladderoptions[ladderid].restrictedoptions[keyname]
-							else:
-								currentvalues = self.ladderoptions[ladderid].allowedoptions[keyname]
-							if not value in currentvalues:
+							if self.db.GetOptionKeyExists( ladderid, inenabledoptions, keyname, value ):
 								message = "blacklisted"
 								if inenabledoptions:
 									message = "whitelisted"
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Value doesn't exist in " + message + " options" )
 							else:
-								currentvalues.remove(value)
+								self.db.DeleteOption( ladderid, inenabledoptions, keyname, value )
+								message = "blacklist"
 								if inenabledoptions:
-									if len(currentvalues) == 0:
-										del self.ladderoptions[ladderid].allowedoptions[keyname]
-									else:
-										self.ladderoptions[ladderid].allowedoptions[keyname] = currentvalues
-									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option removed from the whitelist." )
-								else:
-									if len(currentvalues) == 0:
-										del self.ladderoptions[ladderid].restrictedoptions[keyname]
-									else:
-										self.ladderoptions[ladderid].restrictedoptions[keyname] = currentvalues
-									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option removed from the blacklist." )
+									message = "whitelist"
+								self.notifyuser( socket, fromwho, fromwhere, ispm, "Option removed from the " + message + "." )
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderlistoptions":

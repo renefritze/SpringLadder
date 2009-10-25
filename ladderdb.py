@@ -97,16 +97,23 @@ class LadderDB:
 		session.close()
 		return options
 		
-	def GetOptionExists(self, ladder_id, whitelist_only, keyname ):
+	def GetOptionKeyExists(self, ladder_id, whitelist_only, keyname ):
 		session = self.sessionmaker()
 		count = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).count()
 		session.close()
-		return count == 1	
+		return count == 1
 	
-	def GetOptionValues(self, ladder_id, whitelist_only, keyname ):
+	def GetOptionKeyValueExists(self, ladder_id, whitelist_only, keyname, value ):
 		session = self.sessionmaker()
-		values = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).order_by( Option.value )
+		count = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).count()
 		session.close()
-		return values
+		return count == 1
+		
+	def DeleteOption( self, ladder_id, whitelist_only, keyname, value ):
+		option = filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).first()
+		if option:
+			session.delete( option )
+			session.commit()
+			session.close()
 		
 
