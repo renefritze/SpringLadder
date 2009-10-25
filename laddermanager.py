@@ -63,6 +63,7 @@ class Main:
 			d.update([("bans",self.app.config["bans"])])
 			d.update([("battleid",str(battleid))])
 			d.update([("ladderid",str(ladderid))])
+			d.update([("alchemy-uri",self.app.config["alchemy-uri"])])
 			writeconfigfile(nick+".cfg",d)
 			p = subprocess.Popen(("python","Main.py","-c", "%s" % (nick+".cfg")),stdout=sys.stdout)
 			self.bots[slot] = p.pid
@@ -99,10 +100,10 @@ class Main:
 		if fromwho == self.app.config["nick"]:
 			return
 		if command == "!ladder":
-			ladderid = -1
 			if len(args) > 1:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax or command not found, use !help for a list of available commands and their usage." )
 			else:
+				ladderid = -1
 				battleid = -2
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -116,7 +117,7 @@ class Main:
 					if ( battleid in self.battleswithbots ):
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "A ladder bot is already present in your battle." )
 					else:
-						if ( ladderid == -1 or ladderid in self.ladderlist ):
+						if ( ladderid == -1 or self.db.LadderExists( ladderid ) ):
 							self.spawnbot( socket, battleid, ladderid )
 						else:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
