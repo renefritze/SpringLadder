@@ -57,10 +57,10 @@ class LadderDB:
 	def LadderExists(self, id ):
 		session = self.sessionmaker()
 
-		ladder = session.query( Ladder ).filter( Ladder.id == id ).first()
+		ladder = session.query( Ladder ).filter( Ladder.id == id ).count()
 		
 		session.close()
-		return ladder
+		return ladder == 1
 			
 	def AddOption(self, ladderID, is_whitelist, optionkey, optionvalue  ):
 		session = self.sessionmaker()
