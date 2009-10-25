@@ -99,7 +99,6 @@ class Main:
 		if fromwho == self.app.config["nick"]:
 			return
 		if command == "!ladder":
-			ladderid = -1
 			if len(args) > 1:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax or command not found, use !help for a list of available commands and their usage." )
 			else:
@@ -116,7 +115,7 @@ class Main:
 					if ( battleid in self.battleswithbots ):
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "A ladder bot is already present in your battle." )
 					else:
-						if ( ladderid == -1 or ladderid in self.ladderlist ):
+						if ( ladderid == -1 or self.db.LadderExists( ladderid ) ):
 							self.spawnbot( socket, battleid, ladderid )
 						else:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
