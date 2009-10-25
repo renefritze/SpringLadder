@@ -124,6 +124,35 @@ class LadderDB:
 		if option:
 			session.delete( option )
 			session.commit()
+		session.close()
+
+	def GetLadder(self, ladder_id ):
+		session = self.sessionmaker()
+		ladder = session.query(Ladder).filter( Ladder.id == ladder_id ).first()
+		session.close()
+		if not ladder:
+			raise ElementNotFoundException( Ladder( ladderID ) )
+		else	
+			return ladder
+
+	def GetLadderOption(self, ladder_id, field ):
+		session = self.sessionmaker()
+		ladder = session.query(Ladder).filter( Ladder.id == ladder_id ).first()
+		session.close()
+		if not ladder:
+			raise ElementNotFoundException( Ladder( ladderID ) )
+		else
+			return ladder.vars()[field]#not tested
+
+	def SetLadder(self, ladder ):
+		session = self.sessionmaker()
+		existing_ladder = session.query(Ladder).filter( Ladder.id == ladder.id ).first()
+		if not existing_ladder:
+			session.close()
+			raise ElementNotFoundException( ladder )
+		else:
+			existing_ladder = ladder
+			session.commit()
 			session.close()
 		
 
