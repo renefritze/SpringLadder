@@ -45,7 +45,7 @@ def saychannel( socket, channel, message ):
 			
 class Main:
 	botpid = dict() # slot -> bot pid
-	botstatus = dict() # slot -> bot already spawned
+	botstatus = [] # slot -> bot already spawned
 	battleswithbots = dict() # battle id -> bot already in
 	ladderlist = dict() # id -> ladder name
 	ladderoptions = dict() # id -> ladder options
