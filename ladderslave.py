@@ -123,6 +123,14 @@ class Main:
 		if self.ladderid == -1:
 			return True
 			
+	def CheckOptionOk( self, keyname, value ):
+		if self.db.GetOptionKeyValueExists( self.ladderid, False, key, value ): # option in the blacklist
+			return False
+		if self.db.GetOptionKeyExists( self.ladderid, True, keyname ): # whitelist not empty
+			return self.db.GetOptionKeyValueExists( self.ladderid, True, key, value )
+		else:
+			return True
+			
 	def onload(self,tasc):
 		self.app = tasc.main
 		self.hosttime = time.time()
