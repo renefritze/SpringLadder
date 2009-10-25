@@ -23,10 +23,14 @@ class Option(Base):
 	__tablename__ = 'options'
 	id = Column( Integer, primary_key=True )
 	ladder_id = Column( Integer, ForeignKey( 'ladders.id') )
+	key = Column( String(100) )
+	value = Column( String(100) )
+	is_whitelist = Column( Boolean )
 
-    #def __init__(self):
-        #self.start = datetime.now()
-        #self.user_id = user_id
+	def __init__(self,key,value,is_whitelist):
+		self.key = key
+		self.value = value
+		self.is_whitelist = is_whitelist
 
 class Match(Base):
 	__tablename__ = 'matches'

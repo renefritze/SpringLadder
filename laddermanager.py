@@ -252,7 +252,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
-					if ( ladderid in self.ladderlist ):
+					"""if ( ladderid in self.ladderlist ):
 						whitelist = int(args[1]) != 0
 						keyname = args[2]
 						value = args[3]
@@ -281,7 +281,11 @@ class Main:
 									self.ladderoptions[ladderid].restrictedoptions[keyname] = currentvalues
 									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the blacklist." )
 					else:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )"""
+					whitelist = int(args[1]) != 0
+					keyname = args[2]
+					value = args[3]
+					self.db.AddOption( ladderid, whitelist, keyname, value )
 		if command == "!ladderremoveoption":
 			if ( fromwho in self.admins ):
 				if len(args) != 3 or not args[0].isdigit():
@@ -331,7 +335,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
-					if ( ladderid in self.ladderlist ):
+					"""if False:( ladderid in self.ladderlist ):
 						whitelist = self.ladderoptions[ladderid].allowedoptions
 						blacklist = self.ladderoptions[ladderid].restrictedoptions
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder: " + self.ladderlist[ladderid] )
@@ -351,7 +355,14 @@ class Main:
 							for value in disabledvalues:
 								self.notifyuser( socket, fromwho, fromwhere, ispm, key + ": " + value )						
 					else:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )"""
+
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Whitelisted options ( if a key is present, no other value except for those listed will be allowed for such key ):" )
+					for opt in self.db.GetFilteredOptions( ladderid, True ):
+						self.notifyuser( socket, fromwho, fromwhere, ispm, opt.key + ": " + opt.value )
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Blacklisted options ( if a value is present for a key, such value won't be allowed ):" )
+					for opt in self.db.GetFilteredOptions( ladderid, False ):
+						self.notifyuser( socket, fromwho, fromwhere, ispm, opt.key + ": " + opt.value )
 		if command == "!ladderaddmap":
 			if ( fromwho in self.admins ):
 				if len(args) < 3 or not args[0].isdigit() or not args[1].isdigit():
