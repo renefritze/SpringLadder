@@ -110,7 +110,7 @@ class LadderDB:
 		session = self.sessionmaker()
 		count = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).count()
 		session.close()
-		return count == 1
+		return count > 0
 	
 	def GetOptionKeyValueExists(self, ladder_id, whitelist_only, keyname, value ):
 		session = self.sessionmaker()

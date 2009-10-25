@@ -60,7 +60,7 @@ class Main:
 				return
 			self.output = ""
 			self.ingame = 1
-			if self.ladderid == -1 and self.checkvalidsetup():
+			if self.ladderid == -1 and self.CheckValidSetup(self.ladderid,False):
 				saybattleex(socket, battleid, "won't submit to the ladder the score results")
 			else:
 				saybattleex(socket, battleid, "is gonna submit to the ladder the score results")
@@ -100,29 +100,41 @@ class Main:
 		self.ingame = 0
 		self.gamestarted = 0
 		
-	def killbot(self):
+	def KillBot(self):
 		if platform.system() == "Windows":
 			handle = win32api.OpenProcess(1, 0, os.getpid())
 			win32api.TerminateProcess(handle, 0)
 		else:
 			os.kill(os.getpid(),signal.SIGKILL)
 			
-	def checkvalidsetup(self):
-		return self.checkvalidplayersetup() and self.checkvalidoptionssetup() and self.checkgeneraloptionssetup()
+	def CheckValidSetup( self, ladderid, echofailures ):
+		if self.ladderid == -1:
+			if echofailures:
+				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+			return False
+		else:
+			return self.CheckvalidPlayerSetup(ladderid,echofailures) and self.CheckValidOptionsSetup(ladderid,echofailures)
 		
-	def checkvalidplayersetup(self):
+	def CheckvalidPlayerSetup( self,ladderid , echofailures ):
 		if self.ladderid == -1:
-			return True
+			if echofailures:
+				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+			return False
 			
-	def checkvalidoptionssetup(self):
+	def CheckValidOptionsSetup( self, ladderid, echofailures ):
 		if self.ladderid == -1:
-			return True
+			if echofailures:
+				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+			return False
+		IsOk = True
+		for key in self.battleoptions:
+			valud = self.battleoption[key]
+			OptionOk = self.CheckOptionOk( ladderid, key, value )
+			if not OptionOk:
+				IsOk = False
+				self.socket.saybattle(self.battleid,"Incompatible battle option detected: " + key + "=" + value )
 			
-	def checkgeneraloptionssetup(self):
-		if self.ladderid == -1:
-			return True
-			
-	def CheckOptionOk( self, keyname, value ):
+	def CheckOptionOk( self, ladderid, keyname, value ):
 		if self.db.GetOptionKeyValueExists( self.ladderid, False, key, value ): # option in the blacklist
 			return False
 		if self.db.GetOptionKeyExists( self.ladderid, True, keyname ): # whitelist not empty
@@ -143,33 +155,42 @@ class Main:
 			pass
 		if command == "JOINBATTLEFAILED":
 			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] )
-			self.killbot()
+			self.KillBot()
+		if command == "FORCEQUITBATTLE":
+			log( "kicked from battle: " + str(self.battleid) )
+			self.KillBot()
+		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
+			log( "battle closed: " + str(self.battleid) )
+			self.KillBot()			
 		if command == "SETSCRIPTTAGS":
 			for option in args:
 				pieces = parselist( option, "=" )
 				if len(pieces) != 2:
 					error( "parsing error of option string: " + option )
 				key = pieces[0]
+				if key.startswith("/game/"): # strip prefix
+					key = key[5:]
+				elif key.startswith("game/"):#  strip prefix
+					key = key[4:]
 				value = pieces[1]
 				self.battleoptions[key] = value
-			self.checkvalidoptionssetup()
 		if command == "REQUESTBATTLESTATUS":
 			socket.send("MYBATTLESTATUS \n")
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
 			who = args[0]
 			command = args[1]
 			args = args[2:]
-			if command == "!ladder" and len(args) == 1:
-
+			if command == "!checksetup":
+				ladderid = self.ladderid
+				if len(args) == 1 and args[0].isdigit():
+					ladderid = int(args[0])
+				self.CheckValidSetup( ladderid, True )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
-			if args[1] != 0: # battle is not the right type
-				error( "Battle is not the right type, ID: " + str(self.battleid) + " type: " + args[1] )
-				self.killbot()
+			self.battleoptions["battletype"] = args[1]
 			self.battleoptions["mapname"] = args[10]
 			self.battleoptions["modname"] = args[12]
 		if command == "UPDATEBATTLEINFO" and len(args) > 4 and int(args[0]) == self.battleid:
 			self.battleoptions["mapname"] = args[4]
-			self.checkgeneraloptionssetup()
 		
 				if args[1] == "!startgame" and args[0] == self.battleowner:
 						s.send("MYSTATUS 1\n")
