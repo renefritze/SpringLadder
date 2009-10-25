@@ -58,10 +58,10 @@ class LadderDB:
 		option = session.query( Option ).filter( Option.key == optionkey ).first()
 		#should this reset an key.val pair if already exists?
 			
-	def GetLadderList(self):
+	def GetLadderList(self,order):
 		session = self.sessionmaker()
 
-		ladders = session.query(Ladder).order_by(Ladder.name)
+		ladders = session.query(Ladder).order_by(order)
 
 		return ladders
 
