@@ -59,9 +59,11 @@ class LadderDB:
 		#should this reset an key.val pair if already exists?
 			
 	def GetLadderList(self,order):
+		'''second parameter determines order of returned list (Ladder.name/Ladder.id for example) '''
 		session = self.sessionmaker()
 
 		ladders = session.query(Ladder).order_by(order)
+		session.close()
 
 		return ladders
 

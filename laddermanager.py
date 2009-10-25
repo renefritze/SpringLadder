@@ -149,7 +149,7 @@ class Main:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Available ladders, format name: ID:" )
 			#for i in self.ladderlist:
 				#self.notifyuser( socket, fromwho, fromwhere, ispm, self.ladderlist[i] + ": " + str(i) )
-			for l in self.db.GetLadderList(Ladder.id):
+			for l in self.db.GetLadderList(Ladder.name):
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "%s: %d" %(l.name, l.id ) )
 		if command == "!ladderadd":
 			if ( fromwho in self.admins ):
