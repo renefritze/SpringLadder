@@ -142,26 +142,26 @@ class Main:
 		laddername = self.db.GetLadderName( ladderid )
 		teamcount = len(self.teams)
 		allycount = len(self.allies)
-		if teamcount < self.db.GetLadderOption( ladderid, min_team_count ):
+		if teamcount < self.db.GetLadderOption( ladderid, "min_team_count" ):
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too few control teams for" + laddername  + " (" + str(teamcount) + ")" )
 			IsOk =  False
-		if teamcount > self.db.GetLadderOption( ladderid, max_team_count ):
+		if teamcount > self.db.GetLadderOption( ladderid, "max_team_count" ):
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too many control teams for" + laddername + " (" + str(teamcount) + ")" )
 			IsOk = False
-		if allycount < self.db.GetLadderOption( ladderid, min_ally_count ):
+		if allycount < self.db.GetLadderOption( ladderid, "min_ally_count" ):
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too few allies for" + laddername  + " (" + str(teamcount) + ")" )
 			IsOk = False
-		if allycount > self.db.GetLadderOption( ladderid, max_ally_count ):
+		if allycount > self.db.GetLadderOption( ladderid, "max_ally_count" ):
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too few allies for" + laddername  + " (" + str(teamcount) + ")" )
 			IsOk = False
-		minteamsize = self.db.GetLadderOption( ladderid, min_team_size )
-		maxteamsize = self.db.GetLadderOption( ladderid, max_team_size )
-		minallysize = self.db.GetLadderOption( ladderid, min_ally_size )
-		maxallysize = self.db.GetLadderOption( ladderid, max_team_size )
+		minteamsize = self.db.GetLadderOption( ladderid, "min_team_size" )
+		maxteamsize = self.db.GetLadderOption( ladderid, "max_team_size" )
+		minallysize = self.db.GetLadderOption( ladderid, "min_ally_size" )
+		maxallysize = self.db.GetLadderOption( ladderid, "max_team_size" )
 		teamsizesok = True
 		errorstring = "The following control teams have too few players in them for " + laddername + ":\n"
 		for team in self.teams:
