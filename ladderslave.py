@@ -39,14 +39,15 @@ class Main:
 	battleowner = ""
 	battleid = -1
 	script = ""
-	ingame = 0
-	gamestarted = 0
+	ingame = False
+	gamestarted = False
+	joinedbattle = False
 	ladderid = -1
 	scriptbasepath = os.environ['HOME']
 	battleusers = dict()
 	battleoptions = dict()
 	ladderlist = dict()
-	
+	battlefounder = ""
 	def gs(self):# Game started
 		self.gamestarted = 1
 		
@@ -101,6 +102,7 @@ class Main:
 		self.gamestarted = 0
 		
 	def KillBot(self):
+		self.socket.close()
 		if platform.system() == "Windows":
 			handle = win32api.OpenProcess(1, 0, os.getpid())
 			win32api.TerminateProcess(handle, 0)
@@ -152,14 +154,17 @@ class Main:
 		#print "From server: %s | Args : %s" % (command,str(args))
 		self.sock = s
 		if command == "JOINBATTLE":
-			pass
+			self.joinedbattle = True
 		if command == "JOINBATTLEFAILED":
+			self.joinedbattle = False
 			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] )
 			self.KillBot()
 		if command == "FORCEQUITBATTLE":
+			self.joinedbattle = False
 			log( "kicked from battle: " + str(self.battleid) )
 			self.KillBot()
 		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
+			self.joinedbattle = False
 			log( "battle closed: " + str(self.battleid) )
 			self.KillBot()			
 		if command == "SETSCRIPTTAGS":
@@ -201,33 +206,43 @@ class Main:
 				else:
 					self.socket.saybattle(self.battleid,"Invalid command syntax, check !help for usage.")
 			if command == "!ladderleave":
+				self.joinedbattle = False
 				log( "leaving battle: " + str(self.battleid) )
+				socket.send("LEAVEBATTLE\n")
 				self.KillBot()
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
+			self.battlefounder == args[3]
 			self.battleoptions["battletype"] = args[1]
 			self.battleoptions["mapname"] = args[10]
 			self.battleoptions["modname"] = args[12]
 		if command == "UPDATEBATTLEINFO" and len(args) > 4 and int(args[0]) == self.battleid:
 			self.battleoptions["mapname"] = args[4]
-		
-				if args[1] == "!startgame" and args[0] == self.battleowner:
-						s.send("MYSTATUS 1\n")
-						g = time.time()
-						try:
-							os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
-						except:
-							pass
-						if platform.system() == "Linux":
-							f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
-						else:
-							f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
-						self.script = ""
-						f.write(self.script)
-						f.close()
-						thread.start_new_thread(self.startspring,(s,g))
+		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
+			try:
+				self.gamestarted = self.tsc.users[self.battlefounder].ingame
+			except:
+				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
+				print red+"*** EXCEPTION: BEGIN"
+				for line in exc:
+					print line
+				print"*** EXCEPTION: END"+normale
+			if self.joinedbattle: #start spring
+				s.send("MYSTATUS 1\n")
+				g = time.time()
+				try:
+					os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
+				except:
+					pass
+				if platform.system() == "Linux":
+					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
+				else:
+				f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
+				self.script = ""
+				f.write(self.script)
+				f.close()
+				thread.start_new_thread(self.startspring,(s,g))
 			
 	def onloggedin(self,socket):
-		self.hosted = 0	
-		if self.ingame == 1:
+		if self.ingame == True:
 			socket.send("MYSTATUS 1\n")
 		socket.send("JOINBATTLE " + self.battleid + "\n")
