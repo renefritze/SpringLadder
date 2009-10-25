@@ -215,10 +215,14 @@ class Main:
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder == args[3]
 			self.battleoptions["battletype"] = args[1]
-			self.battleoptions["mapname"] = args[10]
-			self.battleoptions["modname"] = args[12]
+			tabbedstring = " ".join(args[10:])
+			tabsplit = parselist(tabbedstring,"\t")
+			self.battleoptions["mapname"] = tabsplit[0]
+			self.battleoptions["modname"] = tabsplit[2]
 		if command == "UPDATEBATTLEINFO" and len(args) > 4 and int(args[0]) == self.battleid:
-			self.battleoptions["mapname"] = args[4]
+			tabbedstring = " ".join(args[4:])
+			tabsplit = parselist(tabbedstring,"\t")
+			self.battleoptions["mapname"] = tabsplit[0]
 		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
 			try:
 				self.gamestarted = self.tsc.users[self.battlefounder].ingame
