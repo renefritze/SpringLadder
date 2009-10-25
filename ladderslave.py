@@ -108,15 +108,31 @@ class Main:
 			os.kill(os.getpid(),signal.SIGKILL)
 			
 	def CheckValidSetup( self, ladderid, echofailures ):
-		return self.CheckvalidPlayerSetup(ladderid,echofailures) and self.CheckValidOptionsSetup(ladderid,echofailures)
+		if self.ladderid == -1:
+			if echofailures:
+				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+			return False
+		else:
+			return self.CheckvalidPlayerSetup(ladderid,echofailures) and self.CheckValidOptionsSetup(ladderid,echofailures)
 		
 	def CheckvalidPlayerSetup( self,ladderid , echofailures ):
 		if self.ladderid == -1:
-			return True
+			if echofailures:
+				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+			return False
 			
 	def CheckValidOptionsSetup( self, ladderid, echofailures ):
 		if self.ladderid == -1:
-			return True
+			if echofailures:
+				self.socket.saybattle(self.battleid,"No ladder has been chosen.")
+			return False
+		IsOk = True
+		for key in self.battleoptions:
+			valud = self.battleoption[key]
+			OptionOk = self.CheckOptionOk( ladderid, key, value )
+			if not OptionOk:
+				IsOk = False
+				self.socket.saybattle(self.battleid,"Incompatible battle option detected: " + key + "=" + value )
 			
 	def CheckOptionOk( self, ladderid, keyname, value ):
 		if self.db.GetOptionKeyValueExists( self.ladderid, False, key, value ): # option in the blacklist
