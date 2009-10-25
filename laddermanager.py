@@ -168,16 +168,12 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
-					if ( ladderid in self.ladderlist ):
-						del self.ladderlist[ladderid]
-						del self.ladderoptions[ladderid]
-						try:
-							self.db.RemoveLadder( args[0] )
-							self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder removed." )
-						except ElementNotFoundException, e:
-							print "Error",e
-					else:
+					try:
+						self.db.RemoveLadder( args[0] )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder removed." )
+					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+
 		if command == "!ladderchangemod":
 			if fromwho in self.admins:
 				if len(args) < 2 or not args[0].isdigit():
