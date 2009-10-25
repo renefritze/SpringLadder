@@ -277,7 +277,7 @@ class Main:
 						for opt in self.db.GetFilteredOptions( ladderid, False ):
 							self.notifyuser( socket, fromwho, fromwhere, ispm, opt.key + ": " + opt.value )
 					else:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )s
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!score":
 			if len(args) > 2:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
