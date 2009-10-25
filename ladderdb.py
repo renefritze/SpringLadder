@@ -163,7 +163,7 @@ class LadderDB:
 		source_ladder = session.query(Ladder).filter( Ladder.id == source_id ).first()
 		if not source_ladder:
 			raise ElementNotFoundException( Ladder( source_id ) )
-		else
+		else:
 			target_ladder = Ladder( target_name )
 			target_ladder.min_team_size 	= source_ladder.min_team_size
 			target_ladder.max_team_size 	= source_ladder.max_team_size 	
