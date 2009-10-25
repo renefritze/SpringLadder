@@ -314,11 +314,11 @@ class Main:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_admin )
 			self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
 		if command == "!laddercopy" and fromwho in self.admins:
-			if len(args) != 2:
+			if len(args) < 2:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 			else:
 				source_id = args[0]
-				target_name = args[1]
+				target_name = " ".join(args[1:])
 				try:
 					self.db.CopyLadder( source_id, target_name )
 				except:
