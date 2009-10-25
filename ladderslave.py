@@ -11,6 +11,8 @@ import subprocess
 import traceback
 import platform
 import sys
+from db_entities import *
+from ladderdb import *
 
 if platform.system() == "Windows":
 	import win32api
@@ -149,6 +151,7 @@ class Main:
 		self.hosttime = time.time()
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
+		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0] )
 		
 	def oncommandfromserver(self,command,args,s):
 		#print "From server: %s | Args : %s" % (command,str(args))
