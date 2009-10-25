@@ -65,8 +65,7 @@ class Main:
 			d.update([("alchemy-uri",self.app.config["alchemy-uri"])])
 			writeconfigfile(nick+".cfg",d)
 			p = subprocess.Popen(("python","Main.py","-c", "%s" % (nick+".cfg")),stdout=sys.stdout)
-			self.bots[slot] = p.pid
-			#print self.bots
+			self.botpid[slot] = p.pid
 			p.wait()
 			self.ul.remove(r)
 		except:
