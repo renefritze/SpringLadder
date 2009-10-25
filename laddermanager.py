@@ -235,7 +235,7 @@ class Main:
 						whitelist = int(args[1]) != 0
 						keyname = args[2]
 						value = args[3]
-						if self.db.GetOptionValues(ladderid, not whitelist, keyname ):
+						if self.db.GetOptionExists(ladderid, not whitelist, keyname ):
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
 						else:
 							self.db.AddOption( ladderid, whitelist, keyname, value )
@@ -252,15 +252,11 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
-					if ( ladderid in self.ladderlist ):
+					if self.db.LadderExists( ladderid ):
 						keyname = args[1]
 						value = args[2]
-						indisabledoptions = False
-						inenabledoptions = False
-						if keyname in self.ladderoptions[ladderid].restrictedoptions:
-							indisabledoptions = True					
-						if keyname in self.ladderoptions[ladderid].allowedoptions:
-							inenabledoptions = True
+						indisabledoptions = self.db.GetOptionValues(ladderid, not whitelist, keyname )
+						inenabledoptions = self.db.GetOptionValues(ladderid, not whitelist, keyname )
 						if not indisabledoptions and not inenabledoptions:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Key doesn't exist in both whitelist and blackist." )
 						else:

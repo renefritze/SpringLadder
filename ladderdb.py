@@ -96,10 +96,17 @@ class LadderDB:
 		options = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).order_by( Option.key )
 		session.close()
 		return options
+		
+	def GetOptionExists(self, ladder_id, whitelist_only, keyname ):
+		session = self.sessionmaker()
+		values = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).first()
+		session.close()
+		return values	
 	
 	def GetOptionValues(self, ladder_id, whitelist_only, keyname ):
 		session = self.sessionmaker()
-		values = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname )
+		values = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).order_by( Option.value )
 		session.close()
-		return values		
+		return values
+		
 
