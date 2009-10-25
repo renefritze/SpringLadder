@@ -4,18 +4,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from datetime import datetime
 
-class LadderOptions:
-	 def __init__(self):
-	 	self.modname = ""
-	 	self.controlteamminsize = 1
-	 	self.controlteammaxsize = 1
-	 	self.allymaxsize = 1
-	 	self.allyminsize = 1
-	 	self.allowedoptions = dict() # option path -> list of allowed values
-	 	self.restrictedoptions = dict() # option path -> list of denied value
-	 	self.allowedmaps = [] # list of allowed map names
-	 	self.restrictedmaps = [] # list of denied map names
-	 	
 class LadderMatch:
 	def __init__(self):
 		self.timestamp = 0
@@ -44,12 +32,30 @@ class Ladder(Base):
 	id = Column( Integer, primary_key=True )
 	name = Column( String(100) )
 	#description = Column( whatever type means variable lengh text ( TEXT ?? ) )
+	min_team_size 	= Column( Integer )
+	max_team_size 	= Column( Integer )
+	min_ally_size 	= Column( Integer )
+	max_ally_size 	= Column( Integer )
+	min_ally_count = Column( Integer )
+	max_ally_count = Column( Integer )
+	min_team_count = Column( Integer )
+	max_team_count = Column( Integer )
+
 
 	def __init__(self, name):
 		self.name = name
+		#!TODO sane default vals
+		self.min_team_size 	= 1
+		self.max_team_size 	= 1
+		self.min_ally_size 	= 1
+		self.max_ally_size 	= 1
+		self.min_ally_count = 1
+		self.max_ally_count = 1
+		self.min_team_count = 1
+		self.max_team_count = 1
 
 	def __str__(self):
-		return "Ladder %s"%(self.name)
+		return "Ladder(id:%d) %s"%(self.id,self.name)
 
 
 class Option(Base):
