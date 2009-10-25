@@ -65,6 +65,7 @@ class Main:
 			d.update([("ladderid",str(ladderid))])
 			d.update([("alchemy-uri",self.app.config["alchemy-uri"])])
 			d.update([("alchemy-verbose",self.app.config["alchemy-verbose"])])
+			d.update([("springdedpath",self.app.config["springdedpath"])])
 			writeconfigfile(nick+".cfg",d)
 			p = subprocess.Popen(("python","Main.py","-c", "%s" % (nick+".cfg")),stdout=sys.stdout)
 			self.botpid[slot] = p.pid
