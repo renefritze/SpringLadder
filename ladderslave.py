@@ -153,7 +153,7 @@ class Main:
 		
 	def oncommandfromserver(self,command,args,s):
 		#print "From server: %s | Args : %s" % (command,str(args))
-		self.sock = s
+		self.socket = s
 		if command == "JOINBATTLE":
 			self.joinedbattle = True
 		if command == "JOINBATTLEFAILED":
@@ -181,7 +181,7 @@ class Main:
 				value = pieces[1]
 				self.battleoptions[key] = value
 		if command == "REQUESTBATTLESTATUS":
-			socket.send("MYBATTLESTATUS \n")
+			self.socket.send("MYBATTLESTATUS \n")
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
 			who = args[0]
 			command = args[1]

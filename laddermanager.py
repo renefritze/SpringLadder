@@ -91,7 +91,7 @@ class Main:
 			
 	def spawnbot( self,  socket, battleid, ladderid ):	
 		slot = len(self.botstatus)
-		self.threads.append(thread.start_new_thread(self.botthread,(slot,socket,battleid,ladderid)))
+		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,ladderid,"dummy")))
 		self.botstatus[slot] = True
 		
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
