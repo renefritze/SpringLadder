@@ -177,9 +177,9 @@ class Main:
 					error( "parsing error of option string: " + option )
 				key = pieces[0]
 				if key.startswith("/game/"): # strip prefix
-					key = key[5:]
+					key = key[6:]
 				elif key.startswith("game/"):#  strip prefix
-					key = key[4:]
+					key = key[5:]
 				value = pieces[1]
 				self.battleoptions[key] = value
 			print self.battleoptions #only for dbg
