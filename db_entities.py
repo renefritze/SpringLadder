@@ -65,6 +65,9 @@ class Option(Base):
 		self.value = value
 		self.is_whitelist = is_whitelist
 
+	def __str__(self):
+		return "Option %s -> %s (%s)"%(self.key, self.value, "wl" if self.is_whitelist else "bl")
+
 class Match(Base):
 	__tablename__ = 'matches'
 	id = Column( Integer, primary_key=True )
