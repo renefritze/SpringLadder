@@ -154,7 +154,15 @@ class LadderDB:
 			session.close()
 			raise ElementNotFoundException( ladder )
 		else:
-			existing_ladder = ladder
+			#existing_ladder = ladder
+			existing_ladder.min_team_size 	= ladder.min_team_size
+			existing_ladder.max_team_size 	= ladder.max_team_size
+			existing_ladder.min_ally_size 	= ladder.min_ally_size
+			existing_ladder.max_ally_size 	= ladder.max_ally_size
+			existing_ladder.min_ally_count 	= ladder.min_ally_count
+			existing_ladder.max_ally_count 	= ladder.max_ally_count
+			existing_ladder.min_team_count 	= ladder.min_team_count
+			existing_ladder.max_team_count 	= ladder.max_team_count
 			session.commit()
 			session.close()
 
