@@ -216,7 +216,7 @@ class Main:
 				IsOk = False
 				if echoerrors:
 					saybattle( socket, self.battleid, key + "=" + value )
-		return IsOK
+		return IsOk
 			
 	def CheckOptionOk( self, ladderid, keyname, value ):
 		if self.db.GetOptionKeyValueExists( self.ladderid, False, keyname, value ): # option in the blacklist
