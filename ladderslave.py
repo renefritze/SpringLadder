@@ -52,7 +52,7 @@ class BattleStatus:
 		self.team = int( sstr[-5:-2], 2)+1
 		self.ally = int( sstr[-9:-6], 2)+1
 		self.side = int( sstr[-27:-24], 2)+1
-		self.spec = int ( sstr[-10], 2) == 0
+		self.spec = int ( sstr[-10], 2) == 1
 		self.nick = nick
 
 	def __str__(self):
@@ -72,6 +72,8 @@ class Main:
 	battleoptions = dict()
 	ladderlist = dict()
 	battle_statusmap = dict()
+	teams = dict()
+	allies = dict()
 	battlefounder = ""
 	def gs(self):# Game started
 		self.gamestarted = 1
@@ -278,8 +280,24 @@ class Main:
 			bs = BattleStatus( args[1], args[0] )
 			self.battle_statusmap[ args[0] ] = bs
 			print bs
+			self.FillTeamAndAllies()
 		
 	def onloggedin(self,socket):
 		if self.ingame == True:
 			socket.send("MYSTATUS 1\n")
 		socket.send("JOINBATTLE " + str(self.battleid) + "\n")
+
+	def FillTeamAndAllies(self):
+		self.teams = dict()
+		self.allies = dict()
+		for bs in self.battle_statusmap.values():
+			if not bs.team in self.teams:
+				self.teams[bs.team] = 1
+			else:
+				self.teams[bs.team] += 1
+			if not bs.ally in self.allies:
+				self.allies[bs.ally] = 1
+			else:
+				self.allies[bs.ally] += 1
+		print self.allies
+		print self.teams
