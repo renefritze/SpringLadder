@@ -109,38 +109,25 @@ class Main:
 		else:
 			os.kill(os.getpid(),signal.SIGKILL)
 			
-	def CheckValidSetup( self, ladderid, echofailures ):
-		if self.ladderid == -1:
-			if echofailures:
-				saybattle( self.socket, self.battleid,"No ladder has been chosen.")
-			return False
-		else:
-			return self.CheckvalidPlayerSetup(ladderid,echofailures) and self.CheckValidOptionsSetup(ladderid,echofailures)
+	def CheckValidSetup( self, ladderid ):
+		return self.CheckvalidPlayerSetup(ladderid) and self.CheckValidOptionsSetup(ladderid)
 		
-	def CheckvalidPlayerSetup( self,ladderid , echofailures ):
-		if self.ladderid == -1:
-			if echofailures:
-				saybattle( self.socket, self.battleid,"No ladder has been chosen.")
-			return False
-			
-	def CheckValidOptionsSetup( self, ladderid, echofailures ):
-		if self.ladderid == -1:
-			if echofailures:
-				saybattle( self.socket, self.battleid,"No ladder has been chosen.")
-			return False
+	def CheckvalidPlayerSetup( self,ladderid ):
+		pass
+	def CheckValidOptionsSetup( self, ladderid ):
 		IsOk = True
 		for key in self.battleoptions:
-			valud = self.battleoption[key]
+			value = self.battleoptions[key]
 			OptionOk = self.CheckOptionOk( ladderid, key, value )
 			if not OptionOk:
 				IsOk = False
-				saybattle( self.socket, self.battleid,"Incompatible battle option detected: " + key + "=" + value )
+		return IsOK
 			
 	def CheckOptionOk( self, ladderid, keyname, value ):
-		if self.db.GetOptionKeyValueExists( self.ladderid, False, key, value ): # option in the blacklist
+		if self.db.GetOptionKeyValueExists( self.ladderid, False, keyname, value ): # option in the blacklist
 			return False
 		if self.db.GetOptionKeyExists( self.ladderid, True, keyname ): # whitelist not empty
-			return self.db.GetOptionKeyValueExists( self.ladderid, True, key, value )
+			return self.db.GetOptionKeyValueExists( self.ladderid, True, keyname, value )
 		else:
 			return True
 			
@@ -189,11 +176,26 @@ class Main:
 			who = args[0]
 			command = args[1]
 			args = args[2:]
+			print command
+			print args
 			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
-				self.CheckValidSetup( ladderid, True )
+				if ladderid == -1:
+					saybattle( self.socket, self.battleid,"No ladder has been enabled.")
+				elif self.db.LadderExists( ladderid ):
+					laddername = self.db.GetLadderName( ladderid )
+					if self.CheckValidSetup( ladderid ):
+						saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
+					else:
+						saybattle( self.socket, self.battleid, "The following settings are not compatible with " + laddername + ":" )
+						for key in self.battleoptions:
+							value = self.battleoptions[key]
+							if not self.CheckOptionOk( ladderid, key, value ):
+								saybattle( self.socket, self.battleid, key + "=" + value )
+				else:
+					saybattle( self.socket, self.battleid,"Invalid ladder ID.")
 			if command == "!ladder":
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -201,7 +203,7 @@ class Main:
 						if self.db.LadderExists( ladderid ):
 							saybattle( self.socket, self.battleid,"Enabled ladder reporting for ladder: " + self.db.GetLadderName( ladderid ) )
 							self.ladderid = ladderid
-							self.CheckValidSetup( ladderid, True )
+							self.CheckValidSetup( ladderid )
 						else:
 							saybattle( self.socket, self.battleid,"Invalid ladder ID.")
 					else:
