@@ -13,7 +13,6 @@ from ladderdb import *
 
 helpstring_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
-!ladderchangemod ladderID modname : sets the mod for given ladder ID
 !ladderchangecontrolteamsize ladderID value : sets the control team size (player ID) used by the ladder
 !ladderchangecontrolteamsize ladderID min max : sets the control team size (player ID) used by the ladder
 !ladderchangeallysize ladderID value : sets the ally team size used by the ladder
@@ -168,18 +167,6 @@ class Main:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder removed." )
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
-
-		if command == "!ladderchangemod":
-			if fromwho in self.admins:
-				if len(args) < 2 or not args[0].isdigit():
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
-				else:
-					ladderid = int(args[0])
-					if ( ladderid in self.ladderlist ):
-						self.ladderoptions[ladderid].modname = " ".join(args[1:])
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder mod changed." )
-					else:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangecontrolteamsize":
 			if fromwho in self.admins:
 				if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
@@ -279,8 +266,7 @@ class Main:
 					ladderid = int(args[0])
 					if self.db.LadderExists( ladderid ):
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder: " + self.db.GetLadderName(ladderid) )
-						"""self.notifyuser( socket, fromwho, fromwhere, ispm, "modname: " + self.ladderoptions[ladderid].modname )
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Min control team size: " + str(self.ladderoptions[ladderid].controlteamminsize) )
+						"""self.notifyuser( socket, fromwho, fromwhere, ispm, "Min control team size: " + str(self.ladderoptions[ladderid].controlteamminsize) )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max control team size: " + str(self.ladderoptions[ladderid].controlteammaxsize) )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Min ally size: " + str(self.ladderoptions[ladderid].allyminsize) )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Max ally size: " + str(self.ladderoptions[ladderid].allymaxsize) )"""
