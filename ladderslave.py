@@ -22,18 +22,12 @@ def log(message):
 	print green + message + normal
 	
 def saybattle( socket,battleid,message):
-	try:
 		print orange+"Battle:%i, Message: %s" %(battleid,message) + normal
 		socket.send("SAYBATTLE %s\n" % message)
-	except:
-		pass
 		
 def saybattleex(socket,battleid,message):
-	try:
 		print pink+"Battle:%i, Message: %s" %(battleid,message) + normal
 		socket.send("SAYBATTLEEX %s\n" % message)
-	except:
-		pass
 	 	
 class Main:
 	sock = 0
