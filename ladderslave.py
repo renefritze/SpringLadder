@@ -12,6 +12,7 @@ import platform
 import sys
 from db_entities import *
 from ladderdb import *
+from colors import *
 
 if platform.system() == "Windows":
 	import win32api
@@ -22,12 +23,12 @@ def log(message):
 	print green + message + normal
 	
 def saybattle( socket,battleid,message):
-		print orange+"Battle:%i, Message: %s" %(battleid,message) + normal
-		socket.send("SAYBATTLE %s\n" % message)
+	print yellow+"Battle:%i, Message: %s" %(battleid,message) + normal
+	socket.send("SAYBATTLE %s\n" % message)
 		
 def saybattleex(socket,battleid,message):
-		print pink+"Battle:%i, Message: %s" %(battleid,message) + normal
-		socket.send("SAYBATTLEEX %s\n" % message)
+	print green+"Battle:%i, Message: %s" %(battleid,message) + normal
+	socket.send("SAYBATTLEEX %s\n" % message)
 	 	
 class Main:
 	sock = 0
@@ -130,7 +131,7 @@ class Main:
 		self.hosttime = time.time()
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
-		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0] )
+		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], parselist(self.app.config["alchemy-verbose"],",")[0] )
 		
 	def oncommandfromserver(self,command,args,s):
 		#print "From server: %s | Args : %s" % (command,str(args))
@@ -181,6 +182,7 @@ class Main:
 				elif self.db.LadderExists( ladderid ):
 					laddername = self.db.GetLadderName( ladderid )
 					if self.CheckValidSetup( ladderid ):
+						print 'zelly'
 						saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 					else:
 						saybattle( self.socket, self.battleid, "The following settings are not compatible with " + laddername + ":" )
