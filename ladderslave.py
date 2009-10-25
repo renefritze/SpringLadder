@@ -60,6 +60,13 @@ class BattleStatus:
 	def __str__(self):
 		return "nick: %s -- team:%d ally:%d side:%d spec:%d"%(self.nick,self.team,self.ally,self.side,self.spec)
 
+helpstring_user = """!ladderlist : lists available ladders with their IDs
+!ladder ladderID: sets the ladder to report scores to, -1 to disable reporting
+!ladderlistoptions ladderID : lists enforced options for given ladderID
+!checksetup : checks that all options and player setup are compatible with current set ladder
+!checksetup ladderID: checks that all options and player setup are compatible for given ladderID
+"""
+
 class Main:
 	sock = 0
 	battleowner = ""
@@ -311,6 +318,9 @@ class Main:
 				log( "leaving battle: " + str(self.battleid) )
 				self.socket.send("LEAVEBATTLE\n")
 				self.KillBot()
+			if command == "!help":
+				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
+				saybattle( self.socket, self.battleid, helpstring_user )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder == args[3]
 			self.battleoptions["battletype"] = args[1]
