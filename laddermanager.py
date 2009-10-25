@@ -174,19 +174,20 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
-					if ( ladderid in self.ladderlist ):
+					try:
+						ladder = self.db.GetLadder( ladderid )
+						ladder.min_team_size = int(args[1])
 						if len(args) == 2: # min = max
-							self.ladderoptions[ladderid].controlteamminsize = int(args[1])
-							self.ladderoptions[ladderid].controlteamminsize = int(args[1])
-							self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder control team size changed." )
+							ladder.max_team_size = int(args[1])
 						elif len(args) == 3: # separate min & max
-							if ( not args[2].isdigit() ):
-								self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )							
-							else:
-								self.ladderoptions[ladderid].controlteamminsize = int(args[1])
-								self.ladderoptions[ladderid].controlteammaxsize = int(args[2])
-								self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder control team size changed." )
-					else:
+							if args[2] < args[1]:
+								self.notifyuser( socket, fromwho, fromwhere, ispm, "max control team size < min! not changed." )
+								return
+							ladder.max_team_size = int(args[2])
+						self.db.SetLadder( ladder )
+						print ladder
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder control team size changed." )
+					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangeallysize":
 			if fromwho in self.admins:
