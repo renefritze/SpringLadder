@@ -156,12 +156,10 @@ class Main:
 				if len(args) < 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder name can't be empty." )
 				else:
-					ladderid = len(self.ladderlist)
-					self.ladderlist[ladderid] = " ".join(args[0:])
-					self.ladderoptions[ladderid] = LadderOptions()
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) )
 					try:
-						self.db.AddLadder( args[0] )
+						laddername = " ".join(args[0:])
+						ladderid = self.db.AddLadder( laddername )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) ) 
 					except ElementExistsException, e:
 						print "Error",e
 		if command == "!ladderremove":
@@ -237,40 +235,21 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 				else:
 					ladderid = int(args[0])
-					"""if ( ladderid in self.ladderlist ):
+					if self.db.LadderExists( ladderid ):
 						whitelist = int(args[1]) != 0
 						keyname = args[2]
 						value = args[3]
-						if whitelist:
-							if ( keyname in self.ladderoptions[ladderid].restrictedoptions ):
-								self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
-							else:
-								if keyname in  self.ladderoptions[ladderid].allowedoptions:
-									currentvalues = self.ladderoptions[ladderid].allowedoptions[keyname]
-								else:
-									currentvalues = []
-								if ( not value in currentvalues ):
-									currentvalues.append(value)
-									self.ladderoptions[ladderid].allowedoptions[keyname] = currentvalues
-									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the whitelist." )
+						if self.db.GetOptionValues(ladderid, not whitelist, keyname ):
+							self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
 						else:
-							if( keyname in self.ladderoptions[ladderid].allowedoptions ):
-								self.notifyuser( socket, fromwho, fromwhere, ispm, "You cannot use blacklist and whitelist at the same time for the same option key." )
-							else:
-								if keyname in self.ladderoptions[ladderid].restrictedoptions:
-									currentvalues = self.ladderoptions[ladderid].restrictedoptions[keyname]
-								else:
-									currentvalues = []
-								if ( not value in currentvalues ):
-									currentvalues.append(value)
-									self.ladderoptions[ladderid].restrictedoptions[keyname] = currentvalues
-									self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the blacklist." )
+							self.db.AddOption( ladderid, whitelist, keyname, value )
+							message = "blacklist"
+							if whitelist:
+								message = "whitelist"
+							self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the " + message + "." )
 					else:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )"""
-					whitelist = int(args[1]) != 0
-					keyname = args[2]
-					value = args[3]
-					self.db.AddOption( ladderid, whitelist, keyname, value )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+					
 		if command == "!ladderremoveoption":
 			if ( fromwho in self.admins ):
 				if len(args) != 3 or not args[0].isdigit():

@@ -31,14 +31,16 @@ class LadderDB:
 	def AddLadder(self, name ):
 		session = self.sessionmaker()
 		ladder = session.query( Ladder ).filter( Ladder.name == name ).first()
-
+		ladderid = -1
 		if not ladder: #no existing ladder with same name
 			ladder = Ladder( name )
 			session.add( ladder )
 			session.commit()
+			ladderid = ladder.id
 			session.close()
 		else:
 			raise ElementExistsException( ladder )
+		return ladderid
 
 	def RemoveLadder(self, id ):
 		session = self.sessionmaker()
@@ -51,6 +53,14 @@ class LadderDB:
 			session.close()
 		else:
 			raise ElementNotFoundException( Ladder(id) )
+			
+	def LadderExists(self, id ):
+		session = self.sessionmaker()
+
+		ladder = session.query( Ladder ).filter( Ladder.id == id ).first()
+		
+		session.close()
+		return ladder
 			
 	def AddOption(self, ladderID, is_whitelist, optionkey, optionvalue  ):
 		session = self.sessionmaker()
@@ -86,4 +96,10 @@ class LadderDB:
 		options = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).order_by( Option.key )
 		session.close()
 		return options
+	
+	def GetOptionValues(self, ladder_id, whitelist_only, keyname ):
+		session = self.sessionmaker()
+		values = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname )
+		session.close()
+		return values		
 
