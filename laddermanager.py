@@ -43,30 +43,16 @@ def pm(s,p,m):
 			s.send("SAYPRIVATE %s %s\n" %(p,line))
 	except:
 		pass
+		
 def saychannel( socket, channel, message ):
 		for line in message.split('\n'):
 			print purple+"Channel :%s, Message: %s" %(channel,line) + normal
 			socket.send("SAY %s %s\n" %(channel,line) )
-class LadderOptions:
-	 def __init__(self):
-	 	self.modname = ""
-	 	self.controlteamminsize = 1
-	 	self.controlteammaxsize = 1
-	 	self.allymaxsize = 1
-	 	self.allyminsize = 1
-	 	self.allowedoptions = dict() # option path -> list of allowed values
-	 	self.restrictedoptions = dict() # option path -> list of denied value
-	 	self.allowedmaps = [] # list of allowed map names
-	 	self.restrictedmaps = [] # list of denied map names
-class LadderMatch:
-	def __init__(self):
-		self.timestamp = 0
-		self.winnerid = -1
-		self.playerids = []
-		self.teams
+			
 class LadderScores:
 	def __init__(self):
 		self.playerscores = [] # player id -> score
+		
 class Main:
 	botpid = dict() # slot -> bot pid
 	botstatus = dict() # slot -> bot already spawned
@@ -97,6 +83,7 @@ class Main:
 			print '-'*60
 			traceback.print_exc(file=sys.stdout)
 			print '-'*60
+			
 	def onload(self,tasc):
 		self.tsc = tasc
 		self.bans = []
@@ -112,10 +99,12 @@ class Main:
 			saychannel( socket, fromwhere, message )
 		else:
 			pm( socket, fromwho, message )
+			
 	def spawnbot( self,  socket, battleid, ladderid ):	
 		slot = len(self.botstatus)
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,socket,battleid,ladderid)))
 		self.botstatus[slot] = True
+		
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
 		if fromwho == self.app.config["nick"]:
 			return
@@ -451,6 +440,7 @@ class Main:
 			if fromwho in self.app.config["admins"]:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_admin )
 			self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
+			
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
@@ -461,6 +451,7 @@ class Main:
 				self.channels.remove(args[0])
 				self.app.config["channelautojoinlist"] = ','.join(self.channels)
 				self.app.SaveConfig()
+				
 	def updatestatus(self,socket):
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
 	def onloggedin(self,socket):

@@ -11,34 +11,29 @@ import subprocess
 import traceback
 import platform
 import sys
+
 if platform.system() == "Windows":
 	import win32api
+	
 from utilities import *
+
 def log(message):
 	print green + message + normal
+	
 def saybattle(socket,battleid,message):
 	try:
 		print orange+"Battle:%i, Message: %s" %(battleid,message) + normal
 		s.send("SAYBATTLE %s\n" % message)
 	except:
 		pass
+		
 def saybattleex(socket,battleid,message):
 	try:
 		print pink+"Battle:%i, Message: %s" %(battleid,message) + normal
 		s.send("SAYBATTLEEX %s\n" % message)
 	except:
 		pass
-class ControlTeam:
-	def __init__(self):
-		self.playeridlist = []
-		self.allyteamidlist = []
-class Player:
-	 def __init__(self):
-	 	self.id = -1
-	 	self.controlteam = -1
-	 	self.ally = -1
-	 	self.spectator = False
-	 	self.isbot = False
+	 	
 class Main:
 	sock = 0
 	battleowner = ""
@@ -52,8 +47,10 @@ class Main:
 	battleoptions = dict()
 	ladderlist = dict()
 	mapname = ""
+	
 	def gs(self):# Game started
 		self.gamestarted = 1
+		
 	def startspring(self,socket,g):
 		cwd = os.getcwd()
 		try:
@@ -103,28 +100,35 @@ class Main:
 		os.chdir(cwd)
 		self.ingame = 0
 		self.gamestarted = 0
+		
 	def killbot(self):
 		if platform.system() == "Windows":
 			handle = win32api.OpenProcess(1, 0, os.getpid())
 			win32api.TerminateProcess(handle, 0)
 		else:
 			os.kill(os.getpid(),signal.SIGKILL)
+			
 	def checkvalidsetup(self):
 		return self.checkvalidplayersetup() and self.checkvalidoptionssetup() and self.checkgeneraloptionssetup()
+		
 	def checkvalidplayersetup(self):
 		if self.ladderid == -1:
 			return True
+			
 	def checkvalidoptionssetup(self):
 		if self.ladderid == -1:
 			return True
+			
 	def checkgeneraloptionssetup(self):
 		if self.ladderid == -1:
 			return True
+			
 	def onload(self,tasc):
 		self.app = tasc.main
 		self.hosttime = time.time()
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
+		
 	def oncommandfromserver(self,command,args,s):
 		#print "From server: %s | Args : %s" % (command,str(args))
 		self.sock = s
@@ -141,8 +145,7 @@ class Main:
 				key = pieces[0]
 				value = pieces[1]
 				self.battleoptions[key] = value
-			if not self.checkvalidoptionssetup(): # options are incompatible with the ladder settings
-				saybattleex(socket, battleid, "has found an incompatible ladder option: " + option )
+			self.checkvalidoptionssetup()
 		if command == "REQUESTBATTLESTATUS":
 			socket.send("MYBATTLESTATUS \n")
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
