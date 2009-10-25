@@ -100,29 +100,25 @@ class Main:
 		self.ingame = 0
 		self.gamestarted = 0
 		
-	def killbot(self):
+	def KillBot(self):
 		if platform.system() == "Windows":
 			handle = win32api.OpenProcess(1, 0, os.getpid())
 			win32api.TerminateProcess(handle, 0)
 		else:
 			os.kill(os.getpid(),signal.SIGKILL)
 			
-	def checkvalidsetup(self):
-		return self.checkvalidplayersetup() and self.checkvalidoptionssetup() and self.checkgeneraloptionssetup()
+	def CheckValidSetup( self, ladderid, echofailures ):
+		return self.CheckvalidPlayerSetup(ladderid,echofailures) and self.CheckValidOptionsSetup(ladderid,echofailures)
 		
-	def checkvalidplayersetup(self):
+	def CheckvalidPlayerSetup( self,ladderid , echofailures ):
 		if self.ladderid == -1:
 			return True
 			
-	def checkvalidoptionssetup(self):
+	def CheckValidOptionsSetup( self, ladderid, echofailures ):
 		if self.ladderid == -1:
 			return True
 			
-	def checkgeneraloptionssetup(self):
-		if self.ladderid == -1:
-			return True
-			
-	def CheckOptionOk( self, keyname, value ):
+	def CheckOptionOk( self, ladderid, keyname, value ):
 		if self.db.GetOptionKeyValueExists( self.ladderid, False, key, value ): # option in the blacklist
 			return False
 		if self.db.GetOptionKeyExists( self.ladderid, True, keyname ): # whitelist not empty
@@ -159,12 +155,12 @@ class Main:
 			who = args[0]
 			command = args[1]
 			args = args[2:]
-			if command == "!ladder" and len(args) == 1:
-
+			if command == "!checksetup":
+				ladderid = self.ladderid
+				if len(args) == 1 and args[0].isdigit():
+					ladderid = int(args[0])
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
-			if args[1] != 0: # battle is not the right type
-				error( "Battle is not the right type, ID: " + str(self.battleid) + " type: " + args[1] )
-				self.killbot()
+			self.battleoptions["battletype"] = args[1]
 			self.battleoptions["mapname"] = args[10]
 			self.battleoptions["modname"] = args[12]
 		if command == "UPDATEBATTLEINFO" and len(args) > 4 and int(args[0]) == self.battleid:
