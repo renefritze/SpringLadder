@@ -185,6 +185,21 @@ class Main:
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
 				self.CheckValidSetup( ladderid, True )
+			if command == "!ladder":
+				if len(args) == 1 and args[0].isdigit():
+					ladderid = int(args[0])
+					if ladderid != -1:
+						if self.db.LadderExists( ladderid ):
+							self.socket.saybattle(self.battleid,"Enabled ladder reporting for ladder: " + self.db.GetLadderName( ladderid ) )
+							self.ladderid = ladderid
+							self.CheckValidSetup( ladderid, True )
+						else:
+							self.socket.saybattle(self.battleid,"Invalid ladder ID.")
+					else:
+						self.ladderid = ladderid
+						self.socket.saybattle(self.battleid,"Ladder reporting disabled.")
+				else:
+					self.socket.saybattle(self.battleid,"Invalid command syntax, check !help for usage.")
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battleoptions["battletype"] = args[1]
 			self.battleoptions["mapname"] = args[10]
