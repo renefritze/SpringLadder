@@ -83,12 +83,12 @@ class Main:
 		try:
 			self.gamestarted = 0
 			self.u.reset()
-			if self.ingame == 1:
+			if self.ingame == True:
 				saybattle( self.socket, battleid, "Error: game is already running")
 				return
 			self.output = ""
-			self.ingame = 1
-			if self.ladderid == -1 and self.CheckValidSetup(self.ladderid,False):
+			self.ingame = True
+			if self.ladderid == -1 and self.db.LadderExists( ladderid ) and self.CheckValidSetup(self.ladderid,False,0):
 				saybattleex(socket, battleid, "won't submit to the ladder the score results")
 			else:
 				saybattleex(socket, battleid, "is gonna submit to the ladder the score results")
@@ -125,8 +125,7 @@ class Main:
 			loge(socket,"*** EXCEPTION: END")
 			os.chdir(cwd)
 		os.chdir(cwd)
-		self.ingame = 0
-		self.gamestarted = 0
+		self.ingame = False
 		
 	def KillBot(self):
 		if platform.system() == "Windows":
@@ -135,18 +134,88 @@ class Main:
 		else:
 			os.kill(os.getpid(),signal.SIGKILL)
 			
-	def CheckValidSetup( self, ladderid ):
-		return self.CheckvalidPlayerSetup(ladderid) and self.CheckValidOptionsSetup(ladderid)
+	def CheckValidSetup( self, ladderid, echoerrors, socket ):
+		return self.CheckvalidPlayerSetup(ladderid,echoerrors,socket) and self.CheckValidOptionsSetup(ladderid,echoerrors,socket)
 		
-	def CheckvalidPlayerSetup( self,ladderid ):
-		pass
-	def CheckValidOptionsSetup( self, ladderid ):
+	def CheckvalidPlayerSetup( self, ladderid, echoerrors, socket ):
 		IsOk = True
+		laddername = self.db.GetLadderName( ladderid )
+		teamcount = len(self.teams)
+		allycount = len(self.allies)
+		if teamcount < self.db.GetLadderOption( ladderid, min_team_count ):
+			if echoerrors:
+				saybattle( socket, self.battleid, "There are too few control teams for" + laddername  + " (" + str(teamcount) + ")" )
+			IsOk =  False
+		if teamcount > self.db.GetLadderOption( ladderid, max_team_count ):
+			if echoerrors:
+				saybattle( socket, self.battleid, "There are too many control teams for" + laddername + " (" + str(teamcount) + ")" )
+			IsOk = False
+		if allycount < self.db.GetLadderOption( ladderid, min_ally_count ):
+			if echoerrors:
+				saybattle( socket, self.battleid, "There are too few allies for" + laddername  + " (" + str(teamcount) + ")" )
+			IsOk = False
+		if allycount > self.db.GetLadderOption( ladderid, max_ally_count ):
+			if echoerrors:
+				saybattle( socket, self.battleid, "There are too few allies for" + laddername  + " (" + str(teamcount) + ")" )
+			IsOk = False
+		minteamsize = self.db.GetLadderOption( ladderid, min_team_size )
+		maxteamsize = self.db.GetLadderOption( ladderid, max_team_size )
+		minallysize = self.db.GetLadderOption( ladderid, min_ally_size )
+		maxallysize = self.db.GetLadderOption( ladderid, max_team_size )
+		teamsizesok = True
+		errorstring = "The following control teams have too few players in them for " + laddername + ":\n"
+		for team in self.teams:
+			teamsize = self.teams[team]
+			if teamsize < minteamsize:
+				errorstring += str(team) + "=" + str(teamsize) + " "
+				teamsizesok = False
+				IsOk = False
+		if not teamsizesok and echoerrors:
+			saybattle( socket, self.battleid, errorstring )
+		teamsizesok = True
+		errorstring = "The following control teams have too many players in them for " + laddername + ":\n"
+		for team in self.teams:
+			if teamsize > maxteamsize:
+				IsOk = False
+				errorstring += str(team) + "=" + str(teamsize) + " "
+				teamsizesok = False
+		if not teamsizesok and echoerrors:
+			saybattle( socket, self.battleid, errorstring )
+		allysizesok = True
+		errorstring = "The following ally have too few players in them for " + laddername + ":\n"
+		for ally in self.allies:
+			allysize = self.allies[ally]
+			if allysize < minallysize:
+				IsOk = False
+				allysizesok = False
+				errorstring += str(team) + "=" + str(teamsize) + " "
+		if not allysizesok and echoerrors:
+			saybattle( socket, self.battleid, errorstring )
+		allysizesok = True
+		errorstring = "The following ally have too many players in them for " + laddername + ":\n"
+		for ally in self.allies:
+			allysize = self.allies[ally]
+			if allysize > maxallysize:
+				IsOk = False
+				allysizesok = False
+				errorstring += str(team) + "=" + str(teamsize) + " "
+		if not allysizesok and echoerrors:
+			saybattle( socket, self.battleid, errorstring )
+		return IsOk
+			
+		
+	def CheckValidOptionsSetup( self, ladderid, echoerrors, socket ):
+		IsOk = True
+		laddername = self.db.GetLadderName( ladderid )
 		for key in self.battleoptions:
 			value = self.battleoptions[key]
 			OptionOk = self.CheckOptionOk( ladderid, key, value )
 			if not OptionOk:
+				if IsOk and echoerrors:
+					saybattle( socket, self.battleid, "The following settings are not compatible with " + laddername + ":" )
 				IsOk = False
+				if echoerrors:
+					saybattle( socket, self.battleid, key + "=" + value )
 		return IsOK
 			
 	def CheckOptionOk( self, ladderid, keyname, value ):
@@ -195,7 +264,6 @@ class Main:
 					key = key[5:]
 				value = pieces[1]
 				self.battleoptions[key] = value
-			print self.battleoptions #only for dbg
 		if command == "REQUESTBATTLESTATUS":
 			self.socket.send("MYBATTLESTATUS \n")
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
@@ -212,15 +280,8 @@ class Main:
 					saybattle( self.socket, self.battleid,"No ladder has been enabled.")
 				elif self.db.LadderExists( ladderid ):
 					laddername = self.db.GetLadderName( ladderid )
-					if self.CheckValidSetup( ladderid ):
-						print 'zelly'
+					if self.CheckValidSetup( ladderid, True, self.socket ):
 						saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
-					else:
-						saybattle( self.socket, self.battleid, "The following settings are not compatible with " + laddername + ":" )
-						for key in self.battleoptions:
-							value = self.battleoptions[key]
-							if not self.CheckOptionOk( ladderid, key, value ):
-								saybattle( self.socket, self.battleid, key + "=" + value )
 				else:
 					saybattle( self.socket, self.battleid,"Invalid ladder ID.")
 			if command == "!ladder":
@@ -230,7 +291,8 @@ class Main:
 						if self.db.LadderExists( ladderid ):
 							saybattle( self.socket, self.battleid,"Enabled ladder reporting for ladder: " + self.db.GetLadderName( ladderid ) )
 							self.ladderid = ladderid
-							self.CheckValidSetup( ladderid )
+							if self.CheckValidSetup( ladderid, True, self.sockets ):
+								saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 						else:
 							saybattle( self.socket, self.battleid,"Invalid ladder ID.")
 					else:
@@ -246,10 +308,14 @@ class Main:
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder == args[3]
 			self.battleoptions["battletype"] = args[1]
-			self.battleoptions["mapname"] = args[10]
-			self.battleoptions["modname"] = args[12]
+			tabbedstring = " ".join(args[10:])
+			tabsplit = parselist(tabbedstring,"\t")
+			self.battleoptions["mapname"] = tabsplit[0]
+			self.battleoptions["modname"] = tabsplit[2]
 		if command == "UPDATEBATTLEINFO" and len(args) > 4 and int(args[0]) == self.battleid:
-			self.battleoptions["mapname"] = args[4]
+			tabbedstring = " ".join(args[4:])
+			tabsplit = parselist(tabbedstring,"\t")
+			self.battleoptions["mapname"] = tabsplit[0]
 		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
 			try:
 				self.gamestarted = self.tsc.users[self.battlefounder].ingame
