@@ -120,10 +120,12 @@ class LadderDB:
 		
 	def DeleteOption( self, ladder_id, whitelist_only, keyname, value ):
 		session = self.sessionmaker()
-		option = session.query( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).first()
+		option = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).first()
 		if option:
 			session.delete( option )
 			session.commit()
+		#else
+			#raise ElementNotFoundException( Option( 
 		session.close()
 
 	def GetLadder(self, ladder_id ):
