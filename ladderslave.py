@@ -144,19 +144,19 @@ class Main:
 		allycount = len(self.allies)
 		if teamcount < self.db.GetLadderOption( ladderid, "min_team_count" ):
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too few control teams for" + laddername  + " (" + str(teamcount) + ")" )
+				saybattle( socket, self.battleid, "There are too few control teams for " + laddername  + " (" + str(teamcount) + ")" )
 			IsOk =  False
 		if teamcount > self.db.GetLadderOption( ladderid, "max_team_count" ):
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too many control teams for" + laddername + " (" + str(teamcount) + ")" )
+				saybattle( socket, self.battleid, "There are too many control teams for " + laddername + " (" + str(teamcount) + ")" )
 			IsOk = False
 		if allycount < self.db.GetLadderOption( ladderid, "min_ally_count" ):
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too few allies for" + laddername  + " (" + str(teamcount) + ")" )
+				saybattle( socket, self.battleid, "There are too few allies for " + laddername  + " (" + str(teamcount) + ")" )
 			IsOk = False
 		if allycount > self.db.GetLadderOption( ladderid, "max_ally_count" ):
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too few allies for" + laddername  + " (" + str(teamcount) + ")" )
+				saybattle( socket, self.battleid, "There are too few allies for " + laddername  + " (" + str(teamcount) + ")" )
 			IsOk = False
 		minteamsize = self.db.GetLadderOption( ladderid, "min_team_size" )
 		maxteamsize = self.db.GetLadderOption( ladderid, "max_team_size" )
