@@ -132,7 +132,7 @@ class LadderDB:
 		session.close()
 		if not ladder:
 			raise ElementNotFoundException( Ladder( ladderID ) )
-		else	
+		else:
 			return ladder
 
 	def GetLadderOption(self, ladder_id, field ):
@@ -141,7 +141,7 @@ class LadderDB:
 		session.close()
 		if not ladder:
 			raise ElementNotFoundException( Ladder( ladderID ) )
-		else
+		else:
 			return ladder.vars()[field]#not tested
 
 	def SetLadder(self, ladder ):
