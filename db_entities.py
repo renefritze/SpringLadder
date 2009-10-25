@@ -44,15 +44,14 @@ class Ladder(Base):
 
 	def __init__(self, name):
 		self.name = name
-		#!TODO sane default vals
 		self.min_team_size 	= 1
 		self.max_team_size 	= 1
 		self.min_ally_size 	= 1
 		self.max_ally_size 	= 1
-		self.min_ally_count = 1
-		self.max_ally_count = 1
-		self.min_team_count = 1
-		self.max_team_count = 1
+		self.min_ally_count = 2
+		self.max_ally_count = 2
+		self.min_team_count = 2
+		self.max_team_count = 2
 
 	def __str__(self):
 		return "Ladder(id:%d) %s"%(self.id,self.name)
