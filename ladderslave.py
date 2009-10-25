@@ -46,7 +46,6 @@ class Main:
 	battleusers = dict()
 	battleoptions = dict()
 	ladderlist = dict()
-	mapname = ""
 	
 	def gs(self):# Game started
 		self.gamestarted = 1
@@ -161,57 +160,15 @@ class Main:
 			command = args[1]
 			args = args[2:]
 			if command == "!ladder" and len(args) == 1:
-				if args[0].isdigit():
-					ladderid = int(args[0])
-					if ladderid == -1:
-						self.ladderid = ladderid
-						saybattle(socket, self.battleid, "ladder mode disabled")
-					elif ladderid in self.ladderlist:
-						self.ladderid = ladderid
-						saybattle(socket, self.battleid, "ladder set to " + self.ladderlist[ladderid])
-					else:
-						saybattle(socket, self.battleid, "invalid ladder ID, use !ladderlist for a list of valid ID")
-				else:
-					saybattle(socket, self.battleid, "malformed message, it's !ladder ladderID, use -1 as ladderID to disable")
-			if command == "!ladderlist":
-				for i in self.ladderlist:
-					saybattle( socket, self.battleid, self.ladderlist[i] + ": " + str(i) )
-			if command == "!ladderlistoptions":
-				if len(args) > 1:
-					saybattle(socket, self.battleid, "Invalid command syntax, check !help for usage." )
-				else:
-					ladderid = self.ladderid
-					if len(args)
-						ladderid = int(args[0])
-					if ( ladderid in self.ladderlist ):
-						whitelist = self.ladderoptions[ladderid].allowedoptions
-						blacklist = self.ladderoptions[ladderid].restrictedoptions
-						saybattle(socket, self.battleid, "Ladder: " + self.ladderlist[ladderid] )
-						saybattle(socket, self.battleid, "modname: " + self.ladderoptions[ladderid].modname )
-						saybattle(socket, self.battleid, "Min control team size: " + str(self.ladderoptions[ladderid].controlteamminsize) )
-						saybattle(socket, self.battleid, "Max control team size: " + str(self.ladderoptions[ladderid].controlteammaxsize) )
-						saybattle(socket, self.battleid, "Min ally size: " + str(self.ladderoptions[ladderid].allyminsize) )
-						saybattle(socket, self.battleid, "Max ally size: " + str(self.ladderoptions[ladderid].allymaxsize) )
-						saybattle(socket, self.battleid, "Whitelisted options ( if a key is present, no other value except for those listed will be allowed for such key ):" )
-						for key in whitelist:
-							allowedvalues = whitelist[key]
-							for value in allowedvalues:
-								saybattle(socket, self.battleid, key + ": " + value )
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Blacklisted options ( if a value is present for a key, such value won't be allowed ):" )
-						for key in blacklist:
-							disabledvalues = blacklist[key]
-							for value in disabledvalues:
-								saybattle(socket, self.battleid, key + ": " + value )						
-					else:
-						saybattle(socket, self.battleid, "Invalid ladder ID, use !ladderlist for a list of valid ID." )
+
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			if args[1] != 0: # battle is not the right type
 				error( "Battle is not the right type, ID: " + str(self.battleid) + " type: " + args[1] )
 				self.killbot()
-			self.mapname = args[10]
-			self.modname = args[12]
+			self.battleoptions["mapname"] = args[10]
+			self.battleoptions["modname"] = args[12]
 		if command == "UPDATEBATTLEINFO" and len(args) > 4 and int(args[0]) == self.battleid:
-			self.mapname = args[4]
+			self.battleoptions["mapname"] = args[4]
 			self.checkgeneraloptionssetup()
 		
 				if args[1] == "!startgame" and args[0] == self.battleowner:
