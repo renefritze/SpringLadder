@@ -156,6 +156,7 @@ class Main:
 		self.socket = s
 		if command == "JOINBATTLE":
 			self.joinedbattle = True
+			self.socket.send( "MYBATTLESTATUS 512 255\n" )#spectator/white 
 		if command == "JOINBATTLEFAILED":
 			self.joinedbattle = False
 			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] ) )
