@@ -126,10 +126,10 @@ class Main:
 				saybattle("has submitted ladder score updates")
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-			loge(socket,"*** EXCEPTION: BEGIN")
+			print red+"*** EXCEPTION: BEGIN")
 			for line in exc:
-				loge(socket,line)
-			loge(socket,"*** EXCEPTION: END")
+				print line
+			print "*** EXCEPTION: END"+normal
 			os.chdir(cwd)
 		os.chdir(cwd)
 		self.ingame = False
