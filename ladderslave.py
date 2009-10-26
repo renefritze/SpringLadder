@@ -305,7 +305,7 @@ class Main:
 						if self.db.LadderExists( ladderid ):
 							saybattle( self.socket, self.battleid,"Enabled ladder reporting for ladder: " + self.db.GetLadderName( ladderid ) )
 							self.ladderid = ladderid
-							if self.CheckValidSetup( ladderid, True, self.sockets ):
+							if self.CheckValidSetup( ladderid, True, self.socket ):
 								saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 						else:
 							saybattle( self.socket, self.battleid,"Invalid ladder ID.")
