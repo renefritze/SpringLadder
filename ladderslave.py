@@ -155,19 +155,23 @@ class Main:
 		laddername = self.db.GetLadderName( ladderid )
 		teamcount = len(self.teams)
 		allycount = len(self.allies)
-		if teamcount < self.db.GetLadderOption( ladderid, "min_team_count" ):
+		minteamcount = self.db.GetLadderOption( ladderid, "min_team_count" )
+		maxteamcount = self.db.GetLadderOption( ladderid, "max_team_count" )
+		minallycount = self.db.GetLadderOption( ladderid, "min_ally_count" )
+		maxallycount = self.db.GetLadderOption( ladderid, "max_ally_count" )
+		if teamcount < minteamcount:
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too few control teams for " + laddername  + " (" + str(teamcount) + ")" )
 			IsOk =  False
-		if teamcount > self.db.GetLadderOption( ladderid, "max_team_count" ):
+		if teamcount > maxteamcount:
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too many control teams for " + laddername + " (" + str(teamcount) + ")" )
 			IsOk = False
-		if allycount < self.db.GetLadderOption( ladderid, "min_ally_count" ):
+		if allycount < minallycount:
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too few allies for " + laddername  + " (" + str(allycount) + ")" )
 			IsOk = False
-		if allycount > self.db.GetLadderOption( ladderid, "max_ally_count" ):
+		if allycount > maxallycount:
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too few allies for " + laddername  + " (" + str(allycount) + ")" )
 			IsOk = False
