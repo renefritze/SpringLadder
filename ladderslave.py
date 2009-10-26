@@ -86,13 +86,9 @@ class Main:
 	teams = dict()
 	allies = dict()
 	battlefounder = ""
-	def gs(self):# Game started
-		self.gamestarted = 1
-		
 	def startspring(self,socket,g):
 		cwd = os.getcwd()
 		try:
-			self.gamestarted = 0
 			self.u.reset()
 			if self.ingame == True:
 				saybattle( self.socket, battleid, "Error: game is already running")
@@ -245,6 +241,7 @@ class Main:
 			
 	def onload(self,tasc):
 		self.app = tasc.main
+		self.tsc = tasc
 		self.hosttime = time.time()
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
@@ -327,7 +324,7 @@ class Main:
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
-			self.battlefounder == args[3]
+			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
 			tabbedstring = " ".join(args[10:])
 			tabsplit = parselist(tabbedstring,"\t")
@@ -345,7 +342,7 @@ class Main:
 				print red+"*** EXCEPTION: BEGIN"
 				for line in exc:
 					print line
-				print"*** EXCEPTION: END"+normale
+				print"*** EXCEPTION: END"+normal
 			if self.joinedbattle: #start spring
 				s.send("MYSTATUS 1\n")
 				g = time.time()
