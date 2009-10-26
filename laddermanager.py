@@ -97,6 +97,7 @@ class Main:
 			
 	def spawnbot( self,  socket, battleid, ladderid ):
 		slot = len(self.botstatus)
+		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(laderid))
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,ladderid)))
 		
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
@@ -160,7 +161,7 @@ class Main:
 						ladderid = self.db.AddLadder( laddername )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) ) 
 					except ElementExistsException, e:
-						print "Error",e
+						error(e)
 		if command == "!ladderremove":
 			if ( fromwho in self.admins ):
 				if len(args) != 1 or not args[0].isdigit():
@@ -189,7 +190,6 @@ class Main:
 								return
 							ladder.max_team_size = int(args[2])
 						self.db.SetLadder( ladder )
-						print self.db.GetLadder( ladderid )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder control team size changed." )
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
@@ -210,7 +210,6 @@ class Main:
 								return
 							ladder.max_ally_size = int(args[2])
 						self.db.SetLadder( ladder )
-						print self.db.GetLadder( ladderid )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder ally size changed." )
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
@@ -231,7 +230,6 @@ class Main:
 								return
 							ladder.max_team_count = int(args[2])
 						self.db.SetLadder( ladder )
-						print self.db.GetLadder( ladderid )
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder control team count changed." )
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
@@ -252,7 +250,6 @@ class Main:
 								return
 							ladder.max_ally_count = int(args[2])
 						self.db.SetLadder( ladder )
-						print ladder
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder ally count changed." )
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
@@ -277,7 +274,6 @@ class Main:
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Option added to the " + message + "." )
 							except ElementExistsException, e:
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Option already in db" )
-								print e
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 					
