@@ -251,18 +251,18 @@ class Main:
 		self.socket = s
 		if command == "JOINBATTLE":
 			self.joinedbattle = True
-			log( "joined battle: " + str(self.battleid) )
+			good( "Joined battle: " + str(self.battleid) )
 		if command == "JOINBATTLEFAILED":
 			self.joinedbattle = False
-			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] ) )
+			bad( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] ) )
 			self.KillBot()
 		if command == "FORCEQUITBATTLE":
 			self.joinedbattle = False
-			log( "kicked from battle: " + str(self.battleid) )
+			bad( "Kicked from battle: " + str(self.battleid) )
 			self.KillBot()
 		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
 			self.joinedbattle = False
-			log( "battle closed: " + str(self.battleid) )
+			notice( "Battle closed: " + str(self.battleid) )
 			self.KillBot()			
 		if command == "SETSCRIPTTAGS":
 			for option in args[0].split():
@@ -316,7 +316,7 @@ class Main:
 					saybattle( self.socket, self.battleid,"Invalid command syntax, check !help for usage.")
 			if command == "!ladderleave":
 				self.joinedbattle = False
-				log( "leaving battle: " + str(self.battleid) )
+				good( "Leaving battle: " + str(self.battleid) )
 				self.socket.send("LEAVEBATTLE\n")
 				self.KillBot()
 			if command == "!help":
