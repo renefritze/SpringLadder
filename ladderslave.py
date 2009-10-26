@@ -94,10 +94,10 @@ class Main:
 				return
 			self.output = ""
 			self.ingame = True
-			if self.ladderid == -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0):
-				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
-			else:
+			if self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0):
 				saybattleex(socket, self.battleid, "is gonna submit to the ladder the score results")
+			else:
+				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
 			socket.send("MYSTATUS 1\n")
 			st = time.time()
 			if platform.system() == "Linux":
