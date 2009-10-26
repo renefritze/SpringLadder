@@ -237,10 +237,10 @@ class Main:
 		return IsOk
 			
 	def CheckOptionOk( self, ladderid, keyname, value ):
-		if self.db.GetOptionKeyValueExists( self.ladderid, False, keyname, value ): # option in the blacklist
+		if self.db.GetOptionKeyValueExists( ladderid, False, keyname, value ): # option in the blacklist
 			return False
-		if self.db.GetOptionKeyExists( self.ladderid, True, keyname ): # whitelist not empty
-			return self.db.GetOptionKeyValueExists( self.ladderid, True, keyname, value )
+		if self.db.GetOptionKeyExists( ladderid, True, keyname ): # whitelist not empty
+			return self.db.GetOptionKeyValueExists( ladderid, True, keyname, value )
 		else:
 			return True
 			
