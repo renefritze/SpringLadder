@@ -89,16 +89,15 @@ class Main:
 	def startspring(self,socket,g):
 		cwd = os.getcwd()
 		try:
-			self.u.reset()
 			if self.ingame == True:
 				saybattle( self.socket, battleid, "Error: game is already running")
 				return
 			self.output = ""
 			self.ingame = True
-			if self.ladderid == -1 and self.db.LadderExists( ladderid ) and self.CheckValidSetup(self.ladderid,False,0):
-				saybattleex(socket, battleid, "won't submit to the ladder the score results")
+			if self.ladderid == -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0):
+				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
 			else:
-				saybattleex(socket, battleid, "is gonna submit to the ladder the score results")
+				saybattleex(socket, self.battleid, "is gonna submit to the ladder the score results")
 			socket.send("MYSTATUS 1\n")
 			st = time.time()
 			if platform.system() == "Linux":
@@ -123,10 +122,10 @@ class Main:
 					time.sleep(float(len(h))/900.0+0.05)
 			socket.send("MYSTATUS 0\n")
 			if True:
-				saybattle("has submitted ladder score updates")
+				saybattleex(socket, self.battleid, "has submitted ladder score updates")
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-			print red+"*** EXCEPTION: BEGIN")
+			print red+"*** EXCEPTION: BEGIN"
 			for line in exc:
 				print line
 			print "*** EXCEPTION: END"+normal
