@@ -8,3 +8,5 @@ testplugin.py
 utilities.py
 *.pyc
 *~
+*.swp
+website/docs
