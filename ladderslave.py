@@ -144,7 +144,9 @@ class Main:
 			os.kill(os.getpid(),signal.SIGKILL)
 			
 	def CheckValidSetup( self, ladderid, echoerrors, socket ):
-		return self.CheckvalidPlayerSetup(ladderid,echoerrors,socket) and self.CheckValidOptionsSetup(ladderid,echoerrors,socket)
+		a = self.CheckvalidPlayerSetup(ladderid,echoerrors,socket)
+		b = self.CheckValidOptionsSetup(ladderid,echoerrors,socket)
+		return a and b
 		
 	def CheckvalidPlayerSetup( self, ladderid, echoerrors, socket ):
 		IsOk = True
