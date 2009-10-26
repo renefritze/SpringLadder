@@ -32,7 +32,7 @@ def saybattleex(socket,battleid,message):
 		print green+"Battle:%i, Message: %s" %(battleid,line) + normal
 		socket.send("SAYBATTLEEX %s\n" % line)
 
-bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1)+str(n&1) or '0'
+bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1).lstrip('0')+str(n&1) or '0'
 
 """
     *  b0 = undefined (reserved for future use)
@@ -49,16 +49,18 @@ bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1)+str(n&1) or '0'
 
 class BattleStatus:
 	def __init__(self, status, nick ):
+		print "len before padding: ",len(bstr_nonneg( int(status) ))
 		sstr = bstr_nonneg( int(status) ).rjust( 31, "0" )
 		print 'statusstring length:%d : [%s] from %s'%(len(sstr), sstr,status)
-		self.team = int( sstr[-5:-2], 2)+1
-		self.ally = int( sstr[-9:-6], 2)+1
-		self.side = int( sstr[-27:-24], 2)+1
-		self.spec = int ( sstr[-10], 2) == 1
+		self.team = int( sstr[-6:-2], 2)+1
+		self.ally = int( sstr[-10:-6], 2)+1
+		self.side = int( sstr[-28:-24], 2)+1
+		self.spec = ( sstr[ -11:-10 ] == "0" )
 		self.nick = nick
+		self.decimal = int(status)
 
 	def __str__(self):
-		return "nick: %s -- team:%d ally:%d side:%d spec:%d"%(self.nick,self.team,self.ally,self.side,self.spec)
+		return "nick: %s -- team:%d ally:%d side:%d spec:%d decimal:%d"%(self.nick,self.team,self.ally,self.side,self.spec,self.decimal)
 
 helpstring_user = """!ladderlist : lists available ladders with their IDs
 !ladder ladderID: sets the ladder to report scores to, -1 to disable reporting
