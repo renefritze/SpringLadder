@@ -218,6 +218,7 @@ class Main:
 	def CheckValidOptionsSetup( self, ladderid, echoerrors, socket ):
 		IsOk = True
 		laddername = self.db.GetLadderName( ladderid )
+		print "battleoptions: ", self.battleoptions
 		for key in self.battleoptions:
 			value = self.battleoptions[key]
 			OptionOk = self.CheckOptionOk( ladderid, key, value )
@@ -362,7 +363,6 @@ class Main:
 				error( "invalid CLIENTBATTLESTATUS:%s"%(args) )
 			bs = BattleStatus( args[1], args[0] )
 			self.battle_statusmap[ args[0] ] = bs
-			print bs
 			self.FillTeamAndAllies()
 		
 	def onloggedin(self,socket):
@@ -374,6 +374,7 @@ class Main:
 		self.teams = dict()
 		self.allies = dict()
 		for bs in self.battle_statusmap.values():
+			print bs
 			if not bs.spec:
 				if not bs.team in self.teams:
 					self.teams[bs.team] = 1
@@ -383,5 +384,7 @@ class Main:
 					self.allies[bs.ally] = 1
 				else:
 					self.allies[bs.ally] += 1
-		print self.allies
-		print self.teams
+		print "allies:", self.allies
+		print "teams: ",self.teams
+		print "battle_statusmap",self.battle_statusmap
+		
