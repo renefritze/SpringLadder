@@ -49,9 +49,9 @@ bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1).lstrip('0')+str(n&1) or '0'
 
 class BattleStatus:
 	def __init__(self, status, nick ):
-		print "len before padding: ",len(bstr_nonneg( int(status) ))
+#		print "len before padding: ",len(bstr_nonneg( int(status) ))
 		sstr = bstr_nonneg( int(status) ).rjust( 31, "0" )
-		print 'statusstring length:%d : [%s] from %s'%(len(sstr), sstr,status)
+#s		print 'statusstring length:%d : [%s] from %s'%(len(sstr), sstr,status)
 		self.team = int( sstr[-6:-2], 2)+1
 		self.ally = int( sstr[-10:-6], 2)+1
 		self.side = int( sstr[-28:-24], 2)+1
@@ -86,23 +86,18 @@ class Main:
 	teams = dict()
 	allies = dict()
 	battlefounder = ""
-	def gs(self):# Game started
-		self.gamestarted = 1
-		
 	def startspring(self,socket,g):
 		cwd = os.getcwd()
 		try:
-			self.gamestarted = 0
-			self.u.reset()
 			if self.ingame == True:
 				saybattle( self.socket, battleid, "Error: game is already running")
 				return
 			self.output = ""
 			self.ingame = True
-			if self.ladderid == -1 and self.db.LadderExists( ladderid ) and self.CheckValidSetup(self.ladderid,False,0):
-				saybattleex(socket, battleid, "won't submit to the ladder the score results")
+			if self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0):
+				saybattleex(socket, self.battleid, "is gonna submit to the ladder the score results")
 			else:
-				saybattleex(socket, battleid, "is gonna submit to the ladder the score results")
+				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
 			socket.send("MYSTATUS 1\n")
 			st = time.time()
 			if platform.system() == "Linux":
@@ -127,13 +122,13 @@ class Main:
 					time.sleep(float(len(h))/900.0+0.05)
 			socket.send("MYSTATUS 0\n")
 			if True:
-				saybattle("has submitted ladder score updates")
+				saybattleex(socket, self.battleid, "has submitted ladder score updates")
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-			loge(socket,"*** EXCEPTION: BEGIN")
+			print red+"*** EXCEPTION: BEGIN"
 			for line in exc:
-				loge(socket,line)
-			loge(socket,"*** EXCEPTION: END")
+				print line
+			print "*** EXCEPTION: END"+normal
 			os.chdir(cwd)
 		os.chdir(cwd)
 		self.ingame = False
@@ -224,7 +219,6 @@ class Main:
 	def CheckValidOptionsSetup( self, ladderid, echoerrors, socket ):
 		IsOk = True
 		laddername = self.db.GetLadderName( ladderid )
-		print "battleoptions: ", self.battleoptions
 		for key in self.battleoptions:
 			value = self.battleoptions[key]
 			OptionOk = self.CheckOptionOk( ladderid, key, value )
@@ -237,15 +231,16 @@ class Main:
 		return IsOk
 			
 	def CheckOptionOk( self, ladderid, keyname, value ):
-		if self.db.GetOptionKeyValueExists( self.ladderid, False, keyname, value ): # option in the blacklist
+		if self.db.GetOptionKeyValueExists( ladderid, False, keyname, value ): # option in the blacklist
 			return False
-		if self.db.GetOptionKeyExists( self.ladderid, True, keyname ): # whitelist not empty
-			return self.db.GetOptionKeyValueExists( self.ladderid, True, keyname, value )
+		if self.db.GetOptionKeyExists( ladderid, True, keyname ): # whitelist not empty
+			return self.db.GetOptionKeyValueExists( ladderid, True, keyname, value )
 		else:
 			return True
 			
 	def onload(self,tasc):
 		self.app = tasc.main
+		self.tsc = tasc
 		self.hosttime = time.time()
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
@@ -256,18 +251,18 @@ class Main:
 		self.socket = s
 		if command == "JOINBATTLE":
 			self.joinedbattle = True
-			log( "joined battle: " + str(self.battleid) )
+			good( "Joined battle: " + str(self.battleid) )
 		if command == "JOINBATTLEFAILED":
 			self.joinedbattle = False
-			error( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] ) )
+			bad( "Join battle failed, ID: " + str(self.battleid) + " reason: " + " ".join(args[0:] ) )
 			self.KillBot()
 		if command == "FORCEQUITBATTLE":
 			self.joinedbattle = False
-			log( "kicked from battle: " + str(self.battleid) )
+			bad( "Kicked from battle: " + str(self.battleid) )
 			self.KillBot()
 		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
 			self.joinedbattle = False
-			log( "battle closed: " + str(self.battleid) )
+			notice( "Battle closed: " + str(self.battleid) )
 			self.KillBot()			
 		if command == "SETSCRIPTTAGS":
 			for option in args[0].split():
@@ -287,8 +282,6 @@ class Main:
 			who = args[0]
 			command = args[1]
 			args = args[2:]
-			print command
-			print args
 			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
@@ -323,14 +316,14 @@ class Main:
 					saybattle( self.socket, self.battleid,"Invalid command syntax, check !help for usage.")
 			if command == "!ladderleave":
 				self.joinedbattle = False
-				log( "leaving battle: " + str(self.battleid) )
+				good( "Leaving battle: " + str(self.battleid) )
 				self.socket.send("LEAVEBATTLE\n")
 				self.KillBot()
 			if command == "!help":
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
-			self.battlefounder == args[3]
+			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
 			tabbedstring = " ".join(args[10:])
 			tabsplit = parselist(tabbedstring,"\t")
@@ -348,7 +341,7 @@ class Main:
 				print red+"*** EXCEPTION: BEGIN"
 				for line in exc:
 					print line
-				print"*** EXCEPTION: END"+normale
+				print"*** EXCEPTION: END"+normal
 			if self.joinedbattle: #start spring
 				s.send("MYSTATUS 1\n")
 				g = time.time()
@@ -380,7 +373,6 @@ class Main:
 		self.teams = dict()
 		self.allies = dict()
 		for bs in self.battle_statusmap.values():
-			print bs
 			if not bs.spec:
 				if not bs.team in self.teams:
 					self.teams[bs.team] = 1
@@ -390,7 +382,7 @@ class Main:
 					self.allies[bs.ally] = 1
 				else:
 					self.allies[bs.ally] += 1
-		print "allies:", self.allies
-		print "teams: ",self.teams
-		print "battle_statusmap",self.battle_statusmap
+#		print "allies:", self.allies
+#		print "teams: ",self.teams
+#		print "battle_statusmap",self.battle_statusmap
 		
