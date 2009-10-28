@@ -8,6 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 import cgitb
 cgitb.enable()
 
+ladders = session.query(Ladder).all()
 env = Environment(loader=FileSystemLoader('templates'))
 fs2 = fs.bind(ladders[0])
 fs3 = fs.bind(ladders[1])

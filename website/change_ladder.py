@@ -3,7 +3,7 @@
 
 import cgi
 from jinja2 import Environment, FileSystemLoader
-from fieldsets import db,fs,session,ladders
+from fieldsets import *
 import cgitb
 cgitb.enable()
 env = Environment(loader=FileSystemLoader('templates'))
@@ -19,12 +19,15 @@ if 'id' in f2:
 	id = f2['id']
 	del f2['id']
 
+fs2 = None
+
 try:
 	lad = db.GetLadder( id )
-	
+	options = session.query(Option).filter(Option.ladder_id == id).all()
+	grid = Grid( Option, options )
 #print fields
 	if fields:
-		fs2 = fs.bind(lad,data=f2)
+		fs2 = FieldSet(lad,data=f2)
 		try:
 			fs2.validate()
 			fs2.sync()
@@ -34,13 +37,12 @@ try:
 			print '<h3> failed </h3>'
 
 	else:
-		fs2 = fs.bind(lad)
+		fs2 = FieldSet(lad)
+		grid = Grid( Option, options )
 
 	template = env.get_template('change_ladder.html')
-	print template.render( formcontent=fs2.render() )
+	print template.render( formcontent=fs2.render(),griddata=grid.render() )
 
-except:
+except ElementNotFoundException, e:
 	template = env.get_template('error.html')
 	print template.render( err_msg="ladder with id %s not found"%(str(id)) )
-
-
