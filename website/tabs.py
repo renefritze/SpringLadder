@@ -3,47 +3,19 @@
 
 import cgi
 from fieldsets import db,fs,session,ladders
+from fa.jquery.forms import *
+from jinja2 import Environment, FileSystemLoader
 import cgitb
 cgitb.enable()
 
-lad = ladders[0]
-fields = cgi.FieldStorage()
-f2 = dict()
-for k in fields.keys():
-	f2[k] = fields.getvalue(k)
-fields = f2
-#print fields
-if fields:
-	fs2 = fs.bind(lad,data=f2)
-	try:
-		fs2.validate()
-		fs2.sync()
-		session.commit()
-		print '<h3> done </h3>'
-	except:
-		print '<h3> failed </h3>'
-
-else:
-	fs2 = fs.bind(lad)
-
+env = Environment(loader=FileSystemLoader('templates'))
+fs2 = fs.bind(ladders[0])
 fs3 = fs.bind(ladders[1])
-from fa.jquery.forms import *
+
 tabs = Tabs('my_tabs', ('tab1', 'My first tab', fs2) )
 tabs.append('tab2', 'The second', fs3)
-tabs.tab1 = tabs.tab1.bind(lad)
+tabs.tab1 = tabs.tab1.bind(ladders[0])
 tabs.bind(ladders[1], tabs.tab2)
 
-h = '''<html>
-<head>
-<link type="text/css" href="/jquery/css/redmond/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
-<link type="text/css" href="/jquery/fa.jquery.min.css" rel="stylesheet" />
-<script type="text/javascript" src="/jquery/fa.jquery.min.js"></script>
-</head>
-<form name="input" action="enter.py" method="post">'''
-f ='''<a href="/index.py" > back to index </a></html>
-''' 
-
-#<input type="submit" value="Submit" /></form>'
-#print h,tabs.render(selected=2),f
-print h,tabs.render(selected=2),f
-
+template = env.get_template('tabs.html')
+print template.render( formcontent=tabs.render(selected=2) )
