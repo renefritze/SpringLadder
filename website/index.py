@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 from jinja2 import Environment, FileSystemLoader
 from ladderdb import *
@@ -11,5 +12,5 @@ db = LadderDB("sqlite:///../ladder.db")
 
 field = formhelper.getValue("dummy")
 
-print template.render(ladders=db.GetLadderList(Ladder.name), param=field )
+print template.render(ladders=db.GetLadderList(Ladder.name) )
 

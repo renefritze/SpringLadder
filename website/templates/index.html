@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+<ul>
 {% for l in ladders %}
-  <li>{{ l.name }}</li>
+  <li><a href="/change_ladder.py?id={{ l.id }}">{{ l.name }}</a></li>
 {% endfor %}
-{{ param }}
+</ul>
+<br/>
+<a href="/tabs.py"> pretty tabs example</a>
 {% endblock %}
 
