@@ -41,6 +41,8 @@ class Ladder(Base):
 	min_team_count = Column( Integer )
 	max_team_count = Column( Integer )
 
+	def __init__(self):
+		self.__init__("lolo")
 
 	def __init__(self, name):
 		self.name = name

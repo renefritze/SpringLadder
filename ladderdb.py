@@ -28,6 +28,9 @@ class LadderDB:
 		self.metadata.create_all(self.engine)
 		self.sessionmaker = sessionmaker( bind=self.engine )
 
+	def getSession(self):
+		return self.sessionmaker()
+
 	def AddLadder(self, name ):
 		session = self.sessionmaker()
 		ladder = session.query( Ladder ).filter( Ladder.name == name ).first()
