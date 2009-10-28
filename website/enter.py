@@ -25,7 +25,24 @@ if fields:
 else:
 	fs2 = fs.bind(lad)
 
-html = fs2.render()
-h = '<form name="input" action="enter.py" method="post">'
-f = '<input type="submit" value="Submit" /></form>'
-print h,html,f
+from fa.jquery.forms import *
+tabs = Tabs('my_tabs',
+	('tab1', 'My first tab', fs2),
+	footer='<input type="submit" action="enter.py" method="post" name="%(id)s" />')
+
+tabs.append('tab2', 'The second', fs2)
+tabs.tab1 = tabs.tab1.bind(lad)
+tabs.bind(lad, tabs.tab2)
+h = '''<html>
+<head>
+<link type="text/css" href="/jquery/css/redmond/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+<link type="text/css" href="/jquery/fa.jquery.min.css" rel="stylesheet" />
+<script type="text/javascript" src="/jquery/fa.jquery.min.js"></script>
+</head>
+<form name="input" action="enter.py" method="post">'''
+f ='''</html>
+''' 
+
+#<input type="submit" value="Submit" /></form>'
+print h,tabs.render(selected=2),f
+
