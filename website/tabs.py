@@ -1,17 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import cgi
-from fieldsets import db,fs,session,ladders
-from fa.jquery.forms import *
-from jinja2 import Environment, FileSystemLoader
 import cgitb
 cgitb.enable()
+import cgi
+from fieldsets import *
+from fa.jquery.forms import *
+from jinja2 import Environment, FileSystemLoader
 
 ladders = session.query(Ladder).all()
 env = Environment(loader=FileSystemLoader('templates'))
-fs2 = fs.bind(ladders[0])
-fs3 = fs.bind(ladders[1])
+fs2 = FieldSet(ladders[0])
+fs3 = FieldSet(ladders[1])
 
 tabs = Tabs('my_tabs', ('tab1', 'My first tab', fs2) )
 tabs.append('tab2', 'The second', fs3)

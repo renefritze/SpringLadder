@@ -7,14 +7,17 @@
 {% endblock %}
 
 {% block content %}
+{{ note }}
 <form name="input" action="change_ladder.py" method="post">
+<input type="hidden" value="{{ ladder_id }}" id="id" name="id" >
 {{ formcontent }}
 <br/>
 <table>
 {{ griddata }}
 </table>
 <br/>
-<input type="submit" action="change_ladder.py" method="post" />
+<input type="submit" name="submit" value="submit"/>
+<input type="submit" name="new" value="add new option"/>
 </form>
 <br/>
 <a href="/index.py" > back to index </a>
