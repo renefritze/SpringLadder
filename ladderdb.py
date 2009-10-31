@@ -27,6 +27,10 @@ class LadderDB:
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)
 		self.sessionmaker = sessionmaker( bind=self.engine )
+		try:
+			self.AddLadder( 'dummy' )
+		except:
+			pass
 
 	def getSession(self):
 		return self.sessionmaker()
@@ -137,7 +141,7 @@ class LadderDB:
 		ladder = session.query(Ladder).filter( Ladder.id == ladder_id ).first()
 		session.close()
 		if not ladder:
-			raise ElementNotFoundException( Ladder( ladderID ) )
+			raise ElementNotFoundException( Ladder( ladder_id ) )
 		else:
 			return ladder
 

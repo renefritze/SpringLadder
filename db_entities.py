@@ -67,13 +67,10 @@ class Option(Base):
 	value 			= Column( String(100) )
 	is_whitelist 	= Column( Boolean )
 
-	def __init__(self):
-		pass
-		
-	#def __init__(self,key,value,is_whitelist):
-		#self.key = key
-		#self.value = value
-		#self.is_whitelist = is_whitelist
+	def __init__(self,key='defaultkey',value='emptyvalue',is_whitelist=True):
+		self.key = key
+		self.value = value
+		self.is_whitelist = is_whitelist
 
 	def __str__(self):
 		return "Option(id:%d) %s -> %s (%s)"%(self.id,self.key, self.value, "wl" if self.is_whitelist else "bl")
