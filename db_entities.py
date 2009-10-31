@@ -41,6 +41,7 @@ class Ladder(Base):
 	min_team_count 	= Column( Integer )
 	max_team_count 	= Column( Integer )
 
+	options			= relation( "Option", order_by="Option.key" )
 
 	def __init__(self, name):
 		self.name = name
@@ -60,7 +61,7 @@ class Ladder(Base):
 class Option(Base):
 	__tablename__ 	= 'options'
 	id 				= Column( Integer, primary_key=True )
-	ladder_id 		= Column( Integer, ForeignKey( Ladders.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
 	key 			= Column( String(100) )
 	value 			= Column( String(100) )
 	is_whitelist 	= Column( Boolean )
@@ -88,12 +89,15 @@ class Player(Base):
 class Match(Base):
 	__tablename__ 	= 'matches'
 	id 				= Column( Integer, primary_key=True )
-	ladder_id 		= Column( Integer, ForeignKey( Ladders.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
 	date 			= Column( DateTime )
 	modname 		= Column( String( 60 ) )
 	mapname 		= Column( String( 60 ) )
 	replay 			= Column( String( 200 ) )
 	duration 		= Column( Interval )
+
+	settings    	= relation("MatchSetting", 	order_by="MatchSetting.key" )#, backref="match" )#this would auto-create a relation in MatchSetting too
+	results			= relation("Result", 		order_by="Result.team" )
 	
 
 class MatchSetting(Base):
