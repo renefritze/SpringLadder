@@ -3,7 +3,7 @@ from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from datetime import datetime
-
+"""
 class LadderMatch:
 	def __init__(self):
 		self.timestamp = 0
@@ -24,22 +24,22 @@ class Player:
 	 	self.ally = -1
 	 	self.spectator = False
 	 	self.isbot = False
-
+"""
 Base = declarative_base()
 
 class Ladder(Base):
-	__tablename__ = 'ladders'
-	id = Column( Integer, primary_key=True )
-	name = Column( String(100) )
-	#description = Column( whatever type means variable lengh text ( TEXT ?? ) )
+	__tablename__ 	= 'ladders'
+	id 				= Column( Integer, primary_key=True )
+	name 			= Column( String(100) )
+	description 	= Column( Text )
 	min_team_size 	= Column( Integer )
 	max_team_size 	= Column( Integer )
 	min_ally_size 	= Column( Integer )
 	max_ally_size 	= Column( Integer )
-	min_ally_count = Column( Integer )
-	max_ally_count = Column( Integer )
-	min_team_count = Column( Integer )
-	max_team_count = Column( Integer )
+	min_ally_count 	= Column( Integer )
+	max_ally_count 	= Column( Integer )
+	min_team_count 	= Column( Integer )
+	max_team_count 	= Column( Integer )
 
 
 	def __init__(self, name):
@@ -58,12 +58,12 @@ class Ladder(Base):
 
 
 class Option(Base):
-	__tablename__ = 'options'
-	id = Column( Integer, primary_key=True )
-	ladder_id = Column( Integer, ForeignKey( 'ladders.id') )
-	key = Column( String(100) )
-	value = Column( String(100) )
-	is_whitelist = Column( Boolean )
+	__tablename__ 	= 'options'
+	id 				= Column( Integer, primary_key=True )
+	ladder_id 		= Column( Integer, ForeignKey( Ladders.id ) )
+	key 			= Column( String(100) )
+	value 			= Column( String(100) )
+	is_whitelist 	= Column( Boolean )
 
 	def __init__(self,key,value,is_whitelist):
 		self.key = key
@@ -73,21 +73,50 @@ class Option(Base):
 	def __str__(self):
 		return "Option(id:%d) %s -> %s (%s)"%(self.id,self.key, self.value, "wl" if self.is_whitelist else "bl")
 
-class Match(Base):
-	__tablename__ = 'matches'
-	id = Column( Integer, primary_key=True )
-
-    #def __init__(self,name):
-        #self.name = name
-
-
 class Player(Base):
-	__tablename__ = 'players'
-	id = Column( Integer, primary_key=True )
-	nick = Column( String(50) )
+	__tablename__ 	= 'players'
+	id 				= Column( Integer, primary_key=True )
+	nick 			= Column( String(50) )
+	pwhash 			= Column( String(80) )
 
 	def __init__(self, nick):
 		self.nick = nick
 
 	def __str__(self):
 		return "Player(id:%d) %s "%(self.id, self.nick)
+
+class Match(Base):
+	__tablename__ 	= 'matches'
+	id 				= Column( Integer, primary_key=True )
+	ladder_id 		= Column( Integer, ForeignKey( Ladders.id ) )
+	date 			= Column( DateTime )
+	modname 		= Column( String( 60 ) )
+	mapname 		= Column( String( 60 ) )
+	replay 			= Column( String( 200 ) )
+	duration 		= Column( Interval )
+	
+
+class MatchSetting(Base):
+	__tablename__ 	= 'matchsettings'
+	id 				= Column( Integer, primary_key=True )
+	key 			= Column( String(40) )
+	value 			= Column( String(80) )
+	match_id 		= Column( Integer, ForeignKey( Match.id ) )
+	
+class Result(Base):
+	__tablename__ 	= 'results'
+	id 				= Column( Integer, primary_key=True )
+	player_id 		= Column( Integer, ForeignKey( Player.id ) )
+	match_id 		= Column( Integer, ForeignKey( Match.id ) )
+	team			= Column( Integer )
+	ally			= Column( Integer )
+	won				= Column( Boolean )
+	disconnect		= Column( Boolean )
+	quit			= Column( Boolean )
+	desync			= Column( Boolean )
+	timeout			= Column( Boolean )
+	#whatever else stats trakced below
+	
+	
+
+	
