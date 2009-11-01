@@ -27,10 +27,7 @@ class LadderDB:
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)
 		self.sessionmaker = sessionmaker( bind=self.engine )
-		try:
-			self.AddLadder( 'dummy' )
-		except:
-			pass
+		self.AddDefaultData()
 
 	def getSession(self):
 		return self.sessionmaker()
@@ -198,5 +195,16 @@ class LadderDB:
 				session.commit()
 		session.close()
 
+	def AddPlayer(self,name,pw=''):
+		session = self.sessionmaker()
+		player = Player( name,pw )
+		session.add( player )
+		session.commit()
+		session.close()
 		
+	def AddDefaultData(self):
+		try:
+			self.AddLadder( 'dummy' )
+		except:
+			pass		
 
