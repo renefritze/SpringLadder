@@ -13,6 +13,7 @@ import sys
 from db_entities import *
 from ladderdb import *
 from colors import *
+from match import MatchResult
 
 if platform.system() == "Windows":
 	import win32api
@@ -94,7 +95,8 @@ class Main:
 				return
 			self.output = ""
 			self.ingame = True
-			if self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0):
+			doSubmit = self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0)
+			if doSubmit:
 				saybattleex(socket, self.battleid, "is gonna submit to the ladder the score results")
 			else:
 				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
@@ -120,6 +122,12 @@ class Main:
 				for h in g:
 					log("*** STDOUT+STDERR: "+h)
 					time.sleep(float(len(h))/900.0+0.05)
+			elif doSubmit:
+				mr = MatchResult( self.output, allies, teams, battle_users, battlefounder )
+				try:
+					self.db.ReportMatch( self.ladderid, mr )
+				except:
+					saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome." )
 			socket.send("MYSTATUS 0\n")
 			if True:
 				saybattleex(socket, self.battleid, "has submitted ladder score updates")

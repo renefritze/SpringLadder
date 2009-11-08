@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from datetime import datetime
 from db_entities import *
+import rankings
 
 class ElementExistsException( Exception ):
 	def __init__(self, element):
@@ -32,15 +33,17 @@ class LadderDB:
 	def getSession(self):
 		return self.sessionmaker()
 
-	def AddLadder(self, name ):
+	def AddLadder(self, name, ranking_algo_id = 0 ):
 		session = self.sessionmaker()
 		ladder = session.query( Ladder ).filter( Ladder.name == name ).first()
 		ladderid = -1
 		if not ladder: #no existing ladder with same name
 			ladder = Ladder( name )
+			ladder.ranking_algo_id = ranking_algo_id
 			session.add( ladder )
 			session.commit()
 			ladderid = ladder.id
+			
 			session.close()
 			self.AddOption( ladderid, True, "battletype", "0" )#default for all ladders
 		else:
@@ -208,3 +211,7 @@ class LadderDB:
 		except:
 			pass		
 
+	def ReportMatch( self, ladder_id, matchresult ):
+		if not isinstance( matchresult, MatchResult ):
+			raise TypeError
+		

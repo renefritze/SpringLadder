@@ -40,6 +40,7 @@ class Ladder(Base):
 	max_ally_count 	= Column( Integer )
 	min_team_count 	= Column( Integer )
 	max_team_count 	= Column( Integer )
+	ranking_algo_id	= Column( Integer )
 
 	def __init__(self):
 		self.__init__("noname")
