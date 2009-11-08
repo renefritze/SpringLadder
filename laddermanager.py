@@ -41,19 +41,19 @@ def pm(s,p,m):
 			s.send("SAYPRIVATE %s %s\n" %(p,line))
 	except:
 		pass
-		
+
 def saychannel( socket, channel, message ):
 		for line in message.split('\n'):
 			print purple+"Channel :%s, Message: %s" %(channel,line) + normal
 			socket.send("SAY %s %s\n" %(channel,line) )
-			
+
 class Main:
 	botpid = dict() # slot -> bot pid
 	botstatus = [] # slot -> bot already spawned
 	battleswithbots = [] # battle id -> bot already in
 	ladderlist = dict() # id -> ladder name
 	ladderoptions = dict() # id -> ladder options
-	
+
 	def botthread(self,slot,battleid,ladderid):
 		nick = self.app.config["nick"]+str(slot)
 		try:
@@ -69,7 +69,9 @@ class Main:
 			d.update([("ladderid",str(ladderid))])
 			d.update([("alchemy-uri",self.app.config["alchemy-uri"])])
 			d.update([("alchemy-verbose",self.app.config["alchemy-verbose"])])
-			d.update([("springdedpath",self.app.config["springdedpath"])])
+			d.update([("springdedclientpath",self.app.config["springdedclientpath"])])
+			if "springdatapath" in self.app.config:
+				d.update([("springdatapath",self.app.config["springdatapath"])])
 			writeconfigfile(nick+".cfg",d)
 			p = subprocess.Popen(("python","Main.py","-c", "%s" % (nick+".cfg")),stdout=sys.stdout)
 			self.botpid[slot] = p.pid
@@ -78,7 +80,7 @@ class Main:
 			print '-'*60
 			traceback.print_exc(file=sys.stdout)
 			print '-'*60
-			
+
 	def onload(self,tasc):
 		self.tsc = tasc
 		self.bans = []
@@ -86,7 +88,7 @@ class Main:
 		self.channels = parselist(self.app.config["channelautojoinlist"],",")
 		self.admins = parselist(self.app.config["admins"],",")
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], parselist(self.app.config["alchemy-verbose"],",")[0] )
-		
+
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
 			ispm = true
@@ -94,12 +96,12 @@ class Main:
 			saychannel( socket, fromwhere, message )
 		else:
 			pm( socket, fromwho, message )
-			
+
 	def spawnbot( self,  socket, battleid, ladderid ):
 		slot = len(self.botstatus)
 		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(laderid))
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,ladderid)))
-		
+
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
 		if fromwho == self.app.config["nick"]:
 			return
@@ -146,7 +148,7 @@ class Main:
 						socket.send("LEAVE " + channel + "\n")
 						self.channels.remove(channel)
 						self.app.config["channelautojoinlist"] = ','.join(self.channels)
-						self.app.SaveConfig()		
+						self.app.SaveConfig()
 		if command == "!ladderlist":
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Available ladders, format name: ID:" )
 			for l in self.db.GetLadderList(Ladder.name):
@@ -159,7 +161,7 @@ class Main:
 					try:
 						laddername = " ".join(args[0:])
 						ladderid = self.db.AddLadder( laddername )
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) ) 
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "New ladder created, ID: " + str(ladderid) )
 					except ElementExistsException, e:
 						error(e)
 		if command == "!ladderremove":
@@ -276,7 +278,7 @@ class Main:
 								self.notifyuser( socket, fromwho, fromwhere, ispm, "Option already in db" )
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
-					
+
 		if command == "!ladderremoveoption":
 			if ( fromwho in self.admins ):
 				if len(args) < 3 or not args[0].isdigit():
@@ -366,7 +368,7 @@ class Main:
 					self.db.CopyLadder( source_id, target_name )
 				except:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't copy ladder" )
-			
+
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
@@ -414,6 +416,6 @@ class Main:
 						if battleid in self.battleswithbots:
 							self.battleswithbots.remove(battleid)
 	def updatestatus(self,socket):
-		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))	
+		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))
 	def onloggedin(self,socket):
-		self.updatestatus(socket)	
+		self.updatestatus(socket)

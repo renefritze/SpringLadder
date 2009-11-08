@@ -78,7 +78,10 @@ class Main:
 	gamestarted = False
 	joinedbattle = False
 	ladderid = -1
-	scriptbasepath = os.environ['HOME']
+	if platform.system() == "Windows":
+		scriptbasepath = os.environ['USERPROFILE']
+	else:
+		scriptbasepath = os.environ['HOME']
 	battleusers = dict()
 	battleoptions = dict()
 	ladderlist = dict()
@@ -89,7 +92,7 @@ class Main:
 	hostip = ""
 	hostport = 0
 	def startspring(self,socket,g):
-		cwd = os.getcwd()
+		currentworkingdir = os.getcwd()
 		try:
 			if self.ingame == True:
 				saybattle( self.socket, battleid, "Error: game is already running")
@@ -102,13 +105,21 @@ class Main:
 				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
 			socket.send("MYSTATUS 1\n")
 			st = time.time()
-			if platform.system() == "Linux":
-				log("*** Starting spring: command line \"%s\"" % (self.app.config["springdedpath"]+" "+os.path.join(os.environ['HOME'],"%f.txt" % g )))
-				self.pr = subprocess.Popen((self.app.config["springdedpath"],os.path.join(os.environ['HOME'],"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+			log(socket,"*** Starting spring: command line \"%s\"" % (self.app.config["springdedclientpath"]+" "+os.path.join(self.scriptbasepath,"%f.txt" % g )))
+			if platform.system() == "Windows":
+				dedpath = "\\".join(self.app.config["springdedclientpath"].replace("/","\\").split("\\")[:self.app.config["springdedclientpath"].replace("/","\\").count("\\")])
+				if not dedpath in sys.path:
+					sys.path.append(dedpath)
+			if "springdatapath" in self.app.config:
+				springdatapath = self.app.config["springdatapath"]
+				if not springdatapath in sys.path:
+					sys.path.append(springdatapath)
+				os.chdir(springdatapath)
 			else:
-				log("*** Starting spring: command line \"%s\"" % (self.app.config["springdedpath"]+" "+os.path.join(os.environ['USERPROFILE'],"%f.txt" % g )))
-				os.chdir("\\".join(self.app.config["springdedpath"].replace("/","\\").split("\\")[:self.app.config["springdedpath"].replace("/","\\").count("\\")]))
-				self.pr = subprocess.Popen((self.app.config["springdedpath"],os.path.join(os.environ['USERPROFILE'],"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+				springdatapath = None
+			if springdatapath!= None:
+				os.environ['SPRING_DATADIR'] = springdatapath
+			self.pr = subprocess.Popen((self.app.config["springdedclientpath"],os.path.join(self.scriptbasepath,"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,cwd=springdatapath)
 			l = self.pr.stdout.readline()
 			while len(l) > 0:
 				self.output += l
@@ -131,8 +142,8 @@ class Main:
 			for line in exc:
 				print line
 			print "*** EXCEPTION: END"+normal
-			os.chdir(cwd)
-		os.chdir(cwd)
+			os.chdir(currentworkingdir)
+		os.chdir(currentworkingdir)
 		self.ingame = False
 
 	def KillBot(self):
