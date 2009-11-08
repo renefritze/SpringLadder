@@ -144,6 +144,7 @@ class Main:
 				print line
 			print "*** EXCEPTION: END"+normal
 			os.chdir(currentworkingdir)
+			self.ingame = False
 		os.chdir(currentworkingdir)
 		self.ingame = False
 
