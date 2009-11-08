@@ -95,7 +95,7 @@ class Main:
 		currentworkingdir = os.getcwd()
 		try:
 			if self.ingame == True:
-				saybattle( self.socket, battleid, "Error: game is already running")
+				saybattle( self.socket, self.battleid, "Error: game is already running")
 				return
 			self.output = ""
 			self.ingame = True
