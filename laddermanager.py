@@ -99,7 +99,7 @@ class Main:
 
 	def spawnbot( self,  socket, battleid, ladderid ):
 		slot = len(self.botstatus)
-		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(laderid))
+		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(ladderid))
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,ladderid)))
 
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):

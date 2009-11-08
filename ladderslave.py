@@ -105,7 +105,7 @@ class Main:
 				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
 			socket.send("MYSTATUS 1\n")
 			st = time.time()
-			log(socket,"*** Starting spring: command line \"%s\"" % (self.app.config["springdedclientpath"]+" "+os.path.join(self.scriptbasepath,"%f.txt" % g )))
+			log("*** Starting spring: command line \"%s %s\"" % (self.app.config["springdedclientpath"], os.path.join(self.scriptbasepath,"%f.txt" % g )) )
 			if platform.system() == "Windows":
 				dedpath = "\\".join(self.app.config["springdedclientpath"].replace("/","\\").split("\\")[:self.app.config["springdedclientpath"].replace("/","\\").count("\\")])
 				if not dedpath in sys.path:
@@ -125,14 +125,15 @@ class Main:
 				self.output += l
 				l = self.pr.stdout.readline()
 			status = self.pr.wait()
-			log("*** Spring has exited with status %i" % status )
 			et = time.time()
 			if status != 0:
 				saybattle( self.socket,self.battleid,"Error: Spring Exited with status %i" % status)
 				g = self.output.split("\n")
 				for h in g:
-					log("*** STDOUT+STDERR: "+h)
+					print yellow + "*** STDOUT+STDERR: " + h + normal
 					time.sleep(float(len(h))/900.0+0.05)
+			else:
+			    log("*** Spring has exited with status %i" % status )
 			socket.send("MYSTATUS 0\n")
 			if True:
 				saybattleex(socket, self.battleid, "has submitted ladder score updates")
