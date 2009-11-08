@@ -16,17 +16,17 @@ from colors import *
 
 if platform.system() == "Windows":
 	import win32api
-	
+
 from utilities import *
 
 def log(message):
 	print green + message + normal
-	
+
 def saybattle( socket,battleid,message):
 	for line in message.split('\n'):
 		print yellow+"Battle:%i, Message: %s" %(battleid,line) + normal
 		socket.send("SAYBATTLE %s\n" % line)
-		
+
 def saybattleex(socket,battleid,message):
 	for line in message.split('\n'):
 		print green+"Battle:%i, Message: %s" %(battleid,line) + normal
@@ -86,6 +86,8 @@ class Main:
 	teams = dict()
 	allies = dict()
 	battlefounder = ""
+	hostip = ""
+	hostport = 0
 	def startspring(self,socket,g):
 		cwd = os.getcwd()
 		try:
@@ -132,19 +134,19 @@ class Main:
 			os.chdir(cwd)
 		os.chdir(cwd)
 		self.ingame = False
-		
+
 	def KillBot(self):
 		if platform.system() == "Windows":
 			handle = win32api.OpenProcess(1, 0, os.getpid())
 			win32api.TerminateProcess(handle, 0)
 		else:
 			os.kill(os.getpid(),signal.SIGKILL)
-			
+
 	def CheckValidSetup( self, ladderid, echoerrors, socket ):
 		a = self.CheckvalidPlayerSetup(ladderid,echoerrors,socket)
 		b = self.CheckValidOptionsSetup(ladderid,echoerrors,socket)
 		return a and b
-		
+
 	def CheckvalidPlayerSetup( self, ladderid, echoerrors, socket ):
 		IsOk = True
 		laddername = self.db.GetLadderName( ladderid )
@@ -214,8 +216,8 @@ class Main:
 		if not allysizesok and echoerrors:
 			saybattle( socket, self.battleid, errorstring )
 		return IsOk
-			
-		
+
+
 	def CheckValidOptionsSetup( self, ladderid, echoerrors, socket ):
 		IsOk = True
 		laddername = self.db.GetLadderName( ladderid )
@@ -229,7 +231,7 @@ class Main:
 				if echoerrors:
 					saybattle( socket, self.battleid, key + "=" + value )
 		return IsOk
-			
+
 	def CheckOptionOk( self, ladderid, keyname, value ):
 		if self.db.GetOptionKeyValueExists( ladderid, False, keyname, value ): # option in the blacklist
 			return False
@@ -237,7 +239,7 @@ class Main:
 			return self.db.GetOptionKeyValueExists( ladderid, True, keyname, value )
 		else:
 			return True
-			
+
 	def onload(self,tasc):
 		self.app = tasc.main
 		self.tsc = tasc
@@ -245,7 +247,7 @@ class Main:
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], parselist(self.app.config["alchemy-verbose"],",")[0] )
-		
+
 	def oncommandfromserver(self,command,args,s):
 		#print "From server: %s | Args : %s" % (command,str(args))
 		self.socket = s
@@ -263,7 +265,7 @@ class Main:
 		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
 			self.joinedbattle = False
 			notice( "Battle closed: " + str(self.battleid) )
-			self.KillBot()			
+			self.KillBot()
 		if command == "SETSCRIPTTAGS":
 			for option in args[0].split():
 				pieces = parselist( option, "=" )
@@ -277,7 +279,7 @@ class Main:
 				value = pieces[1]
 				self.battleoptions[key] = value
 		if command == "REQUESTBATTLESTATUS":
-			self.socket.send( "MYBATTLESTATUS 4194816 255\n" )#spectator+synced/white 
+			self.socket.send( "MYBATTLESTATUS 4194816 255\n" )#spectator+synced/white
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
 			who = args[0]
 			command = args[1]
@@ -325,6 +327,8 @@ class Main:
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
+			self.hostip = args[4]
+			self.hostport = args[5]
 			tabbedstring = " ".join(args[10:])
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
@@ -353,7 +357,12 @@ class Main:
 					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
 				else:
 					f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
-				self.script = ""
+				self.script = "[GAME]\n{"
+				self.script += "\n\tHostIP=" + self.hostip + ";"
+				self.script += "\n\tHostPort=" + self.hostport + ";"
+				self.script += "\n\tIsHost=0;"
+				self.script += "\n\tMyPlayerName=" + self.app.config["nick"] + ";"
+				self.script += "\n}"
 				f.write(self.script)
 				f.close()
 				thread.start_new_thread(self.startspring,(s,g))
@@ -363,7 +372,7 @@ class Main:
 			bs = BattleStatus( args[1], args[0] )
 			self.battle_statusmap[ args[0] ] = bs
 			self.FillTeamAndAllies()
-		
+
 	def onloggedin(self,socket):
 		if self.ingame == True:
 			socket.send("MYSTATUS 1\n")
@@ -385,4 +394,3 @@ class Main:
 #		print "allies:", self.allies
 #		print "teams: ",self.teams
 #		print "battle_statusmap",self.battle_statusmap
-		
