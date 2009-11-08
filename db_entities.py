@@ -40,7 +40,7 @@ class Ladder(Base):
 	max_ally_count 	= Column( Integer )
 	min_team_count 	= Column( Integer )
 	max_team_count 	= Column( Integer )
-	ranking_algo_id	= Column( Integer )
+	ranking_algo_id	= Column( String(30) )
 
 	def __init__(self):
 		self.__init__("noname")
@@ -116,13 +116,22 @@ class Result(Base):
 	match_id 		= Column( Integer, ForeignKey( Match.id ) )
 	team			= Column( Integer )
 	ally			= Column( Integer )
-	won				= Column( Boolean )
-	disconnect		= Column( Boolean )
-	quit			= Column( Boolean )
-	desync			= Column( Boolean )
-	timeout			= Column( Boolean )
+	place			= Column( Integer )
+	disconnect		= Column( Integer )
+	quit			= Column( Integer )
+	died			= Column( Integer )
+	desync			= Column( Integer )
+	timeout			= Column( Integer )
+	connected		= Column( Boolean )
 	#whatever else stats trakced below
 	
+class SimpleRanks(Base):
+	id 				= Column( Integer, primary_key=True )
+	player_id 		= Column( Integer, ForeignKey( Player.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	wins			= Column( Integer )
+	losses			= Column( Integer )
+	draws			= Column( Integer )
 	
 
 	

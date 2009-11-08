@@ -123,9 +123,9 @@ class Main:
 					log("*** STDOUT+STDERR: "+h)
 					time.sleep(float(len(h))/900.0+0.05)
 			elif doSubmit:
-				mr = MatchResult( self.output, allies, teams, battle_users, battlefounder )
+				mr = MatchToDbWrapper( self.output, battlefounder, self.ladderid )
 				try:
-					self.db.ReportMatch( self.ladderid, mr )
+					self.db.ReportMatch( mr )
 				except:
 					saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome." )
 			socket.send("MYSTATUS 0\n")

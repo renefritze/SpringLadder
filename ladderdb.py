@@ -39,7 +39,7 @@ class LadderDB:
 		ladderid = -1
 		if not ladder: #no existing ladder with same name
 			ladder = Ladder( name )
-			ladder.ranking_algo_id = ranking_algo_id
+			ladder.ranking_algo_id = GlobalRankingAlgoSelector.available_ranking_algos[0]
 			session.add( ladder )
 			session.commit()
 			ladderid = ladder.id
@@ -211,7 +211,12 @@ class LadderDB:
 		except:
 			pass		
 
-	def ReportMatch( self, ladder_id, matchresult ):
+	def ReportMatch( self, matchresult ):
 		if not isinstance( matchresult, MatchResult ):
 			raise TypeError
+		matchresult.CommitMatch(self)
+		
+		
+			
+		
 		
