@@ -4,7 +4,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from datetime import datetime
 from db_entities import *
-import rankings
+from ranking import *
+from match import *
 
 class ElementExistsException( Exception ):
 	def __init__(self, element):
@@ -212,7 +213,7 @@ class LadderDB:
 			pass		
 
 	def ReportMatch( self, matchresult ):
-		if not isinstance( matchresult, MatchResult ):
+		if not isinstance( matchresult, MatchToDbWrapper ):
 			raise TypeError
 		matchresult.CommitMatch(self)
 		

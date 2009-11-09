@@ -42,10 +42,7 @@ class Ladder(Base):
 	max_team_count 	= Column( Integer )
 	ranking_algo_id	= Column( String(30) )
 
-	def __init__(self):
-		self.__init__("noname")
-
-	def __init__(self, name):
+	def __init__(self, name="noname"):
 		self.name = name
 		self.min_team_size 	= 1
 		self.max_team_size 	= 1
@@ -82,7 +79,7 @@ class Player(Base):
 	nick 			= Column( String(50) )
 	pwhash 			= Column( String(80) )
 
-	def __init__(self, nick):
+	def __init__(self, nick='noname'):
 		self.nick = nick
 
 	def __str__(self):
@@ -135,7 +132,7 @@ class Result(Base):
 		
 	
 class SimpleRanks(Base):
-	__tablename__	= 'simple_ranks'
+	__tablename__	= 'simpleranks'
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )

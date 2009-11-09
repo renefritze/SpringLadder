@@ -13,7 +13,7 @@ import sys
 from db_entities import *
 from ladderdb import *
 from colors import *
-from match import MatchResult
+from match import *
 
 if platform.system() == "Windows":
 	import win32api
@@ -351,6 +351,10 @@ class Main:
 			if command == "!help":
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
+			if command == '!debug':
+				import fakeoutput
+				mr = MatchToDbWrapper( fakeoutput.fakeoutput1, 'myself', self.ladderid )
+				self.db.ReportMatch( mr )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
