@@ -141,5 +141,5 @@ class SimpleRanks(Base):
 	def __init__(self):
 		self.points = 0
 	
-
+	player			= relation("Player")
 	

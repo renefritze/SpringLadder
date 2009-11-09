@@ -14,7 +14,7 @@ from db_entities import *
 from ladderdb import *
 from colors import *
 from match import *
-
+from ranking import GlobalRankingAlgoSelector
 if platform.system() == "Windows":
 	import win32api
 
@@ -355,6 +355,8 @@ class Main:
 				import fakeoutput
 				mr = MatchToDbWrapper( fakeoutput.fakeoutput1, 'myself', self.ladderid )
 				self.db.ReportMatch( mr )
+				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+				saybattle( self.socket, self.battleid, upd )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]

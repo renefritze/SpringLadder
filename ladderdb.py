@@ -217,7 +217,11 @@ class LadderDB:
 			raise TypeError
 		matchresult.CommitMatch(self)
 		
-		
+	def GetRanks( self, ladder_id ):
+		session = self.sessionmaker()
+		ranks = session.query( SimpleRanks ).filter( SimpleRanks.ladder_id == ladder_id ).all()
+		session.close()
+		return ranks
 			
 		
 		
