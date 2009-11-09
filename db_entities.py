@@ -116,22 +116,33 @@ class Result(Base):
 	match_id 		= Column( Integer, ForeignKey( Match.id ) )
 	team			= Column( Integer )
 	ally			= Column( Integer )
-	place			= Column( Integer )
 	disconnect		= Column( Integer )
 	quit			= Column( Integer )
 	died			= Column( Integer )
 	desync			= Column( Integer )
 	timeout			= Column( Integer )
 	connected		= Column( Boolean )
-	#whatever else stats trakced below
+
+	def __init__(self):
+		self.team 		= -1
+		self.disconnect = -1
+		self.ally		= -1
+		self.died		= -1
+		self.desync		= -1
+		self.timeout	= -1
+		self.connected	= False
+		self.quit		= -1
+		
 	
 class SimpleRanks(Base):
+	__tablename__	= 'simple_ranks'
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
-	wins			= Column( Integer )
-	losses			= Column( Integer )
-	draws			= Column( Integer )
+	points			= Column( Integer )
+
+	def __init__(self):
+		self.points = 0
 	
 
 	
