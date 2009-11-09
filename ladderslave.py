@@ -69,6 +69,12 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !checksetup ladderID: checks that all options and player setup are compatible for given ladderID
 """
 
+def sendstatus(self, socket ):
+	if self.ingame:
+		socket.send("MYSTATUS 1\n")
+	else:
+		socket.send("MYSTATUS 0\n")
+
 class Main:
 	sock = 0
 	battleowner = ""
@@ -103,7 +109,7 @@ class Main:
 				saybattleex(socket, self.battleid, "is gonna submit to the ladder the score results")
 			else:
 				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
-			socket.send("MYSTATUS 1\n")
+			sendstatus( self, socket )
 			st = time.time()
 			log("*** Starting spring: command line \"%s %s\"" % (self.app.config["springdedclientpath"], os.path.join(self.scriptbasepath,"%f.txt" % g )) )
 			if platform.system() == "Windows":
@@ -134,7 +140,7 @@ class Main:
 					time.sleep(float(len(h))/900.0+0.05)
 			else:
 				log("*** Spring has exited with status %i" % status )
-			socket.send("MYSTATUS 0\n")
+			sendstatus( self, socket )
 			if True:
 				saybattleex(socket, self.battleid, "has submitted ladder score updates")
 		except:
@@ -360,7 +366,7 @@ class Main:
 					print line
 				print"*** EXCEPTION: END"+normal
 			if self.joinedbattle: #start spring
-				s.send("MYSTATUS 1\n")
+				sendstatus( self, self.socket )
 				g = time.time()
 				try:
 					os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
@@ -387,8 +393,7 @@ class Main:
 			self.FillTeamAndAllies()
 
 	def onloggedin(self,socket):
-		if self.ingame == True:
-			socket.send("MYSTATUS 1\n")
+		sendstatus( self, socket )
 		socket.send("JOINBATTLE " + str(self.battleid) + "\n")
 
 	def FillTeamAndAllies(self):
