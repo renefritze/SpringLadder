@@ -17,17 +17,17 @@ from match import MatchResult
 
 if platform.system() == "Windows":
 	import win32api
-	
+
 from utilities import *
 
 def log(message):
 	print green + message + normal
-	
+
 def saybattle( socket,battleid,message):
 	for line in message.split('\n'):
 		print yellow+"Battle:%i, Message: %s" %(battleid,line) + normal
 		socket.send("SAYBATTLE %s\n" % line)
-		
+
 def saybattleex(socket,battleid,message):
 	for line in message.split('\n'):
 		print green+"Battle:%i, Message: %s" %(battleid,line) + normal
@@ -36,16 +36,16 @@ def saybattleex(socket,battleid,message):
 bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1).lstrip('0')+str(n&1) or '0'
 
 """
-    *  b0 = undefined (reserved for future use)
-    * b1 = ready (0=not ready, 1=ready)
-    * b2..b5 = team no. (from 0 to 15. b2 is LSB, b5 is MSB)
-    * b6..b9 = ally team no. (from 0 to 15. b6 is LSB, b9 is MSB)
-    * b10 = mode (0 = spectator, 1 = normal player)
-    * b11..b17 = handicap (7-bit number. Must be in range 0..100). Note: Only host can change handicap values of the players in the battle (with HANDICAP command). These 7 bits are always ignored in this command. They can only be changed using HANDICAP command.
-    * b18..b21 = reserved for future use (with pre 0.71 versions these bits were used for team color index)
-    * b22..b23 = sync status (0 = unknown, 1 = synced, 2 = unsynced)
-    * b24..b27 = side (e.g.: arm, core, tll, ... Side index can be between 0 and 15, inclusive)
-    * b28..b31 = undefined (reserved for future use)
+	*  b0 = undefined (reserved for future use)
+	* b1 = ready (0=not ready, 1=ready)
+	* b2..b5 = team no. (from 0 to 15. b2 is LSB, b5 is MSB)
+	* b6..b9 = ally team no. (from 0 to 15. b6 is LSB, b9 is MSB)
+	* b10 = mode (0 = spectator, 1 = normal player)
+	* b11..b17 = handicap (7-bit number. Must be in range 0..100). Note: Only host can change handicap values of the players in the battle (with HANDICAP command). These 7 bits are always ignored in this command. They can only be changed using HANDICAP command.
+	* b18..b21 = reserved for future use (with pre 0.71 versions these bits were used for team color index)
+	* b22..b23 = sync status (0 = unknown, 1 = synced, 2 = unsynced)
+	* b24..b27 = side (e.g.: arm, core, tll, ... Side index can be between 0 and 15, inclusive)
+	* b28..b31 = undefined (reserved for future use)
 """
 
 class BattleStatus:
@@ -70,6 +70,12 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !checksetup ladderID: checks that all options and player setup are compatible for given ladderID
 """
 
+def sendstatus(self, socket ):
+	if self.ingame:
+		socket.send("MYSTATUS 1\n")
+	else:
+		socket.send("MYSTATUS 0\n")
+
 class Main:
 	sock = 0
 	battleowner = ""
@@ -79,7 +85,10 @@ class Main:
 	gamestarted = False
 	joinedbattle = False
 	ladderid = -1
-	scriptbasepath = os.environ['HOME']
+	if platform.system() == "Windows":
+		scriptbasepath = os.environ['USERPROFILE']
+	else:
+		scriptbasepath = os.environ['HOME']
 	battleusers = dict()
 	battleoptions = dict()
 	ladderlist = dict()
@@ -87,11 +96,13 @@ class Main:
 	teams = dict()
 	allies = dict()
 	battlefounder = ""
+	hostip = ""
+	hostport = 0
 	def startspring(self,socket,g):
-		cwd = os.getcwd()
+		currentworkingdir = os.getcwd()
 		try:
 			if self.ingame == True:
-				saybattle( self.socket, battleid, "Error: game is already running")
+				saybattle( self.socket, self.battleid, "Error: game is already running")
 				return
 			self.output = ""
 			self.ingame = True
@@ -100,27 +111,34 @@ class Main:
 				saybattleex(socket, self.battleid, "is gonna submit to the ladder the score results")
 			else:
 				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
-			socket.send("MYSTATUS 1\n")
+			sendstatus( self, socket )
 			st = time.time()
-			if platform.system() == "Linux":
-				log("*** Starting spring: command line \"%s\"" % (self.app.config["springdedpath"]+" "+os.path.join(os.environ['HOME'],"%f.txt" % g )))
-				self.pr = subprocess.Popen((self.app.config["springdedpath"],os.path.join(os.environ['HOME'],"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+			log("*** Starting spring: command line \"%s %s\"" % (self.app.config["springdedclientpath"], os.path.join(self.scriptbasepath,"%f.txt" % g )) )
+			if platform.system() == "Windows":
+				dedpath = "\\".join(self.app.config["springdedclientpath"].replace("/","\\").split("\\")[:self.app.config["springdedclientpath"].replace("/","\\").count("\\")])
+				if not dedpath in sys.path:
+					sys.path.append(dedpath)
+			if "springdatapath" in self.app.config:
+				springdatapath = self.app.config["springdatapath"]
+				if not springdatapath in sys.path:
+					sys.path.append(springdatapath)
+				os.chdir(springdatapath)
 			else:
-				log("*** Starting spring: command line \"%s\"" % (self.app.config["springdedpath"]+" "+os.path.join(os.environ['USERPROFILE'],"%f.txt" % g )))
-				os.chdir("\\".join(self.app.config["springdedpath"].replace("/","\\").split("\\")[:self.app.config["springdedpath"].replace("/","\\").count("\\")]))
-				self.pr = subprocess.Popen((self.app.config["springdedpath"],os.path.join(os.environ['USERPROFILE'],"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+				springdatapath = None
+			if springdatapath!= None:
+				os.environ['SPRING_DATADIR'] = springdatapath
+			self.pr = subprocess.Popen((self.app.config["springdedclientpath"],os.path.join(self.scriptbasepath,"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,cwd=springdatapath)
 			l = self.pr.stdout.readline()
 			while len(l) > 0:
 				self.output += l
 				l = self.pr.stdout.readline()
 			status = self.pr.wait()
-			log("*** Spring has exited with status %i" % status )
 			et = time.time()
 			if status != 0:
 				saybattle( self.socket,self.battleid,"Error: Spring Exited with status %i" % status)
 				g = self.output.split("\n")
 				for h in g:
-					log("*** STDOUT+STDERR: "+h)
+					print yellow + "*** STDOUT+STDERR: " + h + normal
 					time.sleep(float(len(h))/900.0+0.05)
 			elif doSubmit:
 				mr = MatchToDbWrapper( self.output, battlefounder, self.ladderid )
@@ -128,7 +146,9 @@ class Main:
 					self.db.ReportMatch( mr )
 				except:
 					saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome." )
-			socket.send("MYSTATUS 0\n")
+			else:
+				log("*** Spring has exited with status %i" % status )
+			sendstatus( self, socket )
 			if True:
 				saybattleex(socket, self.battleid, "has submitted ladder score updates")
 		except:
@@ -137,22 +157,23 @@ class Main:
 			for line in exc:
 				print line
 			print "*** EXCEPTION: END"+normal
-			os.chdir(cwd)
-		os.chdir(cwd)
+			os.chdir(currentworkingdir)
+			self.ingame = False
+		os.chdir(currentworkingdir)
 		self.ingame = False
-		
+
 	def KillBot(self):
 		if platform.system() == "Windows":
 			handle = win32api.OpenProcess(1, 0, os.getpid())
 			win32api.TerminateProcess(handle, 0)
 		else:
 			os.kill(os.getpid(),signal.SIGKILL)
-			
+
 	def CheckValidSetup( self, ladderid, echoerrors, socket ):
 		a = self.CheckvalidPlayerSetup(ladderid,echoerrors,socket)
 		b = self.CheckValidOptionsSetup(ladderid,echoerrors,socket)
 		return a and b
-		
+
 	def CheckvalidPlayerSetup( self, ladderid, echoerrors, socket ):
 		IsOk = True
 		laddername = self.db.GetLadderName( ladderid )
@@ -222,8 +243,8 @@ class Main:
 		if not allysizesok and echoerrors:
 			saybattle( socket, self.battleid, errorstring )
 		return IsOk
-			
-		
+
+
 	def CheckValidOptionsSetup( self, ladderid, echoerrors, socket ):
 		IsOk = True
 		laddername = self.db.GetLadderName( ladderid )
@@ -237,7 +258,7 @@ class Main:
 				if echoerrors:
 					saybattle( socket, self.battleid, key + "=" + value )
 		return IsOk
-			
+
 	def CheckOptionOk( self, ladderid, keyname, value ):
 		if self.db.GetOptionKeyValueExists( ladderid, False, keyname, value ): # option in the blacklist
 			return False
@@ -245,7 +266,7 @@ class Main:
 			return self.db.GetOptionKeyValueExists( ladderid, True, keyname, value )
 		else:
 			return True
-			
+
 	def onload(self,tasc):
 		self.app = tasc.main
 		self.tsc = tasc
@@ -253,7 +274,7 @@ class Main:
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], parselist(self.app.config["alchemy-verbose"],",")[0] )
-		
+
 	def oncommandfromserver(self,command,args,s):
 		#print "From server: %s | Args : %s" % (command,str(args))
 		self.socket = s
@@ -271,7 +292,7 @@ class Main:
 		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
 			self.joinedbattle = False
 			notice( "Battle closed: " + str(self.battleid) )
-			self.KillBot()			
+			self.KillBot()
 		if command == "SETSCRIPTTAGS":
 			for option in args[0].split():
 				pieces = parselist( option, "=" )
@@ -285,7 +306,7 @@ class Main:
 				value = pieces[1]
 				self.battleoptions[key] = value
 		if command == "REQUESTBATTLESTATUS":
-			self.socket.send( "MYBATTLESTATUS 4194816 255\n" )#spectator+synced/white 
+			self.socket.send( "MYBATTLESTATUS 4194816 255\n" )#spectator+synced/white
 		if command == "SAIDBATTLE" and len(args) > 1 and args[1].startswith("!"):
 			who = args[0]
 			command = args[1]
@@ -302,10 +323,10 @@ class Main:
 						saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 				else:
 					saybattle( self.socket, self.battleid,"Invalid ladder ID.")
-		if command == "!ladderlist":
-			saybattle( self.socket, self.battleid, "Available ladders, format name: ID:" )
-			for l in self.db.GetLadderList(Ladder.name):
-				saybattle( self.socket, self.battleid, "%s: %d" %(l.name, l.id ) )
+			if command == "!ladderlist":
+				saybattle( self.socket, self.battleid, "Available ladders, format name: ID:" )
+				for l in self.db.GetLadderList(Ladder.name):
+					saybattle( self.socket, self.battleid, "%s: %d" %(l.name, l.id ) )
 			if command == "!ladder":
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -333,6 +354,8 @@ class Main:
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
+			self.hostip = args[4]
+			self.hostport = args[5]
 			tabbedstring = " ".join(args[10:])
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
@@ -351,7 +374,7 @@ class Main:
 					print line
 				print"*** EXCEPTION: END"+normal
 			if self.joinedbattle: #start spring
-				s.send("MYSTATUS 1\n")
+				sendstatus( self, self.socket )
 				g = time.time()
 				try:
 					os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
@@ -361,7 +384,12 @@ class Main:
 					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
 				else:
 					f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
-				self.script = ""
+				self.script = "[GAME]\n{"
+				self.script += "\n\tHostIP=" + self.hostip + ";"
+				self.script += "\n\tHostPort=" + self.hostport + ";"
+				self.script += "\n\tIsHost=0;"
+				self.script += "\n\tMyPlayerName=" + self.app.config["nick"] + ";"
+				self.script += "\n}"
 				f.write(self.script)
 				f.close()
 				thread.start_new_thread(self.startspring,(s,g))
@@ -371,10 +399,9 @@ class Main:
 			bs = BattleStatus( args[1], args[0] )
 			self.battle_statusmap[ args[0] ] = bs
 			self.FillTeamAndAllies()
-		
+
 	def onloggedin(self,socket):
-		if self.ingame == True:
-			socket.send("MYSTATUS 1\n")
+		sendstatus( self, socket )
 		socket.send("JOINBATTLE " + str(self.battleid) + "\n")
 
 	def FillTeamAndAllies(self):
@@ -393,4 +420,3 @@ class Main:
 #		print "allies:", self.allies
 #		print "teams: ",self.teams
 #		print "battle_statusmap",self.battle_statusmap
-		
