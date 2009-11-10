@@ -353,10 +353,14 @@ class Main:
 				saybattle( self.socket, self.battleid, helpstring_user )
 			if command == '!debug':
 				import fakeoutput
-				mr = MatchToDbWrapper( fakeoutput.fakeoutput1, 'myself', self.ladderid )
+				output = fakeoutput.fakeoutput[1]
+				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+				saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
+				saybattle( self.socket, self.battleid, 'before:\n' + upd )
+				mr = MatchToDbWrapper( output, 'myself', self.ladderid )
 				self.db.ReportMatch( mr )
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				saybattle( self.socket, self.battleid, upd )
+				saybattle( self.socket, self.battleid, 'after:\n' +upd )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]

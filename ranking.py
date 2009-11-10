@@ -51,7 +51,7 @@ class SimpleRankAlgo(IRanking):
 			
 		for name,player in matchresult.players.iteritems():
 			if player.died > 0:
-				deaths[player.died] = name
+				deaths[name] = player.died
 			if player.timeout > -1:
 				scores[name] = -1
 			if player.disconnect > -1:
@@ -60,15 +60,18 @@ class SimpleRankAlgo(IRanking):
 				scores[name] = -5
 			if player.desync > -1:
 				scores[name] = 0
-			
+		print 'scores ',scores
+		endframe = matchresult.game_over
 		#find last team standing
 		for name in matchresult.players.keys():
-			if name not in deaths.values() and name not in scores.keys():
-				scores[name] = playercount
-			else:
-				scores[name] = 2134
+			if name not in deaths.keys() and name not in scores.keys():
+				scores[name] = playercount + 4
+			elif name not in scores.keys():
+				reldeath = deaths[name] / float(endframe)
+				scores[name] = reldeath * playercount
 		
 		#qu = session.
+		
 		for name,player in matchresult.players.iteritems():
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( SimpleRanks ).filter( SimpleRanks.ladder_id == ladder_id ).filter( SimpleRanks.player_id == player_id ).first()

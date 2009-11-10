@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-fakeoutput1 = """BEGINSETUP
+fakeoutput = []
+
+fakeoutput.append( """BEGINSETUP
 BEGINTEAMS
 doofus=1
 idiot=2
@@ -23,4 +25,37 @@ GAMESTART
 TEAMDIED 666 1
 GAMEOVER 667
 ENDGAME
-"""
+""")
+
+fakeoutput.append( """BEGINSETUP
+BEGINTEAMS
+doofus=1
+idiot=2
+theman=3
+john=4
+ENDTEAMS
+BEGINALLYTEAMS
+1=1
+2=2
+3=2
+4=4
+ENDALLYTEAMS
+BEGINOPTIONS
+turboboost=on
+ENDOPTIONS
+BEGINRESTRICTIONS
+bigbird=1
+ENDRESTRICTIONS
+ENDSETUP
+BEGINGAME
+CONNECTED doofus
+CONNECTED idiot
+CONNECTED theman
+CONNECTED john
+GAMESTART
+TEAMDIED 666 1
+TEAMDIED 300 2
+LEAVE 200 john
+GAMEOVER 667
+ENDGAME
+""")
