@@ -3,28 +3,7 @@ from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from datetime import datetime
-"""
-class LadderMatch:
-	def __init__(self):
-		self.timestamp = 0
-		self.result = 0
-		self.winnerid = -1
-		self.players = dict()
-		self.teams = dict()
 
-class ControlTeam:
-	def __init__(self):
-		self.playeridlist = []
-		self.allyteamidlist = []
-		
-class Player:
-	 def __init__(self):
-	 	self.id = -1
-	 	self.controlteam = -1
-	 	self.ally = -1
-	 	self.spectator = False
-	 	self.isbot = False
-"""
 Base = declarative_base()
 
 class Ladder(Base):
@@ -97,7 +76,7 @@ class Match(Base):
 
 	settings    	= relation("MatchSetting", 	order_by="MatchSetting.key" )#, backref="match" )#this would auto-create a relation in MatchSetting too
 	results			= relation("Result", 		order_by="Result.team" )
-	
+
 
 class MatchSetting(Base):
 	__tablename__ 	= 'matchsettings'
@@ -105,7 +84,7 @@ class MatchSetting(Base):
 	key 			= Column( String(40) )
 	value 			= Column( String(80) )
 	match_id 		= Column( Integer, ForeignKey( Match.id ) )
-	
+
 class Result(Base):
 	__tablename__ 	= 'results'
 	id 				= Column( Integer, primary_key=True )
@@ -129,8 +108,8 @@ class Result(Base):
 		self.timeout	= -1
 		self.connected	= False
 		self.quit		= -1
-		
-	
+
+
 class SimpleRanks(Base):
 	__tablename__	= 'simpleranks'
 	id 				= Column( Integer, primary_key=True )
@@ -140,6 +119,6 @@ class SimpleRanks(Base):
 
 	def __init__(self):
 		self.points = 0
-	
+
 	player			= relation("Player")
-	
+
