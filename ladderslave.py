@@ -470,6 +470,7 @@ class Main:
 				player = args[1]
 				if player in self.battle_statusmap:
 					del self.battle_statusmap[player]
+					self.FillTeamAndAllies()
 		if command == "ADDBOT":
 			if len(args) != 6:
 				error( "invalid ADDBOT:%s"%(args) )
@@ -494,10 +495,10 @@ class Main:
 			if int(args[0]) == self.battleid:
 				name = args[1]
 				if name in self.bots:
-					botlib = self.bots[name]
 					del self.bots[name]
-					if botlib in self.battle_statusmap[botlib]:
-						del self.battle_statusmap[botlib]
+				if name in self.battle_statusmap:
+					del self.battle_statusmap[name]
+				self.FillTeamAndAllies()
 
 	def onloggedin(self,socket):
 		sendstatus( self, socket )
