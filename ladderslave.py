@@ -195,7 +195,7 @@ class Main:
 			if player in self.bots: # it's a bot
 				botlib = self.bots[player]
 				if not botlib in checkedbots:
-					checkedbots.append(checkedbots)
+					checkedbots.append(botlib)
 				else:
 					IsOk = False
 					duplicatebots += " " + player
