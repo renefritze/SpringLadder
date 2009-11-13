@@ -472,7 +472,7 @@ class Main:
 				if player in self.battle_statusmap:
 					del self.battle_statusmap[player]
 		if command == "ADDBOT":
-			if len(args) != 5;
+			if len(args) != 5:
 				error( "invalid ADDBOT:%s"%(args) )
 			if int(args[1]) == self.battleid:
 				botname = args[4] # we'll use the bot's lib name intead of player name for ladder pourposes
@@ -482,7 +482,7 @@ class Main:
 				self.FillTeamAndAllies()
 				self.bots[args[1]] = botname
 		if command == "UPDATEBOT":
-			if len(args) < 3;
+			if len(args) < 3:
 				error( "invalid UPDATEBOT:%s"%(args) )
 			if int(args[1]) == self.battleid:
 				name = args[1]
@@ -491,7 +491,7 @@ class Main:
 					bs = BattleStatus( args[2], botname )
 					self.battle_statusmap[ botname ] = bs
 					self.FillTeamAndAllies()
-		if command == "REMOVEBOT"
+		if command == "REMOVEBOT":
 			if len(args) != 2:
 				error( "invalid REMOVEBOT:%s"%(args) )
 			if int(args[0]) == self.battleid:
