@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 import cgi
 from jinja2 import Environment, FileSystemLoader

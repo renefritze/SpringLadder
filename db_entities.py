@@ -136,7 +136,7 @@ class SimpleRanks(Base):
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
-	points			= Column( Integer )
+	points			= Column( Float )
 
 	def __init__(self):
 		self.points = 0

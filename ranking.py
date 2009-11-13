@@ -95,7 +95,7 @@ class SimpleRankAlgo(IRanking):
 				scores[name] = -5
 			if player.desync > -1:
 				scores[name] = 0
-		print 'scores ',scores
+		
 		endframe = matchresult.game_over
 		#find last team standing
 		for name in matchresult.players.keys():
@@ -104,7 +104,7 @@ class SimpleRankAlgo(IRanking):
 			elif name not in scores.keys():
 				reldeath = deaths[name] / float(endframe)
 				scores[name] = reldeath * playercount
-		
+		print 'scores ',scores
 		for name,player in matchresult.players.iteritems():
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( SimpleRanks ).filter( SimpleRanks.ladder_id == ladder_id ).filter( SimpleRanks.player_id == player_id ).first()
@@ -124,7 +124,8 @@ class SimpleRankAlgo(IRanking):
 		s = db.sessionmaker()
 		for rank in rank_list:
 			s.add( rank )
-			ret += 'player: %s\tscore: %4d\n'%(rank.player.nick,rank.points)
+			ret += 'player: %s\tscore: %4f\n'%(rank.player.nick,rank.points)
+		s.close()
 		return ret
 
 	def GetWebRepresentation(self,rank_list,db):
@@ -133,7 +134,8 @@ class SimpleRankAlgo(IRanking):
 		s = db.sessionmaker()
 		for rank in rank_list:
 			s.add( rank )
-			ret.rows.append( [rank.player.nick , rank.points ] )
+			ret.rows.append( [rank.player.nick , round(rank.points,3) ] )
+		s.close()
 		return ret
 		
 			
