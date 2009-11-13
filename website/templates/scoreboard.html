@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<table >
+<thead>
+<tr>
+{% for h in rank_table.header %}
+	<td> {{h}} <td>
+{% endfor %}
+</tr>
+</thead>
+<tbody>
+{% for row in rank_table.rows %}
+<tr>
+	{% for field in row %}
+		<td>{{field}}</td>
+	{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<a href="/index.py" > back to index </a>
+{% endblock %}
+

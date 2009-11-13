@@ -213,7 +213,7 @@ class LadderDB:
 			self.AddPlayer( 'BrainDamage',Roles.Owner, '')
 			self.AddPlayer( '[S44]Neddie',Roles.Owner, '')
 		except:
-			print "adding default data failed"
+			pass
 
 	def ReportMatch( self, matchresult ):
 		if not isinstance( matchresult, MatchToDbWrapper ):
@@ -223,7 +223,8 @@ class LadderDB:
 	def GetRanks( self, ladder_id, player_name=None ):
 		session = self.sessionmaker()
 		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
-		entityType = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id ).GetDbEntityType()
+		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
+		entityType = algo_instance.GetDbEntityType()
 		if player_name:
 			player = session.query( Player ).filter( Player.nick == player_name ).first()
 			if player:
@@ -232,7 +233,7 @@ class LadderDB:
 			else:
 				raise ElementNotFoundException( Player( player_name ) )
 		else:
-			ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()
+			ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).order_by( algo_instance.OrderByKey() ).all()
 		session.close()
 		return ranks
 
