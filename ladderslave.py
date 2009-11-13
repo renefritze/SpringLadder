@@ -410,10 +410,11 @@ class Main:
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
 					mr = MatchToDbWrapper( output, 'myself', self.ladderid )
-				except:
-					saybattle( self.socket, self.battleid, "invalid setup" )
+					self.db.ReportMatch( mr )
+				except InvalidOptionSetup, e:
+					saybattle( self.socket, self.battleid, str(e) )
 					return
-				self.db.ReportMatch( mr )
+				
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:

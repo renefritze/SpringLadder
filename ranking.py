@@ -14,12 +14,13 @@ class IRanking():
 		raise NotImplemented
 
 class RankingAlgoSelector:
-	available_ranking_algos = ['simple'] #might actually work just via type switching
-
-	def __init__(self):
-		self.algos = dict()
-		self.algos[RankingAlgoSelector.available_ranking_algos[0]] =  SimpleRankAlgo()
-
+	algos = dict()
+	available_ranking_algos = []	
+		
+	def RegisterAlgo( self, instance ):
+		RankingAlgoSelector.available_ranking_algos.append( type(instance).__name__ )
+		RankingAlgoSelector.algos[RankingAlgoSelector.available_ranking_algos[-1]] =  instance
+		
 	def GetInstance(self, name ):
 		if not name in RankingAlgoSelector.available_ranking_algos:
 			raise ElementNotFoundException( name )
@@ -28,7 +29,7 @@ class RankingAlgoSelector:
 	def GetPrintableRepresentation(self, rank_list,db ):
 		if len(rank_list) < 1:
 			print 'no ranks to represent'
-			return ''
+			return 'no ranks to represent'
 		else:
 			el = rank_list[0]
 			for algo in self.algos.values():
@@ -36,6 +37,17 @@ class RankingAlgoSelector:
 					return algo.GetPrintableRepresentation( rank_list,db )
 			print 'no suitable algo for printing rank list found '
 			return ''
+
+	def GetPrintableRepresentationPlayer(self, rank_dict,db ):
+		if len(rank_dict) < 1:
+			print 'no ranks to represent'
+			return 'no ranks to represent'
+		else:
+			res = ''
+			for rank,rtuple in rank_dict.iteritems():
+				algo_instance = self.algos[rtuple[0]]
+				res += 'Ladder %s, ranking: %s'%(rtuple[1],algo_instance.GetPrintableRepresentation( [rank], db ) )
+			return res
 			
 
 class SimpleRankAlgo(IRanking):
@@ -85,7 +97,8 @@ class SimpleRankAlgo(IRanking):
 			session.commit()
 		session.close()
 
-	def GetPrintableRepresentation(self,rank_list,db):
+	@staticmethod
+	def GetPrintableRepresentation(rank_list,db):
 		ret = ''
 		s = db.sessionmaker()
 		for rank in rank_list:
@@ -97,6 +110,7 @@ class SimpleRankAlgo(IRanking):
 		return SimpleRanks
 
 GlobalRankingAlgoSelector = RankingAlgoSelector()
+GlobalRankingAlgoSelector.RegisterAlgo( SimpleRankAlgo() )
 
 #team			= Column( Integer )
 #ally			= Column( Integer )
