@@ -44,7 +44,7 @@ class LadderDB:
 			session.add( ladder )
 			session.commit()
 			ladderid = ladder.id
-			
+
 			session.close()
 			self.AddOption( ladderid, True, "battletype", "0" )#default for all ladders
 		else:
@@ -62,7 +62,7 @@ class LadderDB:
 			session.close()
 		else:
 			raise ElementNotFoundException( Ladder(id) )
-	
+
 	def GetLadderName(self, ladder_id):
 		session = self.sessionmaker()
 
@@ -72,19 +72,19 @@ class LadderDB:
 			laddername = ladder.name
 		session.close()
 		return laddername
-			
+
 	def LadderExists(self, id ):
 		session = self.sessionmaker()
 		count = session.query( Ladder ).filter( Ladder.id == id ).count()
 		session.close()
 		return count == 1
-			
+
 	def AddOption(self, ladderID, is_whitelist, optionkey, optionvalue  ):
 		session = self.sessionmaker()
 
 		if not self.LadderExists( ladderID ):
 			raise ElementNotFoundException( Ladder( ladderID ) )
-	
+
 		option = session.query( Option ).filter( Option.ladder_id == ladderID ).filter( Option.key == optionkey ).filter( Option.value == optionvalue ).first()
 		#should this reset an key.val pair if already exists?
 		if option:
@@ -95,7 +95,7 @@ class LadderDB:
 			session.add( option )
 			session.commit()
 		session.close()
-			
+
 	def GetLadderList(self,order):
 		'''second parameter determines order of returned list (Ladder.name/Ladder.id for example) '''
 		session = self.sessionmaker()
@@ -114,19 +114,19 @@ class LadderDB:
 		options = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).order_by( Option.key )
 		session.close()
 		return options
-		
+
 	def GetOptionKeyExists(self, ladder_id, whitelist_only, keyname ):
 		session = self.sessionmaker()
 		count = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).count()
 		session.close()
 		return count > 0
-	
+
 	def GetOptionKeyValueExists(self, ladder_id, whitelist_only, keyname, value ):
 		session = self.sessionmaker()
 		count = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).count()
 		session.close()
 		return count == 1
-		
+
 	def DeleteOption( self, ladder_id, whitelist_only, keyname, value ):
 		session = self.sessionmaker()
 		option = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).first()
@@ -134,7 +134,7 @@ class LadderDB:
 			session.delete( option )
 			session.commit()
 		#else
-			#raise ElementNotFoundException( Option( 
+			#raise ElementNotFoundException( Option(
 		session.close()
 
 	def GetLadder(self, ladder_id ):
@@ -182,7 +182,7 @@ class LadderDB:
 		else:
 			target_ladder = Ladder( target_name )
 			target_ladder.min_team_size 	= source_ladder.min_team_size
-			target_ladder.max_team_size 	= source_ladder.max_team_size 	
+			target_ladder.max_team_size 	= source_ladder.max_team_size
 			target_ladder.min_ally_size 	= source_ladder.min_ally_size
 			target_ladder.max_ally_size 	= source_ladder.max_ally_size
 			target_ladder.min_ally_count 	= source_ladder.min_ally_count
@@ -205,7 +205,7 @@ class LadderDB:
 		session.add( player )
 		session.commit()
 		session.close()
-		
+
 	def AddDefaultData(self):
 		try:
 			self.AddLadder( 'dummy' )
@@ -255,10 +255,10 @@ class LadderDB:
 		session = self.sessionmaker()
 		player_query = session.query( Player ).filter( Player.nick == username )
 		if player_query.count () == 0:
-			self.AddPlayer( username, Roles.User ) 
+			self.AddPlayer( username, Roles.User )
 			player_query = session.query( Player ).filter( Player.nick == username )
 		is_superadmin = player_query.filter( Player.role == Roles.GlobalAdmin ).count() == 1
-		if role == Roles.LadderAdmin:
+		if role == Roles.LadderAdmin and ladder_id != -1:
 			is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
 				.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
 			session.close()
@@ -280,7 +280,7 @@ class LadderDB:
 		session = self.sessionmaker()
 		player = session.query( Player ).filter( Player.nick == username ).first()
 		if not player:
-			self.AddPlayer( username, Roles.GlobalAdmin ) 
+			self.AddPlayer( username, Roles.GlobalAdmin )
 		else:
 			player.role = Roles.GlobalAdmin
 			session.add(player)

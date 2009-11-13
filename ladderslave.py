@@ -35,7 +35,7 @@ def saybattleex(socket,battleid,message):
 
 def sayPermissionDenied(socket, command, username ):
 	socket.send("SAYPRIVATE %s You do not have sufficient access right to execute %s on this bot\n" %( username, command ) )
-	
+
 bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1).lstrip('0')+str(n&1) or '0'
 
 """
@@ -314,10 +314,15 @@ class Main:
 			who = args[0]
 			command = args[1]
 			args = args[2:]
-			if not self.db.AccessCheck( self.ladderid, who, Roles.User ):
-				sayPermissionDenied( self.socket, who, command )
-				#log
+
+			if len(command) > 0 and command[0] == "!" and ( who == self.battlefounder or who == self.app.config["fromwho"] ) :
+				if not self.db.AccessCheck( -1, fromwho, Roles.User ):
+					sayPermissionDenied( socket, fromwho, command )
+					#log
+					return
+			else:
 				return
+
 			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
