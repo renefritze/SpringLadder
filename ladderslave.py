@@ -182,6 +182,16 @@ class Main:
 		laddername = self.db.GetLadderName( ladderid )
 		teamcount = len(self.teams)
 		allycount = len(self.allies)
+
+		bannedplayers = ""
+		for player in self.battle_statusmap:
+			if not self.db.AccessCheck( ladderid, player, Roles.User ):
+				IsOk = False
+				bannedplayers += " " + player
+
+		if not IsOK and echoerrors:
+			saybattle( socket, self.battleid, "There are banned player for " + laddername  + " (" + bannedplayers + " )" )
+
 		minteamcount = self.db.GetLadderOption( ladderid, "min_team_count" )
 		maxteamcount = self.db.GetLadderOption( ladderid, "max_team_count" )
 		minallycount = self.db.GetLadderOption( ladderid, "min_ally_count" )
