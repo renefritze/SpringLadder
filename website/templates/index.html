@@ -3,7 +3,7 @@
 {% block content %}
 <ul>
 {% for l in ladders %}
-  <li><a href="/change_ladder.py?id={{ l.id }}">{{ l.name }}</a></li>
+  <li>{{ l.name }}: <a href="/scoreboard.py?id={{ l.id }}">scores</a> <a href="/change_ladder.py?id={{ l.id }}">edit</a></li>
 {% endfor %}
 </ul>
 <br/>

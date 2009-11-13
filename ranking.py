@@ -2,6 +2,14 @@
 
 from db_entities import *
 
+class RankingTable:
+	header 	= []
+	rows	= []
+
+class EmptyRankingListException( Exception ):
+	def __str__(self):
+		return "no ranks, doh"
+
 class IRanking():
 	
 	def Update(self,ladder_id,matchresult,db):
@@ -10,7 +18,13 @@ class IRanking():
 	def GetPrintableRepresentation(self,rank_list,db):
 		raise NotImplemented
 
+	def GetWebRepresentation(self,rank_list,db):
+		raise NotImplemented
+		
 	def GetDbEntityType(self):
+		raise NotImplemented
+
+	def OrderByKey(self):
 		raise NotImplemented
 
 class RankingAlgoSelector:
@@ -41,14 +55,23 @@ class RankingAlgoSelector:
 	def GetPrintableRepresentationPlayer(self, rank_dict,db ):
 		if len(rank_dict) < 1:
 			print 'no ranks to represent'
-			return 'no ranks to represent'
+			raise EmptyRankingListException()
 		else:
 			res = ''
 			for rank,rtuple in rank_dict.iteritems():
 				algo_instance = self.algos[rtuple[0]]
 				res += 'Ladder %s, ranking: %s'%(rtuple[1],algo_instance.GetPrintableRepresentation( [rank], db ) )
 			return res
-			
+
+	def GetWebRepresentation(self,rank_list,db):
+		if len(rank_list) < 1:
+			print 'no ranks to represent'
+			raise EmptyRankingListException()
+		el = rank_list[0]
+		for algo in self.algos.values():
+			if isinstance( el, algo.GetDbEntityType() ):
+				return algo.GetWebRepresentation( rank_list,db )
+		return None
 
 class SimpleRankAlgo(IRanking):
 
@@ -82,8 +105,6 @@ class SimpleRankAlgo(IRanking):
 				reldeath = deaths[name] / float(endframe)
 				scores[name] = reldeath * playercount
 		
-		#qu = session.
-		
 		for name,player in matchresult.players.iteritems():
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( SimpleRanks ).filter( SimpleRanks.ladder_id == ladder_id ).filter( SimpleRanks.player_id == player_id ).first()
@@ -105,18 +126,22 @@ class SimpleRankAlgo(IRanking):
 			s.add( rank )
 			ret += 'player: %s\tscore: %4d\n'%(rank.player.nick,rank.points)
 		return ret
+
+	def GetWebRepresentation(self,rank_list,db):
+		ret = RankingTable()
+		ret.header = ['nick','score']
+		s = db.sessionmaker()
+		for rank in rank_list:
+			s.add( rank )
+			ret.rows.append( [rank.player.nick , rank.points ] )
+		return ret
+		
 			
 	def GetDbEntityType(self):
 		return SimpleRanks
 
+	def OrderByKey(self):
+		return SimpleRanks.points.desc()
+
 GlobalRankingAlgoSelector = RankingAlgoSelector()
 GlobalRankingAlgoSelector.RegisterAlgo( SimpleRankAlgo() )
-
-#team			= Column( Integer )
-#ally			= Column( Integer )
-#disconnect		= Column( Integer )
-#quit			= Column( Integer )
-#died			= Column( Integer )
-#desync			= Column( Integer )
-#timeout			= Column( Integer )
-#connected		= Column( Boolean )
