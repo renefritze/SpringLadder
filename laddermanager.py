@@ -402,30 +402,33 @@ class Main:
 				else:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!score":
-			#access level?? ladderid??
+			if not self.db.AccessCheck( -1, fromwho, Roles.User ):
+				sayPermissionDenied( socket, fromwho, command )
+				#log
+				return
 			if len(args) > 2:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 			else:
 				ladderid = -1
 				playername = ""
+				rep = ''
 				if len(args) == 1:
 					if args[0].isdigit():
 						ladderid = int(args[0])
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( ladderid ), self.db )
 					else:
 						playername = args[0]
-				if len(args) == 2:
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentationPlayer( self.db.GetPlayerRanks( playername ), self.db )
+					self.notifyuser( socket, fromwho, fromwhere, ispm, rep )
+						
+				elif len(args) == 2:
 					if not args[0].isdigit():
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
 					else:
 						ladderid = int(args[0])
-						plaeryname = args[1]
-				if ladderid != -1 or len(playername) != 0:
-					if ladderid != -1 and len(playername) == 0: # print full ladder scores
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Stub" )
-					if ladderid == -1 and len(playername) != 0: # print player's scores for all ladders
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Stub" )
-					if ladderid != -1 and len(playername) != 0: # print player's score for given ladder
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Stub" )
+						playername = args[1]
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( ladderid, playername ), self.db )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, rep )
 		if command == "!ladderhelp":
 			if not self.db.AccessCheck( -1, fromwho, Roles.User ):
 				sayPermissionDenied( socket, fromwho, command )

@@ -220,14 +220,37 @@ class LadderDB:
 			raise TypeError
 		matchresult.CommitMatch(self)
 		
-	def GetRanks( self, ladder_id ):
+	def GetRanks( self, ladder_id, player_name=None ):
 		session = self.sessionmaker()
 		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
 		entityType = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id ).GetDbEntityType()
-		ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()
+		if player_name:
+			player = session.query( Player ).filter( Player.nick == player_name ).first()
+			if player:
+				#needs to be a list so the printing in GlobalRankingAlgoSelector works
+				ranks = [ session.query( entityType ).filter( entityType.ladder_id == ladder_id ).filter(entityType.player_id == player.id).first() ] 
+			else:
+				raise ElementNotFoundException( Player( player_name ) )
+		else:
+			ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()
 		session.close()
 		return ranks
-			
+
+	def GetPlayerRanks( self, player_name ):
+		res = dict() # rank -> ( algoname , laddername )
+		session = self.sessionmaker()
+		ladders = session.query( Ladder ).all()
+		player = session.query( Player ).filter( Player.nick == player_name ).first()
+		if player:
+			for ladder in ladders:
+				aloginstance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
+				algoname = type(aloginstance).__name__
+				entityType = aloginstance.GetDbEntityType()
+				rank = session.query( entityType ).filter( entityType.ladder_id == ladder.id ).filter(entityType.player_id == player.id).first()
+				res[rank] = ( algoname, ladder.name )
+			session.close()
+		return res
+		
 	def AccessCheck( self, ladder_id, username, role ):
 		session = self.sessionmaker()
 		player_query = session.query( Player ).filter( Player.nick == username )

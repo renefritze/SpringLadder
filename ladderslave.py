@@ -360,7 +360,7 @@ class Main:
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
 			if command == '!debug':
-				if not self.db.AccessCheck( self.ladderid, who, Roles.SuperAdmin ):
+				if not self.db.AccessCheck( self.ladderid, who, Roles.GlobalAdmin ):
 					sayPermissionDenied( self.socket, who, command )
 					#log
 					return
