@@ -199,10 +199,8 @@ class Main:
 				else:
 					IsOk = False
 					duplicatebots += " " + player
-
 		if not len(bannedplayers) == 0 and echoerrors:
 			saybattle( socket, self.battleid, "There are banned player for " + laddername  + " (" + bannedplayers + " )" )
-
 		if not len(duplicatebots) == 0 and echoerrors:
 			saybattle( socket, self.battleid, "There are too many bots of the same type (" + duplicatebots + " )" )
 
@@ -478,19 +476,18 @@ class Main:
 			if int(args[0]) == self.battleid:
 				botlib = args[5] # we'll use the bot's lib name intead of player name for ladder pourposes
 				name = args[1]
-				bs = BattleStatus( args[3], botlib )
-				self.battle_statusmap[ botlib ] = bs
+				botlib = botlib.replace("|"," ")
+				bs = BattleStatus( args[3], name )
+				self.battle_statusmap[ name ] = bs
 				self.FillTeamAndAllies()
 				self.bots[name] = botlib
 		if command == "UPDATEBOT":
 			if len(args) < 2:
 				error( "invalid UPDATEBOT:%s"%(args) )
 			name = args[0]
-			if name in self.bots:
-				botlib = self.bots[name]
-				bs = BattleStatus( args[1], botlib )
-				self.battle_statusmap[ botlib ] = bs
-				self.FillTeamAndAllies()
+			bs = BattleStatus( args[1], name )
+			self.battle_statusmap[ botlib ] = bs
+			self.FillTeamAndAllies()
 		if command == "REMOVEBOT":
 			if len(args) != 2:
 				error( "invalid REMOVEBOT:%s"%(args) )
