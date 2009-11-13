@@ -11,8 +11,8 @@ import subprocess
 from db_entities import *
 from ladderdb import *
 
-helpstring_ladder_admin = """!ladderadd laddername : creates a new ladder
-!ladderremove ladderID : deletes a ladder
+helpstring_ladder_admin = """!ladderchangeaicount ladderID value : sets the AI count used by the ladder
+!ladderchangeaicount ladderID min max : sets the AI count used by the ladder
 !ladderchangecontrolteamsize ladderID value : sets the control team size (player ID) used by the ladder
 !ladderchangecontrolteamsize ladderID min max : sets the control team size (player ID) used by the ladder
 !ladderchangecontrolteamcount ladderID value : sets the control team count (player ID) used by the ladder
@@ -24,7 +24,9 @@ helpstring_ladder_admin = """!ladderadd laddername : creates a new ladder
 !ladderaddoption ladderID blacklist/whitelist optionkey optionvalue : adds a new rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a given key cannot have a whitelist and blacklist at the same time
 !ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed"""
 
-helpstring_global_admin = """!laddercopy source_id target_name : copy ladder with source_id to new ladder named target_name including all options
+helpstring_global_admin = """!ladderadd laddername : creates a new ladder
+!ladderremove ladderID : deletes a ladder
+!laddercopy source_id target_name : copy ladder with source_id to new ladder named target_name including all options
 !ladderaddladderadmin ladderID username : add a new (local) admin to the ladder with LadderID
 !ladderaddglobaladmin username : add a new global admin
 !ladderdeleteladderadmin ladderID username : delete new (local) admin from the ladder with LadderID
@@ -417,7 +419,7 @@ class Main:
 						playername = args[0]
 						rep = GlobalRankingAlgoSelector.GetPrintableRepresentationPlayer( self.db.GetPlayerRanks( playername ), self.db )
 					self.notifyuser( socket, fromwho, fromwhere, ispm, rep )
-						
+
 				elif len(args) == 2:
 					if not args[0].isdigit():
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
