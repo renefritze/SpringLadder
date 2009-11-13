@@ -219,7 +219,9 @@ class LadderDB:
 		
 	def GetRanks( self, ladder_id ):
 		session = self.sessionmaker()
-		ranks = session.query( SimpleRanks ).filter( SimpleRanks.ladder_id == ladder_id ).all()
+		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
+		entityType = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id ).GetDbEntityType()
+		ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()
 		session.close()
 		return ranks
 			
