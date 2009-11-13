@@ -414,7 +414,7 @@ class Main:
 				except InvalidOptionSetup, e:
 					saybattle( self.socket, self.battleid, str(e) )
 					return
-				
+
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
@@ -473,35 +473,34 @@ class Main:
 				if player in self.battle_statusmap:
 					del self.battle_statusmap[player]
 		if command == "ADDBOT":
-			if len(args) != 5:
+			if len(args) != 6:
 				error( "invalid ADDBOT:%s"%(args) )
-			if int(args[1]) == self.battleid:
-				botname = args[4] # we'll use the bot's lib name intead of player name for ladder pourposes
+			if int(args[0]) == self.battleid:
+				botlib = args[5] # we'll use the bot's lib name intead of player name for ladder pourposes
 				name = args[1]
-				bs = BattleStatus( args[2], botname )
-				self.battle_statusmap[ botname ] = bs
+				bs = BattleStatus( args[3], botlib )
+				self.battle_statusmap[ botlib ] = bs
 				self.FillTeamAndAllies()
-				self.bots[args[1]] = botname
+				self.bots[name] = botlib
 		if command == "UPDATEBOT":
-			if len(args) < 3:
+			if len(args) < 2:
 				error( "invalid UPDATEBOT:%s"%(args) )
-			if int(args[1]) == self.battleid:
-				name = args[1]
-				if name in self.bots:
-					botname = self.bots[name]
-					bs = BattleStatus( args[2], botname )
-					self.battle_statusmap[ botname ] = bs
-					self.FillTeamAndAllies()
+			name = args[0]
+			if name in self.bots:
+				botlib = self.bots[name]
+				bs = BattleStatus( args[1], botlib )
+				self.battle_statusmap[ botlib ] = bs
+				self.FillTeamAndAllies()
 		if command == "REMOVEBOT":
 			if len(args) != 2:
 				error( "invalid REMOVEBOT:%s"%(args) )
 			if int(args[0]) == self.battleid:
 				name = args[1]
 				if name in self.bots:
-					botname = self.bots[player]
-					del self.bots[player]
-					if botname in self.battle_statusmap[botname]:
-						del self.battle_statusmap[botname]
+					botlib = self.bots[name]
+					del self.bots[name]
+					if botlib in self.battle_statusmap[botlib]:
+						del self.battle_statusmap[botlib]
 
 	def onloggedin(self,socket):
 		sendstatus( self, socket )
