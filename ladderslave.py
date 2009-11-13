@@ -384,7 +384,11 @@ class Main:
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
-				mr = MatchToDbWrapper( output, 'myself', self.ladderid )
+				try:
+					mr = MatchToDbWrapper( output, 'myself', self.ladderid )
+				except:
+					saybattle( self.socket, self.battleid, "invalid setup" )
+					return
 				self.db.ReportMatch( mr )
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
