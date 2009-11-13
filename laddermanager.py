@@ -204,6 +204,29 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder removed." )
 				except ElementNotFoundException, e:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+		if command == "!ladderchangeaicount":
+			if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = int(args[0])
+				try:
+					ladder = self.db.GetLadder( ladderid )
+					if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
+						sayPermissionDenied( socket, fromwho, command )
+						#log
+						return
+					ladder.min_ai_count = int(args[1])
+					if len(args) == 2: # min = max
+						ladder.max_ai_count = int(args[1])
+					elif len(args) == 3: # separate min & max
+						if args[2] < args[1]:
+							self.notifyuser( socket, fromwho, fromwhere, ispm, "max ai count < min! not changed." )
+							return
+						ladder.max_ai_count = int(args[2])
+					self.db.SetLadder( ladder )
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder ai count changed." )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangecontrolteamsize":
 			if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
