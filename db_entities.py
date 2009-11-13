@@ -14,6 +14,7 @@ class Roles:
 	Verified	= 3
 	LadderAdmin	= 4 #special role mapped in ladderoptions, not Player class
 	GlobalAdmin	= 5
+	Owner		= 42
 
 class Ladder(Base):
 	__tablename__ 	= 'ladders'
@@ -71,7 +72,7 @@ class Player(Base):
 	role			= Column( Integer )
 	do_hide_results = Column( Boolean )
 
-	def __init__(self, nick='noname', role=Roles.User):
+	def __init__(self, nick='noname', role=Roles.User, pw=''):
 		self.nick 		= nick
 		self.role 		= role
 		do_hide_results = False

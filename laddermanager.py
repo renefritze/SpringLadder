@@ -25,7 +25,9 @@ helpstring_admin = """!ladderadd laddername : creates a new ladder
 !ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed
 !laddercopy source_id target_name : copy ladder with source_id to new ladder named target_name including all options
 !ladderaddladderadmin ladderID username : add a new (local) admin to the ladder with LadderID
-!ladderaddglobaladmin username : add a new global admin"""
+!ladderaddglobaladmin username : add a new global admin
+!ladderdeleteladderadmin ladderID username : delete new (local) admin from the ladder with LadderID
+!ladderdeleteglobaladmin username : delete global admin"""
 
 helpstring_user = """!ladderlist : lists available ladders with their IDs
 !ladder : requests a bot to join your current game to monitor and submit scores
@@ -109,6 +111,7 @@ class Main:
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
 		if fromwho == self.app.config["nick"]:
 			return
+		# !TODO refactor to use function dict
 		if command == "!ladder":
 			if not self.db.AccessCheck( -1, fromwho, Roles.User ):
 				sayPermissionDenied( socket, fromwho, command )
@@ -136,7 +139,7 @@ class Main:
 						else:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderjoinchannel":
-			if not self.db.AccessCheck( -1, fromwho, Roles.SuperAdmin ):
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				sayPermissionDenied( socket, fromwho, command )
 				#log
 				return
@@ -150,7 +153,7 @@ class Main:
 					self.app.config["channelautojoinlist"] = ','.join(self.channels)
 					self.app.SaveConfig()
 		if command == "!ladderleavechannel":
-			if not self.db.AccessCheck( -1, fromwho, Roles.SuperAdmin ):
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				sayPermissionDenied( socket, fromwho, command )
 				#log
 				return
@@ -172,7 +175,7 @@ class Main:
 			for l in self.db.GetLadderList(Ladder.name):
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "%s: %d" %(l.name, l.id ) )
 		if command == "!ladderadd":
-			if not self.db.AccessCheck( -1, fromwho, Roles.SuperAdmin ):
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				sayPermissionDenied( socket, fromwho, command )
 				#log
 				return
@@ -186,7 +189,7 @@ class Main:
 				except ElementExistsException, e:
 					error(e)
 		if command == "!ladderremove":
-			if not self.db.AccessCheck( -1, fromwho, Roles.SuperAdmin ):
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				sayPermissionDenied( socket, fromwho, command )
 				#log
 				return
@@ -429,11 +432,11 @@ class Main:
 				#log
 				return
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
-			if self.db.AccessCheck( -1, fromwho, Roles.SuperAdmin ): #what about ladderadmin here??
+			if self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ): #what about ladderadmin here??
 				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_admin )
 			self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
 		if command == "!laddercopy":
-			if not self.db.AccessCheck( -1, fromwho, Roles.SuperAdmin ):
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				sayPermissionDenied( socket, fromwho, command )
 				#log
 				return
@@ -446,6 +449,61 @@ class Main:
 					self.db.CopyLadder( source_id, target_name )
 				except:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't copy ladder" )
+		if command == "!ladderaddglobaladmin":
+			if not self.db.AccessCheck( -1, fromwho, Roles.Owner ):
+				sayPermissionDenied( socket, fromwho, command )
+				#log
+				return
+			if len(args) < 1:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				username = args[0]
+				try:
+					self.db.AddGlobalAdmin( username )
+				except:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't add global admin" )
+		if command == "!ladderaddladderadmin":
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
+				sayPermissionDenied( socket, fromwho, command )
+				#log
+				return
+			if len(args) < 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = args[0]
+				username = args[1]
+				try:
+					self.db.AddLadderAdmin( ladderid, username )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't add ladder admin: " + str(e) )
+		if command == "!ladderdeleteglobaladmin":
+			if not self.db.AccessCheck( -1, fromwho, Roles.Owner ):
+				sayPermissionDenied( socket, fromwho, command )
+				#log
+				return
+			if len(args) < 1:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				username = args[0]
+				try:
+					self.db.DeleteGlobalAdmin( username )
+				except:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't add global admin" )
+		if command == "!ladderdeleteladderadmin":
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
+				sayPermissionDenied( socket, fromwho, command )
+				#log
+				return
+			if len(args) < 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = args[0]
+				username = args[1]
+				self.db.DeleteLadderAdmin( ladderid, username )
+				try:
+					self.db.DeleteLadderAdmin( ladderid, username )
+				except:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't add ladder admin" )
 
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):

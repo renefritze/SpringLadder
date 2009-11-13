@@ -201,7 +201,7 @@ class LadderDB:
 
 	def AddPlayer(self,name,role,pw=''):
 		session = self.sessionmaker()
-		player = Player( name,pw )
+		player = Player( name,role, pw )
 		session.add( player )
 		session.commit()
 		session.close()
@@ -209,9 +209,9 @@ class LadderDB:
 	def AddDefaultData(self):
 		try:
 			self.AddLadder( 'dummy' )
-			self.AddPlayer( '_koshi_','', Roles.GlobalAdmin )
-			self.AddPlayer( 'BrainDamage','', Roles.GlobalAdmin )
-			self.AddPlayer( '[S44]Neddie','', Roles.GlobalAdmin )
+			self.AddPlayer( '_koshi_',Roles.Owner, '')
+			self.AddPlayer( 'BrainDamage',Roles.Owner, '')
+			self.AddPlayer( '[S44]Neddie',Roles.Owner, '')
 		except:
 			print "adding default data failed"
 
@@ -232,8 +232,7 @@ class LadderDB:
 		session = self.sessionmaker()
 		player_query = session.query( Player ).filter( Player.nick == username )
 		if player_query.count () == 0:
-			session.add( Player( username, Roles.User ) )
-			session.commit()
+			self.AddPlayer( username, Roles.User ) 
 			player_query = session.query( Player ).filter( Player.nick == username )
 		is_superadmin = player_query.filter( Player.role == Roles.GlobalAdmin ).count() == 1
 		if role == Roles.LadderAdmin:
@@ -247,4 +246,32 @@ class LadderDB:
 			return player.role >= role or is_superadmin
 		session.close()
 		return False
-		
+
+	def AddLadderAdmin( self, ladder_id, username ):
+		self.AddOption( ladder_id, True, Option.adminkey, username )
+
+	def DeleteLadderAdmin( self, ladder_id, username ):
+		self.DeleteOption(  ladder_id, True, Option.adminkey, username )
+
+	def AddGlobalAdmin( self, username ):
+		session = self.sessionmaker()
+		player = session.query( Player ).filter( Player.nick == username ).first()
+		if not player:
+			self.AddPlayer( username, Roles.GlobalAdmin ) 
+		else:
+			player.role = Roles.GlobalAdmin
+			session.add(player)
+			session.commit()
+		session.close()
+
+	def DeleteGlobalAdmin( self, username ):
+		session = self.sessionmaker()
+		player = session.query( Player ).filter( Player.nick == username ).first()
+		if not player:
+			session.close()
+			return
+		else:
+			player.role = Roles.User
+			session.add(player)
+			session.commit()
+		session.close()
