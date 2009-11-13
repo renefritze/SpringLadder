@@ -71,6 +71,7 @@ class MatchToDbWrapper():
 
 		teamsdict = dict()
 		alliesdict = dict()
+		countedbots = []
 		for player in self.teams:
 			if not db.AccessCheck( self.ladder_id, player, Roles.User ):
 				return False
@@ -79,6 +80,12 @@ class MatchToDbWrapper():
 				teamsdict[team] = 1
 			else:
 				teamsdict[team] += 1
+			if player in self.bots:
+				libname = self.bots[player]
+				if not libname in countedbots: # don't allow more than 1 bot of the same type
+					countedbots.append(libname)
+				else:
+					return False
 		for team in self.allies:
 			ally = self.allies[team]
 			if not ally in alliesdict:
@@ -88,10 +95,17 @@ class MatchToDbWrapper():
 
 		teamcount = len(teamsdict)
 		allycount = len(alliesdict)
+		aicount = len(self.bots)
+		minaicount = db.GetLadderOption( self.ladder_id, "min_ai_count" )
+		maxaicount = db.GetLadderOption( self.ladder_id, "max_ai_count" )
 		minteamcount = db.GetLadderOption( self.ladder_id, "min_team_count" )
 		maxteamcount = db.GetLadderOption( self.ladder_id, "max_team_count" )
 		minallycount = db.GetLadderOption( self.ladder_id, "min_ally_count" )
 		maxallycount = db.GetLadderOption( self.ladder_id, "max_ally_count" )
+		if aicount < minaicount:
+			return False
+		if aicount > maxaicount:
+			return False
 		if teamcount < minteamcount:
 			return False
 		if teamcount > maxteamcount:
@@ -123,14 +137,16 @@ class MatchToDbWrapper():
 	def CommitMatch(self,db):
 		self.ParseSpringOutput()
 		ladder = db.GetLadder(self.ladder_id )
+		gameid = self.gameid["gameid"]
 		if not self.CheckValidSetup( db ):
-			raise InvalidOptionSetup( self.gameid["gameid"] , self.ladder_id )
+			raise InvalidOptionSetup( gameid, self.ladder_id )
 		session = db.sessionmaker()
 		match = Match()
 		match.date 	= datetime.now()
 		match.modname  = ''
 		match.mapname = ''
 		match.replay = ''
+		match.game_id = gameid
 		match.duration = timedelta(days=666)
 		match.ladder_id = ladder.id
 		session.add( match )
@@ -170,6 +186,7 @@ class MatchToDbWrapper():
 		setup_section 	= getSectionContect( self.springoutput, 'SETUP' )
 		self.gameid		= parseSec( getSectionContect( setup_section, 'GAMEID'      ) )
 		self.teams		= parseSec( getSectionContect( setup_section, 'TEAMS' 		) )
+		self.bots		= parseSec( getSectionContect( setup_section, 'AIS' 		) )
 		self.allies		= parseSec( getSectionContect( setup_section, 'ALLYTEAMS' 	) )
 		self.options 	= parseSec( getSectionContect( setup_section, 'OPTIONS' 	) )
 		self.restr		= parseSec( getSectionContect( setup_section, 'RESTRICTIONS') )
@@ -214,3 +231,12 @@ class MatchToDbWrapper():
 				else:
 					assert len(tokens) > 1
 					self.game_over = tokens[1]
+
+		#replace ai name with lib name
+		tempplayers = dict()
+		for playername in self.players:
+			playercontent = self.players[playername]
+			if playername in self.bots:
+				playername = self.bots[playername]
+			tempplayers[playername] = playercontent
+		self.players = tempplayers

@@ -98,6 +98,7 @@ class Main:
 	battle_statusmap = dict()
 	teams = dict()
 	allies = dict()
+	bots = dict()
 	battlefounder = ""
 	hostip = ""
 	hostport = 0
@@ -182,20 +183,43 @@ class Main:
 		laddername = self.db.GetLadderName( ladderid )
 		teamcount = len(self.teams)
 		allycount = len(self.allies)
+		botcount = len(self.bots)
 
 		bannedplayers = ""
+		duplicatebots = ""
+		checkedbots = []
 		for player in self.battle_statusmap:
 			if not self.db.AccessCheck( ladderid, player, Roles.User ):
 				IsOk = False
 				bannedplayers += " " + player
+			if player in self.bots: # it's a bot
+				botlib = self.bots[player]
+				if not botlib in checkedbots:
+					checkedbots.append(checkedbots)
+				else:
+					IsOk = False
+					duplicatebots += " " + player
 
-		if not IsOk and echoerrors:
+		if not len(bannedplayers) == 0 and echoerrors:
 			saybattle( socket, self.battleid, "There are banned player for " + laddername  + " (" + bannedplayers + " )" )
 
+		if not len(duplicatebots) == 0 and echoerrors:
+			saybattle( socket, self.battleid, "There are too many bots of the same type (" + duplicatebots + " )" )
+
+		minbotcount = self.db.GetLadderOption( ladderid, "min_ai_count" )
+		maxbotcount = self.db.GetLadderOption( ladderid, "max_ai_count" )
 		minteamcount = self.db.GetLadderOption( ladderid, "min_team_count" )
 		maxteamcount = self.db.GetLadderOption( ladderid, "max_team_count" )
 		minallycount = self.db.GetLadderOption( ladderid, "min_ally_count" )
 		maxallycount = self.db.GetLadderOption( ladderid, "max_ally_count" )
+		if botcount < minbotcount:
+			if echoerrors:
+				saybattle( socket, self.battleid, "There are too few AIs for " + laddername  + " (" + str(botcount) + ")" )
+			IsOk =  False
+		if botcount > maxbotcount:
+			if echoerrors:
+				saybattle( socket, self.battleid, "There are too many AIs for " + laddername + " (" + str(botcount) + ")" )
+			IsOk = False
 		if teamcount < minteamcount:
 			if echoerrors:
 				saybattle( socket, self.battleid, "There are too few control teams for " + laddername  + " (" + str(teamcount) + ")" )
@@ -448,7 +472,36 @@ class Main:
 				player = args[1]
 				if player in self.battle_statusmap:
 					del self.battle_statusmap[player]
-
+		if command == "ADDBOT":
+			if len(args) != 5:
+				error( "invalid ADDBOT:%s"%(args) )
+			if int(args[1]) == self.battleid:
+				botname = args[4] # we'll use the bot's lib name intead of player name for ladder pourposes
+				name = args[1]
+				bs = BattleStatus( args[2], botname )
+				self.battle_statusmap[ botname ] = bs
+				self.FillTeamAndAllies()
+				self.bots[args[1]] = botname
+		if command == "UPDATEBOT":
+			if len(args) < 3:
+				error( "invalid UPDATEBOT:%s"%(args) )
+			if int(args[1]) == self.battleid:
+				name = args[1]
+				if name in self.bots:
+					botname = self.bots[name]
+					bs = BattleStatus( args[2], botname )
+					self.battle_statusmap[ botname ] = bs
+					self.FillTeamAndAllies()
+		if command == "REMOVEBOT":
+			if len(args) != 2:
+				error( "invalid REMOVEBOT:%s"%(args) )
+			if int(args[0]) == self.battleid:
+				name = args[1]
+				if name in self.bots:
+					botname = self.bots[player]
+					del self.bots[player]
+					if botname in self.battle_statusmap[botname]:
+						del self.battle_statusmap[botname]
 
 	def onloggedin(self,socket):
 		sendstatus( self, socket )
