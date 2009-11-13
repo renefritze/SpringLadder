@@ -225,5 +225,16 @@ class LadderDB:
 		session.close()
 		return ranks
 			
-		
+	def AccessCheck( self, ladder_id, username, role ):
+		session = self.sessionmaker()
+		player_query = session.query( Player ).filter( Player.nick == username )
+		is_superadmin = player_query.filter( Player.role == Roles.SuperAdmin ).count() == 1
+		if role == Roles.LadderAdmin:
+			is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
+				.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
+			return is_superadmin or is_ladderadmin
+		player = player_query.first()
+		if player:
+			return player.role == role or is_superadmin
+		return False
 		

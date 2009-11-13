@@ -6,6 +6,14 @@ from datetime import datetime
 
 Base = declarative_base()
 
+class Roles:
+	Banned 		= 0
+	Unknown		= 1
+	User		= 2
+	Verified	= 3
+	LadderAdmin	= 4 #special role mapped in ladderoptions, not Player class
+	SuperAdmin	= 5
+
 class Ladder(Base):
 	__tablename__ 	= 'ladders'
 	id 				= Column( Integer, primary_key=True )
@@ -44,6 +52,8 @@ class Option(Base):
 	value 			= Column( String(100) )
 	is_whitelist 	= Column( Boolean )
 
+	adminkey		= 'ladderadmin'
+
 	def __init__(self,key='defaultkey',value='emptyvalue',is_whitelist=True):
 		self.key = key
 		self.value = value
@@ -57,9 +67,13 @@ class Player(Base):
 	id 				= Column( Integer, primary_key=True )
 	nick 			= Column( String(50) )
 	pwhash 			= Column( String(80) )
+	role			= Column( Integer )
+	do_hide_results = Column( Boolean )
 
 	def __init__(self, nick='noname'):
-		self.nick = nick
+		self.nick 		= nick
+		self.role 		= Roles.User
+		do_hide_results = False
 
 	def __str__(self):
 		return "Player(id:%d) %s "%(self.id, self.nick)
@@ -121,4 +135,3 @@ class SimpleRanks(Base):
 		self.points = 0
 
 	player			= relation("Player")
-
