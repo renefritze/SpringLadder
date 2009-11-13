@@ -182,6 +182,16 @@ class Main:
 		laddername = self.db.GetLadderName( ladderid )
 		teamcount = len(self.teams)
 		allycount = len(self.allies)
+
+		bannedplayers = ""
+		for player in self.battle_statusmap:
+			if not self.db.AccessCheck( ladderid, player, Roles.User ):
+				IsOk = False
+				bannedplayers += " " + player
+
+		if not IsOk and echoerrors:
+			saybattle( socket, self.battleid, "There are banned player for " + laddername  + " (" + bannedplayers + " )" )
+
 		minteamcount = self.db.GetLadderOption( ladderid, "min_team_count" )
 		maxteamcount = self.db.GetLadderOption( ladderid, "max_team_count" )
 		minallycount = self.db.GetLadderOption( ladderid, "min_ally_count" )
@@ -316,8 +326,8 @@ class Main:
 			args = args[2:]
 
 			if len(command) > 0 and command[0] == "!" and ( who == self.battlefounder or who == self.app.config["fromwho"] ) :
-				if not self.db.AccessCheck( -1, fromwho, Roles.User ):
-					sayPermissionDenied( socket, fromwho, command )
+				if not self.db.AccessCheck( -1, who, Roles.User ):
+					sayPermissionDenied( socket, who, command )
 					#log
 					return
 			else:
@@ -374,7 +384,11 @@ class Main:
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
-				mr = MatchToDbWrapper( output, 'myself', self.ladderid )
+				try:
+					mr = MatchToDbWrapper( output, 'myself', self.ladderid )
+				except:
+					saybattle( self.socket, self.battleid, "invalid setup" )
+					return
 				self.db.ReportMatch( mr )
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
@@ -426,6 +440,14 @@ class Main:
 			bs = BattleStatus( args[1], args[0] )
 			self.battle_statusmap[ args[0] ] = bs
 			self.FillTeamAndAllies()
+		if command == "LEFTBATTLE":
+			if len(args) != 2:
+				error( "invalid LEFTBATTLE:%s"%(args) )
+			if int(args[0]) == self.battleid:
+				player = args[1]
+				if player in self.battle_statusmap:
+					del self.battle_statusmap[player]
+
 
 	def onloggedin(self,socket):
 		sendstatus( self, socket )
