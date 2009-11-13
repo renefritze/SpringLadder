@@ -3,6 +3,9 @@
 fakeoutput = []
 
 fakeoutput.append( """BEGINSETUP
+BEGINGAMEID
+gameid=0f78fb4aca6594070a1f843c97174d8b
+ENDGAMEID
 BEGINTEAMS
 doofus=1
 idiot=2
@@ -28,6 +31,9 @@ ENDGAME
 """)
 
 fakeoutput.append( """BEGINSETUP
+BEGINGAMEID
+gameid=0f78fb4aca6594070a1f843c97174d8c
+ENDGAMEID
 BEGINTEAMS
 doofus=1
 idiot=2
