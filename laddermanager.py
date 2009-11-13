@@ -61,7 +61,7 @@ class Main:
 	ladderlist = dict() # id -> ladder name
 	ladderoptions = dict() # id -> ladder options
 
-	def botthread(self,slot,battleid,ladderid):
+	def botthread(self,slot,battleid,fromwho,ladderid):
 		nick = self.app.config["nick"]+str(slot)
 		try:
 			d = dict()
@@ -74,6 +74,7 @@ class Main:
 			d.update([("bans",self.app.config["bans"])])
 			d.update([("battleid",str(battleid))])
 			d.update([("ladderid",str(ladderid))])
+			d.update([("fromwho",fromwho)])
 			d.update([("alchemy-uri",self.app.config["alchemy-uri"])])
 			d.update([("alchemy-verbose",self.app.config["alchemy-verbose"])])
 			d.update([("springdedclientpath",self.app.config["springdedclientpath"])])
@@ -104,10 +105,10 @@ class Main:
 		else:
 			pm( socket, fromwho, message )
 
-	def spawnbot( self,  socket, battleid, ladderid ):
+	def spawnbot( self,  socket, battleid, fromwho, ladderid ):
 		slot = len(self.botstatus)
 		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(ladderid))
-		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,ladderid)))
+		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,fromwho,ladderid)))
 
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
 		if fromwho == self.app.config["nick"]:
@@ -140,7 +141,7 @@ class Main:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "A ladder bot is already present in your battle." )
 					else:
 						if ( ladderid == -1 or self.db.LadderExists( ladderid ) ):
-							self.spawnbot( socket, battleid, ladderid )
+							self.spawnbot( socket, battleid, fromwho, ladderid )
 						else:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderjoinchannel":

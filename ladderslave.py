@@ -315,7 +315,7 @@ class Main:
 			command = args[1]
 			args = args[2:]
 
-			if len(command) > 0 and command[0] == "!":
+			if len(command) > 0 and command[0] == "!" and ( who == self.battlefounder or who == self.app.config["fromwho"] ) :
 				if not self.db.AccessCheck( -1, fromwho, Roles.User ):
 					sayPermissionDenied( socket, fromwho, command )
 					#log
