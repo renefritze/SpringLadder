@@ -199,7 +199,7 @@ class LadderDB:
 				session.commit()
 		session.close()
 
-	def AddPlayer(self,name,pw=''):
+	def AddPlayer(self,name,role,pw=''):
 		session = self.sessionmaker()
 		player = Player( name,pw )
 		session.add( player )
@@ -209,8 +209,11 @@ class LadderDB:
 	def AddDefaultData(self):
 		try:
 			self.AddLadder( 'dummy' )
+			self.AddPlayer( '_koshi_','', Roles.GlobalAdmin )
+			self.AddPlayer( 'BrainDamage','', Roles.GlobalAdmin )
+			self.AddPlayer( '[S44]Neddie','', Roles.GlobalAdmin )
 		except:
-			pass		
+			print "adding default data failed"
 
 	def ReportMatch( self, matchresult ):
 		if not isinstance( matchresult, MatchToDbWrapper ):
@@ -228,13 +231,20 @@ class LadderDB:
 	def AccessCheck( self, ladder_id, username, role ):
 		session = self.sessionmaker()
 		player_query = session.query( Player ).filter( Player.nick == username )
-		is_superadmin = player_query.filter( Player.role == Roles.SuperAdmin ).count() == 1
+		if player_query.count () == 0:
+			session.add( Player( username, Roles.User ) )
+			session.commit()
+			player_query = session.query( Player ).filter( Player.nick == username )
+		is_superadmin = player_query.filter( Player.role == Roles.GlobalAdmin ).count() == 1
 		if role == Roles.LadderAdmin:
 			is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
 				.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
+			session.close()
 			return is_superadmin or is_ladderadmin
 		player = player_query.first()
 		if player:
-			return player.role == role or is_superadmin
+			session.close()
+			return player.role >= role or is_superadmin
+		session.close()
 		return False
 		

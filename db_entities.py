@@ -7,12 +7,13 @@ from datetime import datetime
 Base = declarative_base()
 
 class Roles:
+	"""need to be strongly ordered integers"""
 	Banned 		= 0
 	Unknown		= 1
 	User		= 2
 	Verified	= 3
 	LadderAdmin	= 4 #special role mapped in ladderoptions, not Player class
-	SuperAdmin	= 5
+	GlobalAdmin	= 5
 
 class Ladder(Base):
 	__tablename__ 	= 'ladders'
@@ -70,9 +71,9 @@ class Player(Base):
 	role			= Column( Integer )
 	do_hide_results = Column( Boolean )
 
-	def __init__(self, nick='noname'):
+	def __init__(self, nick='noname', role=Roles.User):
 		self.nick 		= nick
-		self.role 		= Roles.User
+		self.role 		= role
 		do_hide_results = False
 
 	def __str__(self):

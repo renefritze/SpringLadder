@@ -33,6 +33,9 @@ def saybattleex(socket,battleid,message):
 		print green+"Battle:%i, Message: %s" %(battleid,line) + normal
 		socket.send("SAYBATTLEEX %s\n" % line)
 
+def sayPermissionDenied(socket, command, username ):
+	socket.send("SAYPRIVATE %s You do not have sufficient access right to execute %s on this bot\n" %( username, command ) )
+	
 bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1).lstrip('0')+str(n&1) or '0'
 
 """
@@ -311,6 +314,10 @@ class Main:
 			who = args[0]
 			command = args[1]
 			args = args[2:]
+			if not self.db.AccessCheck( self.ladderid, who, Roles.User ):
+				sayPermissionDenied( self.socket, who, command )
+				#log
+				return
 			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
@@ -353,6 +360,10 @@ class Main:
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
 			if command == '!debug':
+				if not self.db.AccessCheck( self.ladderid, who, Roles.SuperAdmin ):
+					sayPermissionDenied( self.socket, who, command )
+					#log
+					return
 				import fakeoutput
 				output = fakeoutput.fakeoutput[1]
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
