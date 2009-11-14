@@ -18,9 +18,10 @@ try:
 		
 		print template.render(matches=matches )
 	else:
-		ladder = db.GetLadder( id )
-		template = env.get_template('viewmatch.html')
 		match = s.query( Match ).filter(Match.id == id ).first()
+		ladder = db.GetLadder( match.ladder_id )
+		template = env.get_template('viewmatch.html')
+		
 		ladder = s.query( Ladder ).filter( Ladder.id == match.ladder_id ).first()
 		opt_headers = ['key','val','wl/bl']
 		print template.render(ladder=ladder, matchinfo=MatchInfoToTableAdapter(match) )
