@@ -93,7 +93,7 @@ class GlickoRankAlgo(IRanking):
 			s_j_list = lists[name][2]
 			ds = self.d_squared( r, r_j_list, rd_j_list )
 			print 'ds ', ds
-			denom = ( 1.0 / RD*RD ) + ( 1.0 / ds )
+			denom = ( 1.0 / ( RD*RD ) ) + ( 1.0 / ds )
 			print 'denom ',denom
 			# calc r'
 			su = 0.0
