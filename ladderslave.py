@@ -408,7 +408,7 @@ class Main:
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
 					mr = MatchToDbWrapper( output, 'myself', self.ladderid )
-					self.db.ReportMatch( mr )
+					self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
 				except InvalidOptionSetup, e:
 					saybattle( self.socket, self.battleid, str(e) )
 					return

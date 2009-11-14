@@ -1,0 +1,31 @@
+\documentclass[a4paper,10pt]{scrartcl}
+
+\usepackage{amsmath}
+%opening
+\title{}
+\author{}
+
+\newcommand{\hnS}{\hspace{-1.25pt}}
+\newcommand{\hS}{\hspace{1.25pt}}
+\newcommand{\RD}{\textnormal{R\hnS D}}
+\newcommand{\E}{\textnormal{E}(s|r,r_j,\RD_j)}
+\renewcommand{\min}[2]{\textnormal{min}\left(#1,#2\right)}
+\renewcommand{\thesection}{step \arabic{section}}
+\begin{document}
+\section{}
+\begin{align}
+ \RD = \min{\sqrt{\RD^{2}_{old}}}{350}
+\end{align}
+
+\section{}
+\begin{align}
+ r' &= r + \frac{q}{1/ \RD^2 + 1/ d^2} \sum_{j=0}^{m-1}g(\RD_j)(s_j - \E )\\
+ \RD' &= \sqrt{\left(\frac{1}{\RD^2} + \frac{1}{d^2} \right)^{-1}}\\
+ \intertext{with}
+ q &= \frac{\ln{10}}{400} \approx 0.0057565 \\
+ g(\RD) &= \frac{1}{\sqrt{1 + 3q^2(\RD^2)/\pi^2}} \\
+ \E &=\frac{1}{1+ 10^{-g(\RD_j)(r-r_j)/400}} \\
+ d^2 &= \left( q^2 \sum_{j=0}^{m-1}(g(\RD_j))^2\E(1-\E)\right)^{-1}
+\end{align}
+
+\end{document}

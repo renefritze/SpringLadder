@@ -215,10 +215,11 @@ class LadderDB:
 		except:
 			pass
 
-	def ReportMatch( self, matchresult ):
+	def ReportMatch( self, matchresult, doValidation=True ):
+		"""false skips validation check of output against ladder rules"""
 		if not isinstance( matchresult, MatchToDbWrapper ):
 			raise TypeError
-		matchresult.CommitMatch(self)
+		matchresult.CommitMatch(self,doValidation)
 		
 	def GetRanks( self, ladder_id, player_name=None ):
 		session = self.sessionmaker()

@@ -116,6 +116,7 @@ class Result(Base):
 	connected		= Column( Boolean )
 
 	player			= relation(Player)
+	match			= relation(Match)
 	
 	def __init__(self):
 		self.team 		= -1
@@ -137,5 +138,19 @@ class SimpleRanks(Base):
 
 	def __init__(self):
 		self.points = 0
+
+	player			= relation("Player")
+
+class GlickoRanks(Base):
+	__tablename__	= 'glickoranks'
+	id 				= Column( Integer, primary_key=True )
+	player_id 		= Column( Integer, ForeignKey( Player.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	rating			= Column( Float )
+	rd				= Column( Float )
+
+	def __init__(self):
+		self.rating = 1500
+		self.rd		=  350
 
 	player			= relation("Player")
