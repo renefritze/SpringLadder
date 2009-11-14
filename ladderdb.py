@@ -6,6 +6,7 @@ from datetime import datetime
 from db_entities import *
 from ranking import *
 from match import *
+import time
 
 class ElementExistsException( Exception ):
 	def __init__(self, element):
@@ -308,3 +309,16 @@ class LadderDB:
 		session.add( ladder )
 		session.commit()
 		session.close()
+
+	def GetAvgMatchDelta( self, ladder_id ):
+		session = self.sessionmaker()
+		matches = session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.desc()).all()
+		total = 0.0
+		for i in range( len(matches) -1 ):
+			diff = time.mktime(matches[i].date.timetuple())
+			diff -= time.mktime(matches[i+1].date.timetuple())
+			total += diff
+		if len(matches) > 1:
+			return total / float( len(matches) - 1  )
+		else:
+			return 1

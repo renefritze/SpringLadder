@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from ranking import IRanking
-from db_entities import GlickoRanks,Player
-import math
+from db_entities import GlickoRanks,Player,Match,Result
+import math,time,datetime
 class GlickoRankAlgo(IRanking):
 
 	q = math.log( 10.0 ) / 400.0
@@ -42,9 +42,29 @@ class GlickoRankAlgo(IRanking):
 		print 'scores ',scores
 
 		#step one
-		t = 1#better count matches in ladder since last for each p
 		pre = dict() #name -> GlickoRanks
-		for name,player in matchresult.players.iteritems():
+		match_query = session.query( Match ).filter( Match.ladder_id == ladder_id ).order_by( Match.date.desc() )
+		num_matches = match_query.count()
+		if num_matches > 0:
+			prior_match = match_query.first()
+			first_match = match_query[num_matches-1]
+			first_match_unixT = time.mktime(first_match.date.timetuple())
+		else:
+			first_match_unixT = time.mktime(datetime.now().timetuple())
+		last_match_unixT = first_match_unixT
+		avg_match_delta = db.GetAvgMatchDelta( ladder_id )
+		for name,result in matchresult.players.iteritems():
+			#get number of matches since last for player
+			#if match_query.count() < 2:
+			p_result_query = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).order_by( Result.id.desc() )
+			if p_result_query.count() > 1:
+				prev_result = p_result_query[1]
+				for m in match_query[1:] :
+					if prev_result.match_id == m.id:
+						last_match_unixT = time.mktime(m.date.timetuple())
+						break
+			t = ( last_match_unixT - first_match_unixT ) / avg_match_delta
+				
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( GlickoRanks ).filter( GlickoRanks.ladder_id == ladder_id ).filter( GlickoRanks.player_id == player_id ).first()
 			if not rank:
@@ -64,13 +84,14 @@ class GlickoRankAlgo(IRanking):
 		post = dict() #name -> ( r\' , RD\' )
 		# build rd_j and r_j and s_j lists for each player
 		lists = dict() # name -> ( [r_j] , [rd_j] , [s_j] )
-		for name in matchresult.players.keys():
+		for name,result in matchresult.players.iteritems():
 			r_j_list = []
 			rd_j_list = []
 			s_j_list = []
 			my_score = scores[name]
-			for other in matchresult.players.keys():
-				if name == other:
+			my_ally = result.ally
+			for other,other_result in matchresult.players.iteritems():
+				if name == other or other_result.ally == my_ally:
 					continue
 				r_j_list.append( pre[other].rating )
 				rd_j_list.append( pre[other].rd )

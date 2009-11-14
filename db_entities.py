@@ -110,6 +110,7 @@ class Result(Base):
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	match_id 		= Column( Integer, ForeignKey( Match.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
 	team			= Column( Integer )
 	ally			= Column( Integer )
 	disconnect		= Column( Integer )

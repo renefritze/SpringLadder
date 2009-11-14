@@ -402,7 +402,12 @@ class Main:
 					#log
 					return
 				import fakeoutput
-				output = fakeoutput.fakeoutput[2]
+				if len(args) > 0 and args[0].isdigit():
+					idx = max( int(args[0]), len(fakeoutput.fakeoutput) -1 )
+					output = fakeoutput.fakeoutput[idx]
+				else:
+					output = fakeoutput.fakeoutput[-1]
+				
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
