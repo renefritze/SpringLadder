@@ -4,11 +4,11 @@ from db_entities import GlickoRanks,Player
 import math
 class GlickoRankAlgo(IRanking):
 
-	q = math.log( 10 ) / 400.0
+	q = math.log( 10.0 ) / 400.0
 	
 	def __init__(self):
-		self.c = 6.0
-		self.rd_lower_bound = 50
+		self.c = 64.0
+		self.rd_lower_bound = 50.0
 
 	def Update(self,ladder_id,matchresult,db):
 		#calculate order of deaths
@@ -52,7 +52,8 @@ class GlickoRankAlgo(IRanking):
 				rank.ladder_id = ladder_id
 				rank.player_id = player_id
 			#actual calc
-			rank.rd = min( math.sqrt( rank.rd*rank.rd + self.c*self.c * t ), 350 )#increase rd up to 350
+			else:
+				rank.rd = min( math.sqrt( rank.rd*rank.rd + self.c*self.c * t ), 350.0 )#increase rd up to 350
 			session.add(rank)
 			#must i commit everytime?
 			session.commit()
@@ -81,6 +82,7 @@ class GlickoRankAlgo(IRanking):
 				else:
 					s_j_list.append( 0.5 )
 			lists[name] = ( r_j_list, rd_j_list, s_j_list )
+			print name + ' : ' , r_j_list
 
 		#compute updates
 		for name in matchresult.players.keys():
@@ -90,20 +92,24 @@ class GlickoRankAlgo(IRanking):
 			rd_j_list = lists[name][1]
 			s_j_list = lists[name][2]
 			ds = self.d_squared( r, r_j_list, rd_j_list )
-			denom = ( 1 / RD*RD ) + ( 1 / ds )
+			print 'ds ', ds
+			denom = ( 1.0 / RD*RD ) + ( 1.0 / ds )
+			print 'denom ',denom
 			# calc r'
-			su = 0
+			su = 0.0
 			for j in range(len(r_j_list)):
 				su += self.g( rd_j_list[j] ) * (s_j_list[j] - self.E( r, r_j_list[j], rd_j_list[j] ) )
+			print 'su ',su
 			r_new = r + ( ( self.q / denom ) * su )
-			rd_new = math.sqrt( 1 / denom )
+			rd_new = math.sqrt( 1.0 / denom )
 			post[name] = ( r_new, rd_new )
+			print name, post[name]
 
 		#commit updates
 		for name in matchresult.players.keys():
 			rank = pre[name]
 			rank.rating = post[name][0]
-			rank.rd = post[name][1]
+			rank.rd = max(post[name][1], self.rd_lower_bound )
 			session.add ( rank )
 			session.commit()
 		#end step 2
@@ -111,11 +117,11 @@ class GlickoRankAlgo(IRanking):
 
 	@staticmethod
 	def g( rd ):
-		return ( 1 / math.sqrt( 1 + 3*GlickoRankAlgo.q*GlickoRankAlgo.q * rd*rd / ( math.pi*math.pi ) ) )
+		return ( 1.0 / math.sqrt( 1.0 + 3.0*GlickoRankAlgo.q*GlickoRankAlgo.q * rd*rd / ( math.pi*math.pi ) ) )
 
 	@staticmethod
 	def E( r, r_j, rd_j ):
-		return 1 / ( 1 + math.pow( 10, -1 * GlickoRankAlgo.g( rd_j ) * ( r - r_j ) / 400.0 ) )
+		return 1.0 / ( 1.0 + math.pow( 10, -1 * GlickoRankAlgo.g( rd_j ) * ( r - r_j ) / 400.0 ) )
 
 	@staticmethod
 	def d_squared( r, r_j_list, rd_j_list ):
@@ -125,8 +131,8 @@ class GlickoRankAlgo(IRanking):
 			g_val = GlickoRankAlgo.g( rd_j_list[j] )
 			g_val *= g_val
 			E_val = GlickoRankAlgo.E( r, r_j_list[j], rd_j_list[j] )
-			s += g_val * E_val * ( 1 - E_val )
-		return 1 / ( GlickoRankAlgo.q*GlickoRankAlgo.q * s )
+			s += g_val * E_val * ( 1.0 - E_val )
+		return 1.0 / ( GlickoRankAlgo.q*GlickoRankAlgo.q * s )
 	
 	@staticmethod
 	def GetPrintableRepresentation(rank_list,db):

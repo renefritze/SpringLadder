@@ -40,7 +40,7 @@ class LadderDB:
 		ladderid = -1
 		if not ladder: #no existing ladder with same name
 			ladder = Ladder( name )
-			ladder.ranking_algo_id = GlobalRankingAlgoSelector.available_ranking_algos[0]
+			ladder.ranking_algo_id = GlobalRankingAlgoSelector.available_ranking_algos[-1]
 			session.add( ladder )
 			session.commit()
 			ladderid = ladder.id

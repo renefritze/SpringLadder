@@ -402,7 +402,7 @@ class Main:
 					#log
 					return
 				import fakeoutput
-				output = fakeoutput.fakeoutput[1]
+				output = fakeoutput.fakeoutput[2]
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
