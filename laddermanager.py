@@ -22,7 +22,9 @@ helpstring_ladder_admin = """!ladderchangeaicount ladderID value : sets the AI c
 !ladderchangeallycount ladderID value : sets the ally count used by the ladder
 !ladderchangeallycount ladderID min max : sets the ally count used by the ladder
 !ladderaddoption ladderID blacklist/whitelist optionkey optionvalue : adds a new rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a given key cannot have a whitelist and blacklist at the same time
-!ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed"""
+!ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed
+!ladderlistrankingalgos : list all available ranking algorithms by name
+!laddersetrankingalgo ladderID algoName :set the used algorithm for ranking, currently switching algo on non-empty ladder will not recalc past results with new algo"""
 
 helpstring_global_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -490,7 +492,7 @@ class Main:
 				try:
 					self.db.DeleteGlobalAdmin( username )
 				except:
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't add global admin" )
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't delete global admin" )
 		if command == "!ladderdeleteladderadmin":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				sayPermissionDenied( socket, fromwho, command )
@@ -501,12 +503,26 @@ class Main:
 			else:
 				ladderid = args[0]
 				username = args[1]
-				self.db.DeleteLadderAdmin( ladderid, username )
 				try:
 					self.db.DeleteLadderAdmin( ladderid, username )
 				except:
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't add ladder admin" )
-
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't delete ladder admin" )
+		if command == "!ladderlistrankingalgos":
+			if len(args) > 0:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, GlobalRankingAlgoSelector.ListRegisteredAlgos() )
+		if command == "!laddersetrankingalgo":
+			if len(args) < 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = args[0]
+				algoname = args[1]
+				try:
+					GlobalRankingAlgoSelector.GetInstance( algoname ) # algo unknonw -> excpetion raised
+					self.db.SetLadderRankingAlgo( ladderid, algoname )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't set ranking algo: " + str(e) )
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)

@@ -32,7 +32,7 @@ class RankingAlgoSelector:
 	available_ranking_algos = []	
 		
 	def RegisterAlgo( self, instance ):
-		RankingAlgoSelector.available_ranking_algos.append( type(instance).__name__ )
+		RankingAlgoSelector.available_ranking_algos.append( instance.__class__.__name__ )
 		RankingAlgoSelector.algos[RankingAlgoSelector.available_ranking_algos[-1]] =  instance
 		
 	def GetInstance(self, name ):
@@ -69,6 +69,12 @@ class RankingAlgoSelector:
 			if isinstance( el, algo.GetDbEntityType() ):
 				return algo.GetWebRepresentation( rank_list,db )
 		return None
+
+	def ListRegisteredAlgos(self):
+		res = ''
+		for a in RankingAlgoSelector.available_ranking_algos:
+			res += a + '\n'
+		return res
 
 class SimpleRankAlgo(IRanking):
 
@@ -142,5 +148,7 @@ class SimpleRankAlgo(IRanking):
 	def OrderByKey(self):
 		return SimpleRanks.points.desc()
 
+from glicko import GlickoRankAlgo
 GlobalRankingAlgoSelector = RankingAlgoSelector()
 GlobalRankingAlgoSelector.RegisterAlgo( SimpleRankAlgo() )
+GlobalRankingAlgoSelector.RegisterAlgo( GlickoRankAlgo() )

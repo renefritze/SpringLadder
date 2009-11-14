@@ -246,7 +246,7 @@ class LadderDB:
 		if player:
 			for ladder in ladders:
 				aloginstance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
-				algoname = type(aloginstance).__name__
+				algoname = aloginstance.__class__.__name__
 				entityType = aloginstance.GetDbEntityType()
 				rank = session.query( entityType ).filter( entityType.ladder_id == ladder.id ).filter(entityType.player_id == player.id).first()
 				res[rank] = ( algoname, ladder.name )
@@ -299,4 +299,12 @@ class LadderDB:
 			player.role = Roles.User
 			session.add(player)
 			session.commit()
+		session.close()
+
+	def SetLadderRankingAlgo( self, ladder_id, algoname ):
+		ladder = self.GetLadder( ladder_id )
+		session = self.sessionmaker()
+		ladder.ranking_algo_id = algoname
+		session.add( ladder )
+		session.commit()
 		session.close()
