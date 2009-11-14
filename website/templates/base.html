@@ -6,6 +6,37 @@
 	{% block head %}{% endblock %}
 </head>
 <body>
-{% block content %}{% endblock %}
+<div id="main_container">
+
+	<div id="header">
+		<div class="logo">
+			<a href="index.py"><img src="images/logo.gif" alt="" title="" border="0" /></a>
+		</div>
+    </div>
+	<div id="main_content">
+    	<div class="center_content">
+            <div id="menu_tab">
+                    <ul class="menu">
+						<li><a class="nav" href="/viewladder.py">Ladders</a></li>
+						<li><a class="nav" href="/viewmatch.py">Matches</a></li>
+                    </ul>
+            </div>
+			<div class="some_pad">
+			{% block content %}{% endblock %}
+			</div>
+			<div class="clear"></div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div class="left_footer">
+			{% block left_footer %}{% endblock %}
+		</div>
+        <div class="right_footer">
+			{% block right_footer %}{% endblock %}
+		</div>
+    </div>
+</div>
+<!--- structure based on http://csscreme.com/freecsstemplate/musical_instruments -->
 </body>
 </html>

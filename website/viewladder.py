@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import cgi
 from jinja2 import Environment, FileSystemLoader
 from fieldsets import *
@@ -9,18 +10,16 @@ cgitb.enable()
 env = Environment(loader=FileSystemLoader('templates'))
 
 id = getSingleField( 'id' )
-if not id :
-	id = 1
-
-note = ''
-
 try:
-	lad = db.GetLadder( id )
-	ranks = db.GetRanks( id )
-	
-	rank_table = GlobalRankingAlgoSelector.GetWebRepresentation( db.GetRanks( id ), db )
-	template = env.get_template('scoreboard.html')
-	print template.render( rank_table=rank_table, ladder=lad )
+	if not id:
+		template = env.get_template('viewladderlist.html')
+		print template.render(ladders=db.GetLadderList(Ladder.name) )
+	else:
+		ladder = db.GetLadder( id )
+		template = env.get_template('viewladder.html')
+		options = db.GetOptions( id )
+		opt_headers = ['key','val','wl/bl']
+		print template.render(ladder=ladder, laddertable=LadderInfoToTableAdapter(ladder), options=options, opt_headers=opt_headers )
 
 except ElementNotFoundException, e:
 	template = env.get_template('error.html')

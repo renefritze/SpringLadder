@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<ul>
+{% for l in matches %}
+  <li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+{% endfor %}
+</ul>
+<br/>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<ul>
+{% for l in ladders %}
+  <li>{{ l.name }}: <a href="/viewladder.py?id={{ l.id }}">details</a> <a href="/scoreboard.py?id={{ l.id }}">scores</a> <a href="/change_ladder.py?id={{ l.id }}">edit</a></li>
+{% endfor %}
+</ul>
+<br/>
+{% endblock %}

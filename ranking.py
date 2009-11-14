@@ -42,7 +42,6 @@ class RankingAlgoSelector:
 
 	def GetPrintableRepresentation(self, rank_list,db ):
 		if len(rank_list) < 1:
-			print 'no ranks to represent'
 			return 'no ranks to represent'
 		else:
 			el = rank_list[0]
@@ -54,7 +53,6 @@ class RankingAlgoSelector:
 
 	def GetPrintableRepresentationPlayer(self, rank_dict,db ):
 		if len(rank_dict) < 1:
-			print 'no ranks to represent'
 			raise EmptyRankingListException()
 		else:
 			res = ''
@@ -65,7 +63,6 @@ class RankingAlgoSelector:
 
 	def GetWebRepresentation(self,rank_list,db):
 		if len(rank_list) < 1:
-			print 'no ranks to represent'
 			raise EmptyRankingListException()
 		el = rank_list[0]
 		for algo in self.algos.values():

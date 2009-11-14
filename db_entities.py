@@ -21,8 +21,6 @@ class Ladder(Base):
 	id 				= Column( Integer, primary_key=True )
 	name 			= Column( String(100) )
 	description 	= Column( Text )
-	min_ai_count 	= Column( Integer )
-	max_ai_count 	= Column( Integer )
 	min_team_size 	= Column( Integer )
 	max_team_size 	= Column( Integer )
 	min_ally_size 	= Column( Integer )
@@ -35,8 +33,6 @@ class Ladder(Base):
 
 	def __init__(self, name="noname"):
 		self.name = name
-		self.min_ai_count 	= 0
-		self.max_ai_count 	= 0
 		self.min_team_size 	= 1
 		self.max_team_size 	= 1
 		self.min_ally_size 	= 1
@@ -47,7 +43,7 @@ class Ladder(Base):
 		self.max_team_count = 2
 
 	def __str__(self):
-		return "Ladder(id:%d) %s\n\tai-count (%d-%d)\tteam-size (%d/%d)\n\tally-size (%d/%d)\n\tteam-count (%d/%d)\n\tally-count (%d/%d)"%(self.id,self.name,self.min_ai_count,self.max_ai_count,self.min_team_size,self.max_team_size,self.min_ally_size,self.max_ally_size,self.min_team_count,self.max_team_count,self.min_ally_count,self.max_ally_count)
+		return "Ladder(id:%d) %s\n\tteam-size (%d/%d)\n\tally-size (%d/%d)\n\tteam-count (%d/%d)\n\tally-count (%d/%d)"%(self.id,self.name,self.min_team_size,self.max_team_size,self.min_ally_size,self.max_ally_size,self.min_team_count,self.max_team_count,self.min_ally_count,self.max_ally_count)
 
 
 class Option(Base):
@@ -88,7 +84,6 @@ class Match(Base):
 	__tablename__ 	= 'matches'
 	id 				= Column( Integer, primary_key=True )
 	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
-	match_id		= Column( String )
 	date 			= Column( DateTime )
 	modname 		= Column( String( 60 ) )
 	mapname 		= Column( String( 60 ) )
@@ -96,7 +91,7 @@ class Match(Base):
 	duration 		= Column( Interval )
 
 	settings    	= relation("MatchSetting", 	order_by="MatchSetting.key" )#, backref="match" )#this would auto-create a relation in MatchSetting too
-	results			= relation("Result", 		order_by="Result.team" )
+	results			= relation("Result", 		order_by="Result.died" )
 
 
 class MatchSetting(Base):
@@ -120,6 +115,8 @@ class Result(Base):
 	timeout			= Column( Integer )
 	connected		= Column( Boolean )
 
+	player			= relation(Player)
+	
 	def __init__(self):
 		self.team 		= -1
 		self.disconnect = -1
@@ -136,7 +133,7 @@ class SimpleRanks(Base):
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
-	points			= Column( Float )
+	points			= Column( Integer )
 
 	def __init__(self):
 		self.points = 0

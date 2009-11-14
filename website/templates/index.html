@@ -1,12 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<ul>
-{% for l in ladders %}
-  <li>{{ l.name }}: <a href="/scoreboard.py?id={{ l.id }}">scores</a> <a href="/change_ladder.py?id={{ l.id }}">edit</a></li>
-{% endfor %}
-</ul>
-<br/>
-<a href="/tabs.py"> pretty tabs example</a>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam molestie lacinia euismod. Ut aliquam lobortis lorem sed tempus. In convallis ipsum condimentum urna aliquet fringilla. Etiam ligula mi, blandit id pulvinar quis, elementum et justo. Ut augue purus, blandit ac bibendum eu, dapibus eget felis. Maecenas fringilla, eros nec consectetur imperdiet, leo nunc sodales massa, tempus varius dolor odio in urna. Aliquam lectus leo, vehicula nec commodo id, ornare in elit. Maecenas rhoncus, neque ac aliquet egestas, elit elit fermentum libero, a pellentesque est massa non tortor. Suspendisse non velit dui. Suspendisse vel massa lacinia turpis ultrices aliquet. Aenean ultrices nulla in tortor interdum rutrum cursus justo laoreet. </p>
+
 {% endblock %}
 
