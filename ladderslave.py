@@ -148,13 +148,13 @@ class Main:
 				mr = MatchToDbWrapper( self.output, battlefounder, self.ladderid )
 				try:
 					self.db.ReportMatch( mr )
+					saybattleex(socket, self.battleid, "has submitted ladder score updates")
 				except:
 					saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome." )
 			else:
 				log("*** Spring has exited with status %i" % status )
 			sendstatus( self, socket )
-			if True:
-				saybattleex(socket, self.battleid, "has submitted ladder score updates")
+
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 			print red+"*** EXCEPTION: BEGIN"
