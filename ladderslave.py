@@ -148,13 +148,13 @@ class Main:
 				mr = MatchToDbWrapper( self.output, battlefounder, self.ladderid )
 				try:
 					self.db.ReportMatch( mr )
+					saybattleex(socket, self.battleid, "has submitted ladder score updates")
 				except:
 					saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome." )
 			else:
 				log("*** Spring has exited with status %i" % status )
 			sendstatus( self, socket )
-			if True:
-				saybattleex(socket, self.battleid, "has submitted ladder score updates")
+
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 			print red+"*** EXCEPTION: BEGIN"
@@ -195,14 +195,12 @@ class Main:
 			if player in self.bots: # it's a bot
 				botlib = self.bots[player]
 				if not botlib in checkedbots:
-					checkedbots.append(checkedbots)
+					checkedbots.append(botlib)
 				else:
 					IsOk = False
 					duplicatebots += " " + player
-
 		if not len(bannedplayers) == 0 and echoerrors:
 			saybattle( socket, self.battleid, "There are banned player for " + laddername  + " (" + bannedplayers + " )" )
-
 		if not len(duplicatebots) == 0 and echoerrors:
 			saybattle( socket, self.battleid, "There are too many bots of the same type (" + duplicatebots + " )" )
 
@@ -414,7 +412,7 @@ class Main:
 				except InvalidOptionSetup, e:
 					saybattle( self.socket, self.battleid, str(e) )
 					return
-				
+
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
@@ -472,36 +470,35 @@ class Main:
 				player = args[1]
 				if player in self.battle_statusmap:
 					del self.battle_statusmap[player]
-		if command == "ADDBOT":
-			if len(args) != 5:
-				error( "invalid ADDBOT:%s"%(args) )
-			if int(args[1]) == self.battleid:
-				botname = args[4] # we'll use the bot's lib name intead of player name for ladder pourposes
-				name = args[1]
-				bs = BattleStatus( args[2], botname )
-				self.battle_statusmap[ botname ] = bs
-				self.FillTeamAndAllies()
-				self.bots[args[1]] = botname
-		if command == "UPDATEBOT":
-			if len(args) < 3:
-				error( "invalid UPDATEBOT:%s"%(args) )
-			if int(args[1]) == self.battleid:
-				name = args[1]
-				if name in self.bots:
-					botname = self.bots[name]
-					bs = BattleStatus( args[2], botname )
-					self.battle_statusmap[ botname ] = bs
 					self.FillTeamAndAllies()
+		if command == "ADDBOT":
+			if len(args) != 6:
+				error( "invalid ADDBOT:%s"%(args) )
+			if int(args[0]) == self.battleid:
+				botlib = args[5] # we'll use the bot's lib name intead of player name for ladder pourposes
+				name = args[1]
+				botlib = botlib.replace("|"," ")
+				bs = BattleStatus( args[3], name )
+				self.battle_statusmap[ name ] = bs
+				self.FillTeamAndAllies()
+				self.bots[name] = botlib
+		if command == "UPDATEBOT":
+			if len(args) < 2:
+				error( "invalid UPDATEBOT:%s"%(args) )
+			name = args[0]
+			bs = BattleStatus( args[1], name )
+			self.battle_statusmap[ botlib ] = bs
+			self.FillTeamAndAllies()
 		if command == "REMOVEBOT":
 			if len(args) != 2:
 				error( "invalid REMOVEBOT:%s"%(args) )
 			if int(args[0]) == self.battleid:
 				name = args[1]
 				if name in self.bots:
-					botname = self.bots[player]
-					del self.bots[player]
-					if botname in self.battle_statusmap[botname]:
-						del self.battle_statusmap[botname]
+					del self.bots[name]
+				if name in self.battle_statusmap:
+					del self.battle_statusmap[name]
+				self.FillTeamAndAllies()
 
 	def onloggedin(self,socket):
 		sendstatus( self, socket )
