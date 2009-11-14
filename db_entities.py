@@ -29,6 +29,8 @@ class Ladder(Base):
 	max_ally_count 	= Column( Integer )
 	min_team_count 	= Column( Integer )
 	max_team_count 	= Column( Integer )
+	min_ai_count	= Column( Integer )
+	max_ai_count	= Column( Integer )
 	ranking_algo_id	= Column( String(30) )
 
 	def __init__(self, name="noname"):
@@ -41,6 +43,8 @@ class Ladder(Base):
 		self.max_ally_count = 2
 		self.min_team_count = 2
 		self.max_team_count = 2
+		self.min_ai_count	= 0
+		self.max_ai_count	= 0
 
 	def __str__(self):
 		return "Ladder(id:%d) %s\n\tteam-size (%d/%d)\n\tally-size (%d/%d)\n\tteam-count (%d/%d)\n\tally-count (%d/%d)"%(self.id,self.name,self.min_team_size,self.max_team_size,self.min_ally_size,self.max_ally_size,self.min_team_count,self.max_team_count,self.min_ally_count,self.max_ally_count)
