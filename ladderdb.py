@@ -260,7 +260,7 @@ class LadderDB:
 		if player_query.count () == 0:
 			self.AddPlayer( username, Roles.User )
 			player_query = session.query( Player ).filter( Player.nick == username )
-		is_superadmin = player_query.filter( Player.role == Roles.GlobalAdmin ).count() == 1
+		is_superadmin = player_query.filter( Player.role >= Roles.GlobalAdmin ).count() == 1
 		if role == Roles.LadderAdmin and ladder_id != -1:
 			is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
 				.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
@@ -350,19 +350,17 @@ class LadderDB:
 		session = self.sessionmaker()
 		ladder = self.GetLadder( ladder_id )
 		match = session.query( Match ).filter( Match.id == match_id ).first()
-		print 'rr'
 		if match:
 			for r in match.results:
 				session.delete( r )
 				session.commit()
-				print 'ff'
 			for s in match.settings:
 				session.delete( s )
 				session.commit()
-				print 'gg'
 			session.delete( match )
 			session.commit()
 			session.close()
 		else:
 			session.close()
 			raise ElementNotFoundException( Match(  ) )
+		self.RecalcRankings( ladder_id )

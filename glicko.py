@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ranking import IRanking
+from ranking import IRanking,RankingTable
 from db_entities import GlickoRanks,Player,Match,Result
 import math,time,datetime
 from sqlalchemy.exceptions import UnboundExecutionError

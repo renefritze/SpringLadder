@@ -409,11 +409,12 @@ class Main:
 					output = fakeoutput.fakeoutput[-1]
 				
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
+				#saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
 					mr = MatchToDbWrapper( output, self.ladderid )
-					for i in range(2):
+					repeats = int(args[1]) if len(args) > 1 else 1
+					for i in range(repeats):
 						self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
 					upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 					saybattle( self.socket, self.battleid, 'pre-recalc:\n' +upd )
