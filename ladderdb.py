@@ -310,15 +310,59 @@ class LadderDB:
 		session.commit()
 		session.close()
 
-	def GetAvgMatchDelta( self, ladder_id ):
+	def GetAvgMatchDelta( self, ladder_id, maxDate=None ):
 		session = self.sessionmaker()
-		matches = session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.desc()).all()
+		if maxDate:
+			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).filter(Match.date <= maxDate ).order_by(Match.date.desc()).all()
+		else:
+			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.desc()).all()
 		total = 0.0
 		for i in range( len(matches) -1 ):
 			diff = time.mktime(matches[i].date.timetuple())
 			diff -= time.mktime(matches[i+1].date.timetuple())
 			total += diff
-		if len(matches) > 1:
-			return total / float( len(matches) - 1  )
+		if len(matches) > 2:
+			return max(total,1) / float( len(matches) - 1  )
 		else:
-			return 1
+			return 1.0
+
+	def RecalcRankings( self, ladder_id ):
+		session = self.sessionmaker()
+		ladder = self.GetLadder( ladder_id )
+		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
+		entityType = algo_instance.GetDbEntityType()
+		ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()
+		for r in ranks:
+			session.delete( r )
+		session.commit()
+		for m in session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.asc()):
+			algo_instance.Update( ladder_id, m, self)
+		session.close()
+
+	def GetMatches( self, ladder_id, order=Match.date.desc() ):
+		session = self.sessionmaker()
+		matches = session.query( Match ).filter( Match.ladder_id == ladder_id ).order_by( order )
+		if matches.count() < 1:
+			raise ElementNotFoundException( "no matches for ladder id %s found"%str(ladder_id) )
+		return matches.all()
+
+	def DeleteMatch( self, ladder_id, match_id ):
+		session = self.sessionmaker()
+		ladder = self.GetLadder( ladder_id )
+		match = session.query( Match ).filter( Match.id == match_id ).first()
+		print 'rr'
+		if match:
+			for r in match.results:
+				session.delete( r )
+				session.commit()
+				print 'ff'
+			for s in match.settings:
+				session.delete( s )
+				session.commit()
+				print 'gg'
+			session.delete( match )
+			session.commit()
+			session.close()
+		else:
+			session.close()
+			raise ElementNotFoundException( Match(  ) )

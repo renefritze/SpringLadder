@@ -24,7 +24,8 @@ helpstring_ladder_admin = """!ladderchangeaicount ladderID value : sets the AI c
 !ladderaddoption ladderID blacklist/whitelist optionkey optionvalue : adds a new rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a given key cannot have a whitelist and blacklist at the same time
 !ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed
 !ladderlistrankingalgos : list all available ranking algorithms by name
-!laddersetrankingalgo ladderID algoName :set the used algorithm for ranking, currently switching algo on non-empty ladder will not recalc past results with new algo"""
+!laddersetrankingalgo ladderID algoName :set the used algorithm for ranking, currently switching algo on non-empty ladder will not recalc past results with new algo
+!ladderdeletematch ladderID matchID: delete a match and all associated data from db, forces a recalculation of entire history of rankings for that ladder"""
 
 helpstring_global_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -40,7 +41,8 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !ladderlistoptions ladderID : lists enforced options for given ladderID
 !score ladderID : lists scores for all the players for the given ladderID
 !score playername : lists scores for the given player in all ladders
-!score ladderID playername : lists score for the given player for the given ladderID"""
+!score ladderID playername : lists score for the given player for the given ladderID
+!ladderlistmatches ladderID : list all matches for ladderId, newest first"""
 
 def sayPermissionDenied(socket, command, username ):
 	socket.send("SAYPRIVATE %s You do not have sufficient access right to execute %s on this bot\n" %( username, command ) )
@@ -523,6 +525,35 @@ class Main:
 					self.db.SetLadderRankingAlgo( ladderid, algoname )
 				except ElementNotFoundException, e:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't set ranking algo: " + str(e) )
+		if command == "!ladderlistmatches":
+			if len(args) != 1:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = args[0]
+				try:
+					matches = self.db.GetMatches( ladderid )
+					res = ''
+					for m in matches:
+						res += 'Match no. %d (%s)\n'%(m.id,m.date)
+					self.notifyuser( socket, fromwho, fromwhere, ispm, res )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+		if command == "!ladderdeletematch":
+			if len(args) != 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = int(args[0])
+				match_id = int(args[1])
+				print 'oo'
+				if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
+						sayPermissionDenied( socket, fromwho, command )
+							#log
+						return
+				self.db.DeleteMatch( ladderid, match_id )
+				#try:
+					
+				#except ElementNotFoundException, e:
+					#self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)

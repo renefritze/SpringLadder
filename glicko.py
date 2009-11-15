@@ -2,6 +2,7 @@
 from ranking import IRanking
 from db_entities import GlickoRanks,Player,Match,Result
 import math,time,datetime
+from sqlalchemy.exceptions import UnboundExecutionError
 class GlickoRankAlgo(IRanking):
 
 	q = math.log( 10.0 ) / 400.0
@@ -10,16 +11,24 @@ class GlickoRankAlgo(IRanking):
 		self.c = 64.0
 		self.rd_lower_bound = 50.0
 
-	def Update(self,ladder_id,matchresult,db):
+	def Update(self,ladder_id,match,db):
+		session = db.sessionmaker()
+		#session.add( match ) #w/o this match is unbound, no lazy load of results
+		result_dict = dict()
+		try:
+			for r in match.results:
+				result_dict[r.player.nick] = r
+		except UnboundExecutionError,u:
+			session.add( match )
+			for r in match.results:
+				session.add( r )
+				result_dict[r.player.nick] = r
 		#calculate order of deaths
 		deaths = dict()
 		scores = dict()
-		session = db.sessionmaker()
-		playercount = len(matchresult.players)
-		for r in matchresult.players.values():
-			session.add( r )
-
-		for name,player in matchresult.players.iteritems():
+		
+		playercount = len(result_dict)
+		for name,player in result_dict.iteritems():
 			if player.died > 0:
 				deaths[name] = player.died
 			if player.timeout > -1:
@@ -31,19 +40,17 @@ class GlickoRankAlgo(IRanking):
 			if player.desync > -1:
 				scores[name] = 0
 
-		endframe = matchresult.game_over
 		#find last team standing
-		for name in matchresult.players.keys():
+		for name in result_dict.keys():
 			if name not in deaths.keys() and name not in scores.keys():
 				scores[name] = playercount + 4
 			elif name not in scores.keys():
-				reldeath = deaths[name] / float(endframe)
+				reldeath = deaths[name] / float(match.last_frame)
 				scores[name] = reldeath * playercount
-		print 'scores ',scores
 
 		#step one
 		pre = dict() #name -> GlickoRanks
-		match_query = session.query( Match ).filter( Match.ladder_id == ladder_id ).order_by( Match.date.desc() )
+		match_query = session.query( Match ).filter( Match.ladder_id == ladder_id ).filter( Match.date <= match.date ).order_by( Match.date.desc() )
 		num_matches = match_query.count()
 		if num_matches > 0:
 			prior_match = match_query.first()
@@ -52,11 +59,11 @@ class GlickoRankAlgo(IRanking):
 		else:
 			first_match_unixT = time.mktime(datetime.now().timetuple())
 		last_match_unixT = first_match_unixT
-		avg_match_delta = db.GetAvgMatchDelta( ladder_id )
-		for name,result in matchresult.players.iteritems():
+		avg_match_delta = db.GetAvgMatchDelta( ladder_id, match.date )
+		for name,result in result_dict.iteritems():
 			#get number of matches since last for player
 			#if match_query.count() < 2:
-			p_result_query = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).order_by( Result.id.desc() )
+			p_result_query = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).filter(Result.date <= match.date).order_by( Result.id.desc() )
 			if p_result_query.count() > 1:
 				prev_result = p_result_query[1]
 				for m in match_query[1:] :
@@ -84,13 +91,13 @@ class GlickoRankAlgo(IRanking):
 		post = dict() #name -> ( r\' , RD\' )
 		# build rd_j and r_j and s_j lists for each player
 		lists = dict() # name -> ( [r_j] , [rd_j] , [s_j] )
-		for name,result in matchresult.players.iteritems():
+		for name,result in result_dict.iteritems():
 			r_j_list = []
 			rd_j_list = []
 			s_j_list = []
 			my_score = scores[name]
 			my_ally = result.ally
-			for other,other_result in matchresult.players.iteritems():
+			for other,other_result in result_dict.iteritems():
 				if name == other or other_result.ally == my_ally:
 					continue
 				r_j_list.append( pre[other].rating )
@@ -103,31 +110,26 @@ class GlickoRankAlgo(IRanking):
 				else:
 					s_j_list.append( 0.5 )
 			lists[name] = ( r_j_list, rd_j_list, s_j_list )
-			print name + ' : ' , r_j_list
 
 		#compute updates
-		for name in matchresult.players.keys():
+		for name in result_dict.keys():
 			r = pre[name].rating
 			RD = pre[name].rd
 			r_j_list = lists[name][0]
 			rd_j_list = lists[name][1]
 			s_j_list = lists[name][2]
 			ds = self.d_squared( r, r_j_list, rd_j_list )
-			print 'ds ', ds
 			denom = ( 1.0 / ( RD*RD ) ) + ( 1.0 / ds )
-			print 'denom ',denom
 			# calc r'
 			su = 0.0
 			for j in range(len(r_j_list)):
 				su += self.g( rd_j_list[j] ) * (s_j_list[j] - self.E( r, r_j_list[j], rd_j_list[j] ) )
-			print 'su ',su
 			r_new = r + ( ( self.q / denom ) * su )
 			rd_new = math.sqrt( 1.0 / denom )
 			post[name] = ( r_new, rd_new )
-			print name, post[name]
 
 		#commit updates
-		for name in matchresult.players.keys():
+		for name in result_dict.keys():
 			rank = pre[name]
 			rank.rating = post[name][0]
 			rank.rd = max(post[name][1], self.rd_lower_bound )

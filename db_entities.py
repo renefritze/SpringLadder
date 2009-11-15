@@ -93,6 +93,7 @@ class Match(Base):
 	mapname 		= Column( String( 60 ) )
 	replay 			= Column( String( 200 ) )
 	duration 		= Column( Interval )
+	last_frame		= Column( Integer )
 
 	settings    	= relation("MatchSetting", 	order_by="MatchSetting.key" )#, backref="match" )#this would auto-create a relation in MatchSetting too
 	results			= relation("Result", 		order_by="Result.died" )
@@ -111,6 +112,7 @@ class Result(Base):
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	match_id 		= Column( Integer, ForeignKey( Match.id ) )
 	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	date 			= Column( DateTime )
 	team			= Column( Integer )
 	ally			= Column( Integer )
 	disconnect		= Column( Integer )
@@ -133,7 +135,12 @@ class Result(Base):
 		self.connected	= False
 		self.quit		= -1
 
-
+"""this does not actually work, but should only show what's min for new tables
+class IRanks(Base):
+	id 				= Column( Integer, primary_key=True )
+	player_id 		= Column( Integer, ForeignKey( Player.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+"""
 class SimpleRanks(Base):
 	__tablename__	= 'simpleranks'
 	id 				= Column( Integer, primary_key=True )

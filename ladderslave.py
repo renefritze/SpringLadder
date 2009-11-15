@@ -412,8 +412,12 @@ class Main:
 				saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
-					mr = MatchToDbWrapper( output, 'myself', self.ladderid )
-					self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
+					mr = MatchToDbWrapper( output, self.ladderid )
+					for i in range(2):
+						self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
+					upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+					saybattle( self.socket, self.battleid, 'pre-recalc:\n' +upd )
+					self.db.RecalcRankings(self.ladderid)
 				except InvalidOptionSetup, e:
 					saybattle( self.socket, self.battleid, str(e) )
 					return
