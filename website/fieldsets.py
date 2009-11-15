@@ -36,7 +36,7 @@ class SubmitRenderer(FieldRenderer):
 	def render(self):
 		value= self._value and self._value or ''
 		#return '<input name="delete" type="submit" value="%s" title="delete"/>'%(value)
-		return '<a href="/change_ladder.py?delete=%s" >delete</a>'%(value)
+		return '<a href="/admin/change_ladder.py?delete=%s" >delete</a>'%(value)
 
 class Submit:
 	dummy = None
