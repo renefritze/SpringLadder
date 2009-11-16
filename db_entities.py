@@ -8,7 +8,8 @@ Base = declarative_base()
 
 class Roles:
 	"""need to be strongly ordered integers"""
-	Banned 		= 0
+	GlobalBanned= -1 #special role mapped in Bans class, not Player
+	Banned 		= 0 #special role mapped in Bans class, not Player
 	Unknown		= 1
 	User		= 2
 	Verified	= 3
@@ -134,6 +135,17 @@ class Result(Base):
 		self.timeout	= -1
 		self.connected	= False
 		self.quit		= -1
+
+class Bans(Base):
+	__tablename__	= 'bans'
+	id 				= Column( Integer, primary_key=True )
+	player_id 		= Column( Integer, ForeignKey( Player.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	end				= Column( DateTime )
+
+	player			= relation("Player")
+	ladder			= relation('Ladder')
+	
 
 """this does not actually work, but should only show what's min for new tables
 class IRanks(Base):

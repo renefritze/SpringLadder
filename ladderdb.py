@@ -207,6 +207,14 @@ class LadderDB:
 		session.commit()
 		session.close()
 
+	def GetPlayer( self, name ):
+		session = self.sessionmaker()
+		player = session.query( Player ).filter( Player.nick == name ).first()
+		if not player:
+			self.AddPlayer( name, Roles.User )
+		session.close()
+		return player
+
 	def AddDefaultData(self):
 		try:
 			self.AddLadder( 'dummy' )
@@ -268,6 +276,11 @@ class LadderDB:
 			return is_superadmin or is_ladderadmin
 		player = player_query.first()
 		if player:
+			is_global_banned = player.role == Roles.GlobalBanned
+			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.now() ).count()
+			if is_banned:
+				session.close()
+				return False
 			session.close()
 			return player.role >= role or is_superadmin
 		session.close()
@@ -364,3 +377,49 @@ class LadderDB:
 			session.close()
 			raise ElementNotFoundException( Match(  ) )
 		self.RecalcRankings( ladder_id )
+
+	def BanPlayer( self, ladder_id, username, banlength=None ):
+		session = self.sessionmaker()
+		player = self.GetPlayer( username )
+		ban = Bans( )
+		ban.player_id = player.id
+		if not banlength:
+			ban.end = datetime.max
+		else:
+			try:
+				ban.end = datetime.now() + banlength
+			except OverflowError:
+				ban.end = datetime.max
+		ban.ladder_id = ladder_id
+		session.add( ban )
+		session.commit()
+		session.close()
+
+	def UnbanPlayer( self, username, ladder_id=-1, just_expire=True ):
+		session = self.sessionmaker()
+		player = self.GetPlayer( username )
+		if ladder_id != -1:
+			bans = session.query( Bans ).filter( Bans.player_id == player.id ).all()
+		else:
+			bans = session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).all()
+		for b in bans:
+			if just_expire:
+				b.end = datetime.now()
+				session.add( b )
+			else:
+				session.delete( b )
+			session.commit()
+		session.close()
+
+
+	def GetBansPerLadder( self, ladder_id ):
+		session = self.sessionmaker()
+		bans = session.query( Bans ).filter( Bans.ladder_id == ladder_id ).all()
+		session.close()
+		return bans
+
+	def GetBansPerPlayer( self, player_id ):
+		session = self.sessionmaker()
+		bans = session.query( Bans ).filter( Bans.player_id == player_id ).all()
+		session.close()
+		return bans
