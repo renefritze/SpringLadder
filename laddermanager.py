@@ -26,8 +26,9 @@ helpstring_ladder_admin = """!ladderchangeaicount ladderID value : sets the AI c
 !ladderlistrankingalgos : list all available ranking algorithms by name
 !laddersetrankingalgo ladderID algoName :set the used algorithm for ranking, currently switching algo on non-empty ladder will not recalc past results with new algo
 !ladderdeletematch ladderID matchID: delete a match and all associated data from db, forces a recalculation of entire history of rankings for that ladder
-!ladderbanuser ladderID username [time] : ban username from participating in any match on ladder ladderID for given amount of time (optional)
-!ladderunbanuser ladderID username : unban username from participating in any match on ladder ladderID """
+!ladderbanuser ladderID username [time] : ban username from participating in any match on ladder ladderID for given amount of time (optional,floats, format: [D:]H )
+!ladderunbanuser ladderID username : unban username from participating in any match on ladder ladderID
+!ladderlistbans ladderID"""
 
 helpstring_global_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -36,7 +37,7 @@ helpstring_global_admin = """!ladderadd laddername : creates a new ladder
 !ladderaddglobaladmin username : add a new global admin
 !ladderdeleteladderadmin ladderID username : delete new (local) admin from the ladder with LadderID
 !ladderdeleteglobaladmin username : delete global admin
-!ladderbanuserglobal username [time] : ban username from participating in any match on any ladder for given amount of time (optional)
+!ladderbanuserglobal username [time] : ban username from participating in any match on any ladder for given amount of time (optional,floats, format: [D:]H )
 !ladderunbanuserglobal username : unban username from participating in any match on any ladder"""
 
 helpstring_user = """!ladderlist : lists available ladders with their IDs
@@ -570,11 +571,11 @@ class Main:
 				if len(args) == 2:
 					t_fields = args[1].split(':')
 					if len( t_fields ) > 1:
-						days  = int(t_fields[0])
-						hours = int(t_fields[1])
+						days  = float(t_fields[0])
+						hours = float(t_fields[1])
 					else:
 						days = 0
-						hours = int(t_fields[0])
+						hours = float(t_fields[0])
 					t_delta = timedelta( days=days, hours=hours )
 				else:
 					t_delta = timedelta.max
@@ -608,11 +609,11 @@ class Main:
 				if len(args) == 3:
 					t_fields = args[2].split(':')
 					if len( t_fields ) > 1:
-						days  = int(t_fields[0])
-						hours = int(t_fields[1])
+						days  = float(t_fields[0])
+						hours = float(t_fields[1])
 					else:
 						days = 0
-						hours = int(t_fields[0])
+						hours = float(t_fields[0])
 					t_delta = timedelta( days=days, hours=hours )
 				else:
 					t_delta = timedelta.max
@@ -638,6 +639,26 @@ class Main:
 					self.db.UnbanPlayer( username, ladderid )
 				except ElementNotFoundException, e:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+		if command == "!ladderlistbans":
+			if len(args) < 1:
+				ladderid = -1
+			else:
+				ladderid = args[0]
+			if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
+					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+						#log
+					return
+			try:
+				bans = self.db.GetBansPerLadder( ladderid )
+				msg = ''
+				s = self.db.sessionmaker() #not nice, but needed for lazy load?!?
+				s.add_all( bans )
+				for b in bans:
+					msg += str(b) + '\n'
+				self.notifyuser( socket, fromwho, fromwhere, ispm, msg )
+				s.close()
+			except ElementNotFoundException, e:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)

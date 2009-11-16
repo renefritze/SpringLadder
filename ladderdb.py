@@ -398,10 +398,7 @@ class LadderDB:
 	def UnbanPlayer( self, username, ladder_id=-1, just_expire=True ):
 		session = self.sessionmaker()
 		player = self.GetPlayer( username )
-		if ladder_id != -1:
-			bans = session.query( Bans ).filter( Bans.player_id == player.id ).all()
-		else:
-			bans = session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).all()
+		bans = session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).all()
 		for b in bans:
 			if just_expire:
 				b.end = datetime.now()
@@ -414,7 +411,10 @@ class LadderDB:
 
 	def GetBansPerLadder( self, ladder_id ):
 		session = self.sessionmaker()
-		bans = session.query( Bans ).filter( Bans.ladder_id == ladder_id ).all()
+		if ladder_id == -1:
+			bans = session.query( Bans ).filter( Bans.end >= datetime.now() ).all()
+		else:
+			bans = session.query( Bans ).filter( Bans.end >= datetime.now() ).filter( Bans.ladder_id == ladder_id ).all()
 		session.close()
 		return bans
 

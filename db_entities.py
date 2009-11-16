@@ -145,6 +145,13 @@ class Bans(Base):
 
 	player			= relation("Player")
 	ladder			= relation('Ladder')
+
+	def __str__(self):
+		if self.ladder_id != -1:
+			ret = '%s on Ladder %s: %s remaining'%( self.player.nick,self.ladder.name,str(self.end - datetime.now() ) )
+		else:
+			ret = '%s (global ban): %s remaining'%( self.player.nick,str(self.end - datetime.now() ) )
+		return ret
 	
 
 """this does not actually work, but should only show what's min for new tables
