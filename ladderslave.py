@@ -429,7 +429,7 @@ class Main:
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
 		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
-			self.gamestarted = ( int(args[1]) % 2 ) == 0
+			self.gamestarted = ( int(args[1]) % 2 ) == 1
 			if self.joinedbattle: #start spring
 				sendstatus( self, self.socket )
 				g = time.time()
