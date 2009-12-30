@@ -149,6 +149,8 @@ class Main:
 				try:
 					self.db.ReportMatch( mr )
 					saybattleex(socket, self.battleid, "has submitted ladder score updates")
+				except BannedPlayersDetectedException, b:
+					saybattle( self.socket,self.battleid,str(b) )
 				except:
 					saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome." )
 			else:
