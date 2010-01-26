@@ -11,7 +11,9 @@ import subprocess
 from db_entities import *
 from ladderdb import *
 
-helpstring_ladder_admin = """!ladderchangeaicount ladderID value : sets the AI count used by the ladder
+helpstring_ladder_admin = """!ladderjoinchannel channelname password: joins set channel and stores for automatic join
+!ladderleavechannel channelname : leaves set channel and removes it from autojoin list
+!ladderchangeaicount ladderID value : sets the AI count used by the ladder
 !ladderchangeaicount ladderID min max : sets the AI count used by the ladder
 !ladderchangecontrolteamsize ladderID value : sets the control team size (player ID) used by the ladder
 !ladderchangecontrolteamsize ladderID min max : sets the control team size (player ID) used by the ladder
