@@ -149,7 +149,9 @@ class GlickoRankAlgo(IRanking):
 	@staticmethod
 	def d_squared( r, r_j_list, rd_j_list ):
 		s = 0.0
-		assert( len(r_j_list)  == len(rd_j_list) )
+		assert len(r_j_list)  == len(rd_j_list)
+		assert len(r_j_list) > 0
+		assert GlickoRankAlgo.q > 0 or GlickoRankAlgo.q < 0
 		for j in range( len(r_j_list) ):
 			g_val = GlickoRankAlgo.g( rd_j_list[j] )
 			g_val *= g_val

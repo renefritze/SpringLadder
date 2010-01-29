@@ -12,6 +12,14 @@ class InvalidOptionSetup( Exception ):
 	def __str__(self):
 		return "Setup for game %s did not match ladder rules for ladder %d" %(self.gameid,self.ladderid)
 
+class BannedPlayersDetectedException( Exception ):
+	def __init__(self, bannedplayers ):
+		self.bannedplayers = bannedplayers
+
+	def __str__(self):
+		return "The game had banned banned players (%s) in it and was not reported!" %(self.bannedplayers )
+
+
 def getSectionContect( string, name ):
 	b = string.find('BEGIN'+name)
 	e = string.find('END'+name)
@@ -35,13 +43,7 @@ def parseSec( sec ):
 		dic[key] = val
 	return dic
 
-class MatchToDbWrapper():
-
-	def __init__( self, stdout, ladder_id ):
-		self.springoutput 	= stdout
-		self.ladder_id		= ladder_id
-		self.game_started	= False
-		self.game_over		= -1
+class MatchToDbWrapper:
 
 	def CheckOptionOk( self, db, keyname, value ):
 		if db.GetOptionKeyValueExists( self.ladder_id, False, keyname, value ): # option in the blacklist
@@ -64,74 +66,6 @@ class MatchToDbWrapper():
 		a = self.CheckvalidPlayerSetup(db)
 		b = self.CheckValidOptionsSetup(db)
 		return a and b
-
-	def CheckvalidPlayerSetup( self, db ):
-		laddername = db.GetLadderName( self.ladder_id )
-
-		teamsdict = dict()
-		alliesdict = dict()
-		countedbots = []
-		for player in self.teams:
-			if not db.AccessCheck( self.ladder_id, player, Roles.User ):
-				return False
-			team = self.teams[player]
-			if not team in teamsdict:
-				teamsdict[team] = 1
-			else:
-				teamsdict[team] += 1
-			if player in self.bots:
-				libname = self.bots[player]
-				if not libname in countedbots: # don't allow more than 1 bot of the same type
-					countedbots.append(libname)
-				else:
-					return False
-		for team in self.allies:
-			ally = self.allies[team]
-			if not ally in alliesdict:
-				alliesdict[ally] = 1
-			else:
-				alliesdict[ally] += 1
-
-		teamcount = len(teamsdict)
-		allycount = len(alliesdict)
-		aicount = len(self.bots)
-		minaicount = db.GetLadderOption( self.ladder_id, "min_ai_count" )
-		maxaicount = db.GetLadderOption( self.ladder_id, "max_ai_count" )
-		minteamcount = db.GetLadderOption( self.ladder_id, "min_team_count" )
-		maxteamcount = db.GetLadderOption( self.ladder_id, "max_team_count" )
-		minallycount = db.GetLadderOption( self.ladder_id, "min_ally_count" )
-		maxallycount = db.GetLadderOption( self.ladder_id, "max_ally_count" )
-		if aicount < minaicount:
-			return False
-		if aicount > maxaicount:
-			return False
-		if teamcount < minteamcount:
-			return False
-		if teamcount > maxteamcount:
-			return False
-		if allycount < minallycount:
-			return False
-		if allycount > maxallycount:
-			return False
-		minteamsize = db.GetLadderOption( self.ladder_id, "min_team_size" )
-		maxteamsize = db.GetLadderOption( self.ladder_id, "max_team_size" )
-		minallysize = db.GetLadderOption( self.ladder_id, "min_ally_size" )
-		maxallysize = db.GetLadderOption( self.ladder_id, "max_team_size" )
-		for team in teamsdict:
-			teamsize = teamsdict[team]
-			if teamsize < minteamsize:
-				return False
-			if teamsize > maxteamsize:
-				return False
-
-		for ally in alliesdict:
-			allysize = alliesdict[ally]
-			if allysize < minallysize:
-				return False
-			if allysize > maxallysize:
-				return False
-
-		return True
 
 	def CommitMatch(self,db, doValidation=True):
 		self.ParseSpringOutput()
@@ -184,6 +118,100 @@ class MatchToDbWrapper():
 			session.add( result )
 			session.commit()
 
+	def CommitPlayerResults(self,session,match):
+		for name,result in self.players.iteritems():
+			p = session.query( Player ).filter( Player.nick == name ).first()
+			if not p:
+				p = Player( name )
+				session.add( p )
+				session.commit()
+			result.player_id = p.id
+			result.match_id = match.id
+			result.ladder_id = match.ladder_id
+			result.date = match.date
+			session.add( result )
+			session.commit()
+
+class AutomaticMatchToDbWrapper(MatchToDbWrapper):
+
+	def __init__( self, stdout, ladder_id ):
+		self.springoutput 	= stdout
+		self.ladder_id		= ladder_id
+		self.game_started	= False
+		self.game_over		= -1
+
+	def CheckvalidPlayerSetup( self, db ):
+		laddername = db.GetLadderName( self.ladder_id )
+
+		teamsdict = dict()
+		alliesdict = dict()
+		countedbots = []
+		bannedplayers = []
+		for player in self.teams:
+			if not db.AccessCheck( self.ladder_id, player, Roles.User ):
+				bannedplayers.append( player )
+				continue
+			team = self.teams[player]
+			if not team in teamsdict:
+				teamsdict[team] = 1
+			else:
+				teamsdict[team] += 1
+			if player in self.bots:
+				libname = self.bots[player]
+				if not libname in countedbots: # don't allow more than 1 bot of the same type
+					countedbots.append(libname)
+				else:
+					return False
+		if len(bannedplayers) != 0:
+			raise BannedPlayersDetectedException( bannedplayers )
+		for team in self.allies:
+			ally = self.allies[team]
+			if not ally in alliesdict:
+				alliesdict[ally] = 1
+			else:
+				alliesdict[ally] += 1
+
+		teamcount = len(teamsdict)
+		allycount = len(alliesdict)
+		aicount = len(self.bots)
+		minaicount = db.GetLadderOption( self.ladder_id, "min_ai_count" )
+		maxaicount = db.GetLadderOption( self.ladder_id, "max_ai_count" )
+		minteamcount = db.GetLadderOption( self.ladder_id, "min_team_count" )
+		maxteamcount = db.GetLadderOption( self.ladder_id, "max_team_count" )
+		minallycount = db.GetLadderOption( self.ladder_id, "min_ally_count" )
+		maxallycount = db.GetLadderOption( self.ladder_id, "max_ally_count" )
+		if aicount < minaicount:
+			return False
+		if aicount > maxaicount:
+			return False
+		if teamcount < minteamcount:
+			return False
+		if teamcount > maxteamcount:
+			return False
+		if allycount < minallycount:
+			return False
+		if allycount > maxallycount:
+			return False
+		minteamsize = db.GetLadderOption( self.ladder_id, "min_team_size" )
+		maxteamsize = db.GetLadderOption( self.ladder_id, "max_team_size" )
+		minallysize = db.GetLadderOption( self.ladder_id, "min_ally_size" )
+		maxallysize = db.GetLadderOption( self.ladder_id, "max_team_size" )
+		for team in teamsdict:
+			teamsize = teamsdict[team]
+			if teamsize < minteamsize:
+				return False
+			if teamsize > maxteamsize:
+				return False
+
+		for ally in alliesdict:
+			allysize = alliesdict[ally]
+			if allysize < minallysize:
+				return False
+			if allysize > maxallysize:
+				return False
+
+		return True
+		
 	def ParseSpringOutput(self):
 		setup_section 	= getSectionContect( self.springoutput, 'SETUP' )
 		self.teams		= parseSec( getSectionContect( setup_section, 'TEAMS' 		) )
@@ -241,3 +269,60 @@ class MatchToDbWrapper():
 				playername = self.bots[playername]
 			tempplayers[playername] = playercontent
 		self.players = tempplayers
+
+class ManualMatchToDbWrapper(MatchToDbWrapper):
+
+	def __init__( self, playerlist, playerscores, teams, ladder_id, options, restrictions, bots ):
+		self.playerscores 	= playerscores
+		self.playerlist		= playerlist
+		self.ladder_id		= ladder_id
+		self.game_started	= False
+		self.game_over		= -1
+		self.options		= options
+		self.restr			= restrictions
+		self.teams			= teams
+		self.bots			= bots
+
+	def CheckvalidPlayerSetup( self, db ):
+		for p in self.playerscores.keys():
+			if not p in self.playerlist:
+				return False
+		return True#we require a score for all players
+
+	def ParseSpringOutput(self):
+		#here we fake a lot of stuff to fit missing, but required, data
+		num_players = len(self.teams)
+		self.players = dict()
+		self.gameid = -1
+		#this is later used to set match.last_frame
+		self.game_over = max( self.playerscores.itervalues() )
+		self.game_started = True
+
+		#this is the worst hack
+		self.allies = dict()
+		for i in range( len(self.playerlist) ):
+			self.allies[i+1] = i+1
+		print self.allies
+
+		dummy = 1
+		for name in self.playerlist:
+			r = Result()
+			#r.team = team
+			r.connected = True
+			#with earlier setting of game_over we emulate same relative scaling as with deaths = game frame no
+			r.died = self.playerscores[ name ]
+			r.team = dummy
+			r.ally = dummy
+			#everything else can stay on defaults (se db_entities.py)
+			self.players[ name ] = r
+			dummy += 1
+
+		#replace ai name with lib name
+		tempplayers = dict()
+		for playername in self.players:
+			playercontent = self.players[playername]
+			if playername in self.bots:
+				playername = self.bots[playername]
+			tempplayers[playername] = playercontent
+		self.players = tempplayers
+		
