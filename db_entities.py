@@ -8,7 +8,8 @@ Base = declarative_base()
 
 class Roles:
 	"""need to be strongly ordered integers"""
-	Banned 		= 0
+	GlobalBanned= -1 #special role mapped in Bans class, not Player
+	Banned 		= 0 #special role mapped in Bans class, not Player
 	Unknown		= 1
 	User		= 2
 	Verified	= 3
@@ -93,6 +94,7 @@ class Match(Base):
 	mapname 		= Column( String( 60 ) )
 	replay 			= Column( String( 200 ) )
 	duration 		= Column( Interval )
+	last_frame		= Column( Integer )
 
 	settings    	= relation("MatchSetting", 	order_by="MatchSetting.key" )#, backref="match" )#this would auto-create a relation in MatchSetting too
 	results			= relation("Result", 		order_by="Result.died" )
@@ -110,6 +112,8 @@ class Result(Base):
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	match_id 		= Column( Integer, ForeignKey( Match.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	date 			= Column( DateTime )
 	team			= Column( Integer )
 	ally			= Column( Integer )
 	disconnect		= Column( Integer )
@@ -132,7 +136,30 @@ class Result(Base):
 		self.connected	= False
 		self.quit		= -1
 
+class Bans(Base):
+	__tablename__	= 'bans'
+	id 				= Column( Integer, primary_key=True )
+	player_id 		= Column( Integer, ForeignKey( Player.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	end				= Column( DateTime )
 
+	player			= relation("Player")
+	ladder			= relation('Ladder')
+
+	def __str__(self):
+		if self.ladder_id != -1:
+			ret = '%s on Ladder %s: %s remaining'%( self.player.nick,self.ladder.name,str(self.end - datetime.now() ) )
+		else:
+			ret = '%s (global ban): %s remaining'%( self.player.nick,str(self.end - datetime.now() ) )
+		return ret
+	
+
+"""this does not actually work, but should only show what's min for new tables
+class IRanks(Base):
+	id 				= Column( Integer, primary_key=True )
+	player_id 		= Column( Integer, ForeignKey( Player.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+"""
 class SimpleRanks(Base):
 	__tablename__	= 'simpleranks'
 	id 				= Column( Integer, primary_key=True )

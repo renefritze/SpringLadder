@@ -6,6 +6,7 @@ from datetime import datetime
 from db_entities import *
 from ranking import *
 from match import *
+import time
 
 class ElementExistsException( Exception ):
 	def __init__(self, element):
@@ -206,6 +207,14 @@ class LadderDB:
 		session.commit()
 		session.close()
 
+	def GetPlayer( self, name ):
+		session = self.sessionmaker()
+		player = session.query( Player ).filter( Player.nick == name ).first()
+		if not player:
+			self.AddPlayer( name, Roles.User )
+		session.close()
+		return player
+
 	def AddDefaultData(self):
 		try:
 			self.AddLadder( 'dummy' )
@@ -259,7 +268,7 @@ class LadderDB:
 		if player_query.count () == 0:
 			self.AddPlayer( username, Roles.User )
 			player_query = session.query( Player ).filter( Player.nick == username )
-		is_superadmin = player_query.filter( Player.role == Roles.GlobalAdmin ).count() == 1
+		is_superadmin = player_query.filter( Player.role >= Roles.GlobalAdmin ).count() == 1
 		if role == Roles.LadderAdmin and ladder_id != -1:
 			is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
 				.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
@@ -267,6 +276,11 @@ class LadderDB:
 			return is_superadmin or is_ladderadmin
 		player = player_query.first()
 		if player:
+			is_global_banned = player.role == Roles.GlobalBanned
+			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.now() ).count()
+			if is_banned:
+				session.close()
+				return False
 			session.close()
 			return player.role >= role or is_superadmin
 		session.close()
@@ -308,3 +322,104 @@ class LadderDB:
 		session.add( ladder )
 		session.commit()
 		session.close()
+
+	def GetAvgMatchDelta( self, ladder_id, maxDate=None ):
+		session = self.sessionmaker()
+		if maxDate:
+			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).filter(Match.date <= maxDate ).order_by(Match.date.desc()).all()
+		else:
+			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.desc()).all()
+		total = 0.0
+		for i in range( len(matches) -1 ):
+			diff = time.mktime(matches[i].date.timetuple())
+			diff -= time.mktime(matches[i+1].date.timetuple())
+			total += diff
+		if len(matches) > 2:
+			return max(total,1) / float( len(matches) - 1  )
+		else:
+			return 1.0
+
+	def RecalcRankings( self, ladder_id ):
+		session = self.sessionmaker()
+		ladder = self.GetLadder( ladder_id )
+		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
+		entityType = algo_instance.GetDbEntityType()
+		ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()
+		for r in ranks:
+			session.delete( r )
+		session.commit()
+		for m in session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.asc()):
+			algo_instance.Update( ladder_id, m, self)
+		session.close()
+
+	def GetMatches( self, ladder_id, order=Match.date.desc() ):
+		session = self.sessionmaker()
+		matches = session.query( Match ).filter( Match.ladder_id == ladder_id ).order_by( order )
+		if matches.count() < 1:
+			raise ElementNotFoundException( "no matches for ladder id %s found"%str(ladder_id) )
+		return matches.all()
+
+	def DeleteMatch( self, ladder_id, match_id ):
+		session = self.sessionmaker()
+		ladder = self.GetLadder( ladder_id )
+		match = session.query( Match ).filter( Match.id == match_id ).first()
+		if match:
+			for r in match.results:
+				session.delete( r )
+				session.commit()
+			for s in match.settings:
+				session.delete( s )
+				session.commit()
+			session.delete( match )
+			session.commit()
+			session.close()
+		else:
+			session.close()
+			raise ElementNotFoundException( Match(  ) )
+		self.RecalcRankings( ladder_id )
+
+	def BanPlayer( self, ladder_id, username, banlength=None ):
+		session = self.sessionmaker()
+		player = self.GetPlayer( username )
+		ban = Bans( )
+		ban.player_id = player.id
+		if not banlength:
+			ban.end = datetime.max
+		else:
+			try:
+				ban.end = datetime.now() + banlength
+			except OverflowError:
+				ban.end = datetime.max
+		ban.ladder_id = ladder_id
+		session.add( ban )
+		session.commit()
+		session.close()
+
+	def UnbanPlayer( self, username, ladder_id=-1, just_expire=True ):
+		session = self.sessionmaker()
+		player = self.GetPlayer( username )
+		bans = session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).all()
+		for b in bans:
+			if just_expire:
+				b.end = datetime.now()
+				session.add( b )
+			else:
+				session.delete( b )
+			session.commit()
+		session.close()
+
+
+	def GetBansPerLadder( self, ladder_id ):
+		session = self.sessionmaker()
+		if ladder_id == -1:
+			bans = session.query( Bans ).filter( Bans.end >= datetime.now() ).all()
+		else:
+			bans = session.query( Bans ).filter( Bans.end >= datetime.now() ).filter( Bans.ladder_id == ladder_id ).all()
+		session.close()
+		return bans
+
+	def GetBansPerPlayer( self, player_id ):
+		session = self.sessionmaker()
+		bans = session.query( Bans ).filter( Bans.player_id == player_id ).all()
+		session.close()
+		return bans

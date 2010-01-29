@@ -26,7 +26,11 @@ helpstring_ladder_admin = """!ladderjoinchannel channelname password: joins set 
 !ladderaddoption ladderID blacklist/whitelist optionkey optionvalue : adds a new rule to the ladder, blacklist/whitelist is boolean and 1 means whitelist, a given key cannot have a whitelist and blacklist at the same time
 !ladderremoveoption ladderID optionkey optionvalue : removes optionvalue from the ladder rules, if the optionkey has no values anymore it will be automatically removed
 !ladderlistrankingalgos : list all available ranking algorithms by name
-!laddersetrankingalgo ladderID algoName :set the used algorithm for ranking, currently switching algo on non-empty ladder will not recalc past results with new algo"""
+!laddersetrankingalgo ladderID algoName :set the used algorithm for ranking, currently switching algo on non-empty ladder will not recalc past results with new algo
+!ladderdeletematch ladderID matchID: delete a match and all associated data from db, forces a recalculation of entire history of rankings for that ladder
+!ladderbanuser ladderID username [time] : ban username from participating in any match on ladder ladderID for given amount of time (optional,floats, format: [D:]H )
+!ladderunbanuser ladderID username : unban username from participating in any match on ladder ladderID
+!ladderlistbans ladderID"""
 
 helpstring_global_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -34,7 +38,9 @@ helpstring_global_admin = """!ladderadd laddername : creates a new ladder
 !ladderaddladderadmin ladderID username : add a new (local) admin to the ladder with LadderID
 !ladderaddglobaladmin username : add a new global admin
 !ladderdeleteladderadmin ladderID username : delete new (local) admin from the ladder with LadderID
-!ladderdeleteglobaladmin username : delete global admin"""
+!ladderdeleteglobaladmin username : delete global admin
+!ladderbanuserglobal username [time] : ban username from participating in any match on any ladder for given amount of time (optional,floats, format: [D:]H )
+!ladderunbanuserglobal username : unban username from participating in any match on any ladder"""
 
 helpstring_user = """!ladderlist : lists available ladders with their IDs
 !ladder : requests a bot to join your current game to monitor and submit scores
@@ -42,10 +48,8 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !ladderlistoptions ladderID : lists enforced options for given ladderID
 !score ladderID : lists scores for all the players for the given ladderID
 !score playername : lists scores for the given player in all ladders
-!score ladderID playername : lists score for the given player for the given ladderID"""
-
-def sayPermissionDenied(socket, command, username ):
-	socket.send("SAYPRIVATE %s You do not have sufficient access right to execute %s on this bot\n" %( username, command ) )
+!score ladderID playername : lists score for the given player for the given ladderID
+!ladderlistmatches ladderID : list all matches for ladderId, newest first"""
 
 def pm(s,p,m):
 	try:
@@ -111,6 +115,10 @@ class Main:
 		else:
 			pm( socket, fromwho, message )
 
+	def sayPermissionDenied(self, socket, command, username,fromwhere, ispm  ):
+		msg = 'You do not have sufficient access right to execute %s on this bot\n' %( command )
+		self.notifyuser( socket, username, fromwhere, ispm, msg )
+	
 	def spawnbot( self,  socket, battleid, fromwho, ladderid ):
 		slot = len(self.botstatus)
 		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(ladderid))
@@ -121,7 +129,7 @@ class Main:
 			return
 		if len(command) > 0 and command[0] == "!":
 			if not self.db.AccessCheck( -1, fromwho, Roles.User ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 		else:
@@ -143,6 +151,10 @@ class Main:
 				if ( battleid < 0 ):
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "You are not in a battle." )
 				else:
+					if not self.db.AccessCheck( ladderid, fromwho, Roles.User ):
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+						#log
+						return
 					if ( battleid in self.battleswithbots ):
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "A ladder bot is already present in your battle." )
 					else:
@@ -152,7 +164,7 @@ class Main:
 							self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderjoinchannel":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) < 1:
@@ -166,7 +178,7 @@ class Main:
 					self.app.SaveConfig()
 		if command == "!ladderleavechannel":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) != 1:
@@ -184,7 +196,7 @@ class Main:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "%s: %d" %(l.name, l.id ) )
 		if command == "!ladderadd":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) < 1:
@@ -198,7 +210,7 @@ class Main:
 					error(e)
 		if command == "!ladderremove":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) != 1 or not args[0].isdigit():
@@ -218,7 +230,7 @@ class Main:
 				try:
 					ladder = self.db.GetLadder( ladderid )
 					if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
-						sayPermissionDenied( socket, fromwho, command )
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 						#log
 						return
 					ladder.min_ai_count = int(args[1])
@@ -241,7 +253,7 @@ class Main:
 				try:
 					ladder = self.db.GetLadder( ladderid )
 					if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
-						sayPermissionDenied( socket, fromwho, command )
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 						#log
 						return
 					ladder.min_team_size = int(args[1])
@@ -264,7 +276,7 @@ class Main:
 				try:
 					ladder = self.db.GetLadder( ladderid )
 					if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
-						sayPermissionDenied( socket, fromwho, command )
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 						#log
 						return
 					ladder.min_ally_size = int(args[1])
@@ -287,7 +299,7 @@ class Main:
 				try:
 					ladder = self.db.GetLadder( ladderid )
 					if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
-						sayPermissionDenied( socket, fromwho, command )
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 						#log
 						return
 					ladder.min_team_count = int(args[1])
@@ -310,7 +322,7 @@ class Main:
 				try:
 					ladder = self.db.GetLadder( ladderid )
 					if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
-						sayPermissionDenied( socket, fromwho, command )
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 						#log
 						return
 					ladder.min_ally_count = int(args[1])
@@ -332,7 +344,7 @@ class Main:
 				ladderid = int(args[0])
 				if self.db.LadderExists( ladderid ):
 					if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
-						sayPermissionDenied( socket, fromwho, command )
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 						#log
 						return
 					whitelist = int(args[1]) != 0
@@ -358,7 +370,7 @@ class Main:
 				ladderid = int(args[0])
 				if self.db.LadderExists( ladderid ):
 					if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
-						sayPermissionDenied( socket, fromwho, command )
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 						#log
 						return
 					keyname = args[1]
@@ -408,7 +420,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!score":
 			if not self.db.AccessCheck( -1, fromwho, Roles.User ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) > 2:
@@ -443,7 +455,7 @@ class Main:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
 		if command == "!laddercopy":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) < 2:
@@ -457,7 +469,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't copy ladder" )
 		if command == "!ladderaddglobaladmin":
 			if not self.db.AccessCheck( -1, fromwho, Roles.Owner ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) < 1:
@@ -470,7 +482,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't add global admin" )
 		if command == "!ladderaddladderadmin":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) < 2:
@@ -484,7 +496,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't add ladder admin: " + str(e) )
 		if command == "!ladderdeleteglobaladmin":
 			if not self.db.AccessCheck( -1, fromwho, Roles.Owner ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) < 1:
@@ -497,7 +509,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't delete global admin" )
 		if command == "!ladderdeleteladderadmin":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
-				sayPermissionDenied( socket, fromwho, command )
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			if len(args) < 2:
@@ -525,6 +537,130 @@ class Main:
 					self.db.SetLadderRankingAlgo( ladderid, algoname )
 				except ElementNotFoundException, e:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't set ranking algo: " + str(e) )
+		if command == "!ladderlistmatches":
+			if len(args) != 1:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = args[0]
+				try:
+					matches = self.db.GetMatches( ladderid )
+					res = ''
+					for m in matches:
+						res += 'Match no. %d (%s)\n'%(m.id,m.date)
+					self.notifyuser( socket, fromwho, fromwhere, ispm, res )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+		if command == "!ladderdeletematch":
+			if len(args) != 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = int(args[0])
+				match_id = int(args[1])
+				if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+							#log
+						return
+
+				try:
+					self.db.DeleteMatch( ladderid, match_id )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+		if command == "!ladderbanuserglobal":
+			if len(args) < 1:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				username = args[0]
+				if len(args) == 2:
+					t_fields = args[1].split(':')
+					if len( t_fields ) > 1:
+						days  = float(t_fields[0])
+						hours = float(t_fields[1])
+					else:
+						days = 0
+						hours = float(t_fields[0])
+					t_delta = timedelta( days=days, hours=hours )
+				else:
+					t_delta = timedelta.max
+				if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+							#log
+						return
+				try:
+					self.db.BanPlayer( -1, username, t_delta )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+		if command == "!ladderunbanuserglobal":
+			if len(args) != 1:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				username = args[0]
+				if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
+					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+						#log
+					return
+				try:
+					self.db.UnbanPlayer( username )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+		if command == "!ladderbanuser":
+			if len(args) < 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = args[0]
+				username = args[1]
+				if len(args) == 3:
+					t_fields = args[2].split(':')
+					if len( t_fields ) > 1:
+						days  = float(t_fields[0])
+						hours = float(t_fields[1])
+					else:
+						days = 0
+						hours = float(t_fields[0])
+					t_delta = timedelta( days=days, hours=hours )
+				else:
+					t_delta = timedelta.max
+				if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+							#log
+						return
+				try:
+					self.db.BanPlayer( ladderid, username, t_delta )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+		if command == "!ladderunbanuser":
+			if len(args) < 2:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+			else:
+				ladderid = args[0]
+				username = args[1]
+				if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
+						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+							#log
+						return
+				try:
+					self.db.UnbanPlayer( username, ladderid )
+				except ElementNotFoundException, e:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+		if command == "!ladderlistbans":
+			if len(args) < 1:
+				ladderid = -1
+			else:
+				ladderid = args[0]
+			if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
+					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+						#log
+					return
+			try:
+				bans = self.db.GetBansPerLadder( ladderid )
+				msg = ''
+				s = self.db.sessionmaker() #not nice, but needed for lazy load?!?
+				s.add_all( bans )
+				for b in bans:
+					msg += str(b) + '\n'
+				self.notifyuser( socket, fromwho, fromwhere, ispm, msg )
+				s.close()
+			except ElementNotFoundException, e:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)

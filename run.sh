@@ -4,5 +4,5 @@ export PYTHONPATH=$(pwd):$PYTHONPATH
 while [ 1 ]; do
 	python Main.py
 	echo sleeping
-	sleep 3
+	sleep 1
 done

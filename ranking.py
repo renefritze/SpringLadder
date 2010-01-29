@@ -12,7 +12,7 @@ class EmptyRankingListException( Exception ):
 
 class IRanking():
 	
-	def Update(self,ladder_id,matchresult,db):
+	def Update(self,ladder_id,match,db):
 		raise NotImplemented
 
 	def GetPrintableRepresentation(self,rank_list,db):
@@ -78,16 +78,23 @@ class RankingAlgoSelector:
 
 class SimpleRankAlgo(IRanking):
 
-	def Update(self,ladder_id,matchresult,db):
+	def Update(self,ladder_id,match,db):
+		session = db.sessionmaker()
+		#session.add( match ) #w/o this match is unbound, no lazy load of results
+		result_dict = dict()
+		try:
+			for r in match.results:
+				result_dict[r.player.nick] = r
+		except UnboundExecutionError,u:
+			session.add( match )
+			for r in match.results:
+				session.add( r )
+				result_dict[r.player.nick] = r
 		#calculate order of deaths
 		deaths = dict()
 		scores = dict()
-		session = db.sessionmaker()
-		playercount = len(matchresult.players)
-		for r in matchresult.players.values():
-			session.add( r )
 			
-		for name,player in matchresult.players.iteritems():
+		for name,player in result_dict.iteritems():
 			if player.died > 0:
 				deaths[name] = player.died
 			if player.timeout > -1:
@@ -99,16 +106,15 @@ class SimpleRankAlgo(IRanking):
 			if player.desync > -1:
 				scores[name] = 0
 		
-		endframe = matchresult.game_over
 		#find last team standing
-		for name in matchresult.players.keys():
+		for name in result_dict.keys():
 			if name not in deaths.keys() and name not in scores.keys():
 				scores[name] = playercount + 4
 			elif name not in scores.keys():
-				reldeath = deaths[name] / float(endframe)
+				reldeath = deaths[name] / float(match.last_frame)
 				scores[name] = reldeath * playercount
 		print 'scores ',scores
-		for name,player in matchresult.players.iteritems():
+		for name,player in result_dict.iteritems():
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( SimpleRanks ).filter( SimpleRanks.ladder_id == ladder_id ).filter( SimpleRanks.player_id == player_id ).first()
 			if not rank:

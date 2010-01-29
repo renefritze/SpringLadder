@@ -402,13 +402,23 @@ class Main:
 					#log
 					return
 				import fakeoutput
-				output = fakeoutput.fakeoutput[2]
+				if len(args) > 0 and args[0].isdigit():
+					idx = max( int(args[0]), len(fakeoutput.fakeoutput) -1 )
+					output = fakeoutput.fakeoutput[idx]
+				else:
+					output = fakeoutput.fakeoutput[-1]
+				
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
+				#saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
-					mr = MatchToDbWrapper( output, 'myself', self.ladderid )
-					self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
+					mr = MatchToDbWrapper( output, self.ladderid )
+					repeats = int(args[1]) if len(args) > 1 else 1
+					for i in range(repeats):
+						self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
+					upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+					saybattle( self.socket, self.battleid, 'pre-recalc:\n' +upd )
+					self.db.RecalcRankings(self.ladderid)
 				except InvalidOptionSetup, e:
 					saybattle( self.socket, self.battleid, str(e) )
 					return
