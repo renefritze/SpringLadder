@@ -145,14 +145,7 @@ class Main:
 					print yellow + "*** STDOUT+STDERR: " + h + normal
 					time.sleep(float(len(h))/900.0+0.05)
 			elif doSubmit:
-				mr = MatchToDbWrapper( self.output, battlefounder, self.ladderid )
-				try:
-					self.db.ReportMatch( mr )
-					saybattleex(socket, self.battleid, "has submitted ladder score updates")
-				except BannedPlayersDetectedException, b:
-					saybattle( self.socket,self.battleid,str(b) )
-				except:
-					saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome." )
+				mr = AutomaticMatchToDbWrapper( self.output, battlefounder, self.ladderid )
 			else:
 				log("*** Spring has exited with status %i" % status )
 			sendstatus( self, socket )
@@ -414,7 +407,7 @@ class Main:
 				#saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
-					mr = MatchToDbWrapper( output, self.ladderid )
+					mr = AutomaticMatchToDbWrapper( output, self.ladderid )
 					repeats = int(args[1]) if len(args) > 1 else 1
 					for i in range(repeats):
 						self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
@@ -427,6 +420,54 @@ class Main:
 
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
+			if command == "!ladderreportgame":
+				if not self.db.AccessCheck( -1, who, Roles.LadderAdmin ):
+					sayPermissionDenied( socket, who, command )
+					#log
+					return
+				if len(args) < 2:
+					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !help for usage." )
+				else:
+					ladderid = self.ladderid
+					try:
+						ladder = self.db.GetLadder( ladderid )
+						if not self.db.AccessCheck( ladderid, who, Roles.LadderAdmin ):
+							sayPermissionDenied( socket, who, command )
+							#log
+							return
+						usercounter = 0
+						userresults = dict()
+						while ( usercounter != len(args) ):
+							username, equal, result = args[usercounter].partition("=")
+							if ( len(result) == 0 ):
+								saybattle( self.socket, self.battleid, "Invalid command syntax, check !help for usage." )
+								return
+							userresults[username] = int(result)
+							usercounter = usercounter +1
+						
+						if  not self.CheckvalidPlayerSetup( ladderid, True , self.socket ):
+							saybattle( self.socket, self.battleid, "Invalid setup" )
+						players = []
+						for player in self.battle_statusmap:
+							if not player in self.bots and player != self.app.config["nick"]: 
+								players.append(player)
+						options = dict()
+						restr = dict()
+						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, options, restr, self.bots )
+						#self.db.ReportMatch( mr )
+						#saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+						try:
+							self.db.ReportMatch( mr )
+							saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+						except BannedPlayersDetectedException, b:
+							saybattle( self.socket,self.battleid,str(b) )
+							print b
+						except Exception, e:
+							saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome: %s"%str(e) )
+							print e
+						
+					except ElementNotFoundException, e:
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
