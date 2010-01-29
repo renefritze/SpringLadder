@@ -402,7 +402,7 @@ class Main:
 					output = fakeoutput.fakeoutput[idx]
 				else:
 					output = fakeoutput.fakeoutput[-1]
-				
+
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				#saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
@@ -444,16 +444,15 @@ class Main:
 								return
 							userresults[username] = int(result)
 							usercounter = usercounter +1
-						
+
 						if  not self.CheckvalidPlayerSetup( ladderid, True , self.socket ):
 							saybattle( self.socket, self.battleid, "Invalid setup" )
 						players = []
 						for player in self.battle_statusmap:
-							if not player in self.bots and player != self.app.config["nick"]: 
+							if not player in self.bots and player != self.app.config["nick"]:
 								players.append(player)
-						options = dict()
 						restr = dict()
-						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, options, restr, self.bots )
+						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, restr, self.bots )
 						#self.db.ReportMatch( mr )
 						#saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
 						try:
@@ -465,7 +464,7 @@ class Main:
 						except Exception, e:
 							saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome: %s"%str(e) )
 							print e
-						
+
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
