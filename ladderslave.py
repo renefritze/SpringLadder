@@ -480,14 +480,7 @@ class Main:
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
 		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
-			try:
-				self.gamestarted = self.tsc.users[self.battlefounder].ingame
-			except:
-				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-				print red+"*** EXCEPTION: BEGIN"
-				for line in exc:
-					print line
-				print"*** EXCEPTION: END"+normal
+			self.gamestarted = ( int(args[1]) % 2 ) == 1
 			if self.joinedbattle: #start spring
 				sendstatus( self, self.socket )
 				g = time.time()
