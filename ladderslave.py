@@ -453,7 +453,7 @@ class Main:
 								players.append(player)
 						options = dict()
 						restr = dict()
-						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, options, restr, self.bots, self.allies )
+						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, options, restr, self.bots, self.allies, allies_map, teams_map )
 						try:
 							self.db.ReportMatch( mr )
 							saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
@@ -480,7 +480,14 @@ class Main:
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
 		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
-			self.gamestarted = ( int(args[1]) % 2 ) == 1
+			try:
+				self.gamestarted = self.tsc.users[self.battlefounder].ingame
+			except:
+				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
+				print red+"*** EXCEPTION: BEGIN"
+				for line in exc:
+					print line
+				print"*** EXCEPTION: END"+normal
 			if self.joinedbattle: #start spring
 				sendstatus( self, self.socket )
 				g = time.time()
