@@ -258,7 +258,8 @@ class LadderDB:
 				algoname = aloginstance.__class__.__name__
 				entityType = aloginstance.GetDbEntityType()
 				rank = session.query( entityType ).filter( entityType.ladder_id == ladder.id ).filter(entityType.player_id == player.id).first()
-				res[rank] = ( algoname, ladder.name )
+				if rank:
+					res[rank] = ( algoname, ladder.name )
 			session.close()
 		return res
 		
