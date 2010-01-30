@@ -99,6 +99,7 @@ class Main:
 	teams = dict()
 	allies = dict()
 	bots = dict()
+	disabledunits = dict()
 	battlefounder = ""
 	hostip = ""
 	hostport = 0
@@ -323,6 +324,14 @@ class Main:
 			self.joinedbattle = False
 			notice( "Battle closed: " + str(self.battleid) )
 			self.KillBot()
+		if command == "ENABLEALLUNITS":
+			self.disabledunits = dict()
+		if command == "ENABLEUNITS" and len(args) > 1:
+			for unit in args[1:]:
+				del self.disabledunits[unit]
+		if command == "DISABLEUNITS":
+			for unit in args[1:]:
+				self.disabledunits[unit] = 0
 		if command == "SETSCRIPTTAGS":
 			for option in args[0].split():
 				pieces = parselist( option, "=" )
@@ -333,6 +342,9 @@ class Main:
 					key = key[6:]
 				elif key.startswith("game/"):#  strip prefix
 					key = key[5:]
+				if key.startswith("restrict/"):
+					unitname = key[9:]
+					self.disabledunits[unitname] = int(value)
 				value = pieces[1]
 				self.battleoptions[key] = value
 		if command == "REQUESTBATTLESTATUS":
@@ -402,7 +414,7 @@ class Main:
 					output = fakeoutput.fakeoutput[idx]
 				else:
 					output = fakeoutput.fakeoutput[-1]
-				
+
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				#saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
@@ -444,16 +456,19 @@ class Main:
 								return
 							userresults[username] = int(result)
 							usercounter = usercounter +1
-						
+
 						if  not self.CheckvalidPlayerSetup( ladderid, True , self.socket ):
 							saybattle( self.socket, self.battleid, "Invalid setup" )
 						players = []
+						teams_map = dict()
+						allies_map = dict()
 						for player in self.battle_statusmap:
-							if not player in self.bots and player != self.app.config["nick"]: 
+							status = self.battle_statusmap[player]
+							if not player in status.spec and player != self.app.config["nick"]:
 								players.append(player)
-						options = dict()
-						restr = dict()
-						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, options, restr, self.bots, self.allies, allies_map, teams_map )
+								teams_map[player] = status.team
+								allies_map[player] = status.ally
+						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, self.disabledunits, self.bots, self.allies, teams_map, allies_map )
 						try:
 							self.db.ReportMatch( mr )
 							saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
@@ -463,7 +478,7 @@ class Main:
 						except Exception, e:
 							saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome: %s"%str(e) )
 							print e
-						
+
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
