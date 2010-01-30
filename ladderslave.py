@@ -432,20 +432,16 @@ class Main:
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
 			if command == "!ladderreportgame":
-				if not self.db.AccessCheck( -1, who, Roles.LadderAdmin ):
-					sayPermissionDenied( socket, who, command )
-					#log
-					return
 				if len(args) < 2:
 					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !help for usage." )
 				else:
 					ladderid = self.ladderid
 					try:
-						ladder = self.db.GetLadder( ladderid )
 						if not self.db.AccessCheck( ladderid, who, Roles.LadderAdmin ):
 							sayPermissionDenied( socket, who, command )
 							#log
 							return
+						ladder = self.db.GetLadder( ladderid )
 						usercounter = 0
 						userresults = dict()
 						while ( usercounter != len(args) ):
