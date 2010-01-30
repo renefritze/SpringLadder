@@ -23,14 +23,14 @@ class ElementNotFoundException( Exception ):
 		return "Element %s not found in db"%(self.element)
 
 class LadderDB:
-	def __init__(self,alchemy_uri, verbose=False):
+	def __init__(self,alchemy_uri,owner=[], verbose=False):
 #		print "loading db at " + alchemy_uri
 		self.engine = create_engine(alchemy_uri, echo=verbose)
 		self.metadata = Base.metadata
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)
 		self.sessionmaker = sessionmaker( bind=self.engine )
-		self.AddDefaultData()
+		self.SetOwner(owner)
 
 	def getSession(self):
 		return self.sessionmaker()
@@ -202,9 +202,11 @@ class LadderDB:
 
 	def AddPlayer(self,name,role,pw=''):
 		session = self.sessionmaker()
-		player = Player( name,role, pw )
-		session.add( player )
-		session.commit()
+		player = session.query( Player ).filter( Player.nick == name ).first()
+		if not player:
+			player = Player( name,role, pw )
+			session.add( player )
+			session.commit()
 		session.close()
 
 	def GetPlayer( self, name ):
@@ -215,14 +217,12 @@ class LadderDB:
 		session.close()
 		return player
 
-	def AddDefaultData(self):
-		try:
-			self.AddLadder( 'dummy' )
-			self.AddPlayer( '_koshi_',Roles.Owner, '')
-			self.AddPlayer( 'BrainDamage',Roles.Owner, '')
-			self.AddPlayer( '[S44]Neddie',Roles.Owner, '')
-		except:
-			pass
+	def SetOwner(self,owner):
+		for name in owner:
+			try:
+				self.AddPlayer( name,Roles.Owner, '')
+			except:
+				print 'error adding owner ',name
 
 	def ReportMatch( self, matchresult, doValidation=True ):
 		"""false skips validation check of output against ladder rules"""
