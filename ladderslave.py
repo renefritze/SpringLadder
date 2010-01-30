@@ -460,10 +460,17 @@ class Main:
 						if  not self.CheckvalidPlayerSetup( ladderid, True , self.socket ):
 							saybattle( self.socket, self.battleid, "Invalid setup" )
 						players = []
+						teams_map = dict()
+						allies_map = dict()
 						for player in self.battle_statusmap:
-							if not player in self.bots and player != self.app.config["nick"]:
+							status = self.battle_statusmap[player]
+							if not player in status.spec and player != self.app.config["nick"]:
 								players.append(player)
-						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, self.disabledunits, self.bots )
+								team = status.team
+								ally = status.ally
+								teams_map[player] = team
+								allies_map[team] = ally
+						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, self.disabledunits, self.bots, teams_map, allies_map )
 						#self.db.ReportMatch( mr )
 						#saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
 						try:
