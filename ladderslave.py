@@ -466,13 +466,9 @@ class Main:
 							status = self.battle_statusmap[player]
 							if not player in status.spec and player != self.app.config["nick"]:
 								players.append(player)
-								team = status.team
-								ally = status.ally
-								teams_map[player] = team
-								allies_map[team] = ally
-						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, self.disabledunits, self.bots, teams_map, allies_map )
-						#self.db.ReportMatch( mr )
-						#saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+								teams_map[player] = status.team
+								allies_map[player] = status.ally
+						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, self.disabledunits, self.bots, self.allies, teams_map, allies_map )
 						try:
 							self.db.ReportMatch( mr )
 							saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
