@@ -304,6 +304,7 @@ class Main:
 		self.hosttime = time.time()
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
+		self.battlepassword = self.app.config["battlepassword"]
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], parselist(self.app.config["alchemy-verbose"],",")[0] )
 
 	def oncommandfromserver(self,command,args,s):
@@ -561,7 +562,7 @@ class Main:
 
 	def onloggedin(self,socket):
 		sendstatus( self, socket )
-		socket.send("JOINBATTLE " + str(self.battleid) + "\n")
+		socket.send("JOINBATTLE " + str(self.battleid) + " " + self.battlepassword + "\n")
 
 	def FillTeamAndAllies(self):
 		self.teams = dict()

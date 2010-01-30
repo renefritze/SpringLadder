@@ -43,8 +43,8 @@ helpstring_global_admin = """!ladderadd laddername : creates a new ladder
 !ladderunbanuserglobal username : unban username from participating in any match on any ladder"""
 
 helpstring_user = """!ladderlist : lists available ladders with their IDs
-!ladder : requests a bot to join your current game to monitor and submit scores
-!ladder ladderID: requests a bot to join your current game to monitor and submit scores got given ladderID
+!ladder [password]: requests a bot to join your current game to monitor and submit scores
+!ladder ladderID [password]: requests a bot to join your current game to monitor and submit scores got given ladderID
 !ladderlistoptions ladderID : lists enforced options for given ladderID
 !score ladderID : lists scores for all the players for the given ladderID
 !score playername : lists scores for the given player in all ladders
@@ -71,7 +71,7 @@ class Main:
 	ladderlist = dict() # id -> ladder name
 	ladderoptions = dict() # id -> ladder options
 
-	def botthread(self,slot,battleid,fromwho,ladderid):
+	def botthread(self,slot,battleid,battlepassword,fromwho,ladderid):
 		nick = self.app.config["nick"]+str(slot)
 		try:
 			d = dict()
@@ -83,6 +83,7 @@ class Main:
 			d.update([("plugins","ladderslave")])
 			d.update([("bans",self.app.config["bans"])])
 			d.update([("battleid",str(battleid))])
+			d.update([("battlepassword",str(battlepassword))])
 			d.update([("ladderid",str(ladderid))])
 			d.update([("fromwho",fromwho)])
 			d.update([("alchemy-uri",self.app.config["alchemy-uri"])])
@@ -118,11 +119,11 @@ class Main:
 	def sayPermissionDenied(self, socket, command, username,fromwhere, ispm  ):
 		msg = 'You do not have sufficient access right to execute %s on this bot\n' %( command )
 		self.notifyuser( socket, username, fromwhere, ispm, msg )
-	
-	def spawnbot( self,  socket, battleid, fromwho, ladderid ):
+
+	def spawnbot( self,  socket, battleid, password, fromwho, ladderid ):
 		slot = len(self.botstatus)
 		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(ladderid))
-		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,fromwho,ladderid)))
+		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,password,fromwho,ladderid)))
 
 	def oncommandfromuser(self,fromwho,fromwhere,ispm,command,args,socket):
 		if fromwho == self.app.config["nick"]:
@@ -137,31 +138,34 @@ class Main:
 
 		# !TODO refactor to use function dict
 		if command == "!ladder":
-			if len(args) > 1:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax or command not found, use !help for a list of available commands and their usage." )
-			else:
-				ladderid = -1
-				battleid = -2
-				if len(args) == 1 and args[0].isdigit():
+			ladderid = -1
+			battleid = -2
+			password = ""
+			if len(args) > 0:
+				if args[0].isdigit():
 					ladderid = int(args[0])
-				try:
-					battleid = self.tsc.users[fromwho].battleid
-				except:
-					bad("User " + fromwho + " not found")
-				if ( battleid < 0 ):
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "You are not in a battle." )
+					if len(args) > 1:
+						password = " ".join(args[1:])
 				else:
-					if not self.db.AccessCheck( ladderid, fromwho, Roles.User ):
-						self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
-						#log
-						return
-					if ( battleid in self.battleswithbots ):
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "A ladder bot is already present in your battle." )
+					password = " ".join(args[0:])
+			try:
+				battleid = self.tsc.users[fromwho].battleid
+			except:
+				bad("User " + fromwho + " not found")
+			if ( battleid < 0 ):
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "You are not in a battle." )
+			else:
+				if not self.db.AccessCheck( ladderid, fromwho, Roles.User ):
+					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+					#log
+					return
+				if ( battleid in self.battleswithbots ):
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "A ladder bot is already present in your battle." )
+				else:
+					if ( ladderid == -1 or self.db.LadderExists( ladderid ) ):
+						self.spawnbot( socket, battleid, password, fromwho, ladderid )
 					else:
-						if ( ladderid == -1 or self.db.LadderExists( ladderid ) ):
-							self.spawnbot( socket, battleid, fromwho, ladderid )
-						else:
-							self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderjoinchannel":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
