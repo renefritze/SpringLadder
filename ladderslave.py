@@ -53,13 +53,11 @@ bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1).lstrip('0')+str(n&1) or '0'
 
 class BattleStatus:
 	def __init__(self, status, nick ):
-#		print "len before padding: ",len(bstr_nonneg( int(status) ))
-		sstr = bstr_nonneg( int(status) ).rjust( 31, "0" )
-#s		print 'statusstring length:%d : [%s] from %s'%(len(sstr), sstr,status)
-		self.team = int( sstr[-6:-2], 2)+1
-		self.ally = int( sstr[-10:-6], 2)+1
-		self.side = int( sstr[-28:-24], 2)+1
-		self.spec = ( sstr[ -11:-10 ] == "0" )
+		status = int(status)
+		self.team = getteam(status)
+		self.ally = getally(status)
+		self.side = getside(status)
+		self.spec = getspec(status)
 		self.nick = nick
 		self.decimal = int(status)
 
