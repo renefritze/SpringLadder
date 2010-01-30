@@ -305,7 +305,7 @@ class Main:
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
 		self.battlepassword = self.app.config["battlepassword"]
-		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], parselist(self.app.config["alchemy-verbose"],",")[0] )
+		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], [], parselist(self.app.config["alchemy-verbose"],",")[0] )
 
 	def oncommandfromserver(self,command,args,s):
 		#print "From server: %s | Args : %s" % (command,str(args))
@@ -496,7 +496,14 @@ class Main:
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
 		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
-			self.gamestarted = ( int(args[1]) % 2 ) == 1
+			try:
+				self.gamestarted = self.tsc.users[self.battlefounder].ingame
+			except:
+				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
+				print red+"*** EXCEPTION: BEGIN"
+				for line in exc:
+					print line
+				print"*** EXCEPTION: END"+normal
 			if self.joinedbattle: #start spring
 				sendstatus( self, self.socket )
 				g = time.time()

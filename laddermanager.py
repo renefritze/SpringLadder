@@ -106,7 +106,7 @@ class Main:
 		self.app = tasc.main
 		self.channels = parselist(self.app.config["channelautojoinlist"],",")
 		self.admins = parselist(self.app.config["admins"],",")
-		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], parselist(self.app.config["alchemy-verbose"],",")[0] )
+		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], self.admins, parselist(self.app.config["alchemy-verbose"],",")[0] )
 
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main":
