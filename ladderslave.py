@@ -453,9 +453,7 @@ class Main:
 								players.append(player)
 						options = dict()
 						restr = dict()
-						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, options, restr, self.bots )
-						#self.db.ReportMatch( mr )
-						#saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, options, restr, self.bots, self.allies )
 						try:
 							self.db.ReportMatch( mr )
 							saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
