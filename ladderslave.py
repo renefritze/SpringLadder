@@ -99,6 +99,7 @@ class Main:
 	teams = dict()
 	allies = dict()
 	bots = dict()
+	disabledunits = dict()
 	battlefounder = ""
 	hostip = ""
 	hostport = 0
@@ -323,6 +324,14 @@ class Main:
 			self.joinedbattle = False
 			notice( "Battle closed: " + str(self.battleid) )
 			self.KillBot()
+		if command == "ENABLEALLUNITS":
+			self.disabledunits = dict()
+		if command == "ENABLEUNITS" and len(args) > 1:
+			for unit in args[1:]:
+				del self.disabledunits[unit]
+		if command == "DISABLEUNITS":
+			for unit in args[1:]:
+				self.disabledunits[unit] = 0
 		if command == "SETSCRIPTTAGS":
 			for option in args[0].split():
 				pieces = parselist( option, "=" )
@@ -333,6 +342,9 @@ class Main:
 					key = key[6:]
 				elif key.startswith("game/"):#  strip prefix
 					key = key[5:]
+				if key.startswith("restrict/"):
+					unitname = key[9:]
+					self.disabledunits[unitname] = int(value)
 				value = pieces[1]
 				self.battleoptions[key] = value
 		if command == "REQUESTBATTLESTATUS":
@@ -451,8 +463,7 @@ class Main:
 						for player in self.battle_statusmap:
 							if not player in self.bots and player != self.app.config["nick"]:
 								players.append(player)
-						restr = dict()
-						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, restr, self.bots )
+						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, self.disabledunits, self.bots )
 						#self.db.ReportMatch( mr )
 						#saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
 						try:
