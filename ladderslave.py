@@ -464,7 +464,7 @@ class Main:
 						allies_map = dict()
 						for player in self.battle_statusmap:
 							status = self.battle_statusmap[player]
-							if not player in status.spec and player != self.app.config["nick"]:
+							if not status.spec and player != self.app.config["nick"]:
 								players.append(player)
 								teams_map[player] = status.team
 								allies_map[player] = status.ally
