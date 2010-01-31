@@ -498,8 +498,13 @@ class Main:
 				for line in exc:
 					print line
 				print"*** EXCEPTION: END"+normal
-			if self.joinedbattle: #start spring
+			if self.joinedbattle:
 				sendstatus( self, self.socket )
+				if not self.gamestarted:
+					return
+				if self.ingame:
+					return
+				#start spring
 				g = time.time()
 				try:
 					os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
