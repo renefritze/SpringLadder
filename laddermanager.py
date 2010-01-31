@@ -109,8 +109,8 @@ class Main:
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], self.admins, parselist(self.app.config["alchemy-verbose"],",")[0] )
 
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
-		if fromwhere == "main":
-			ispm = true
+		if fromwhere == "main" or fromwhere == "newbies":
+			ispm = True
 		if not ispm:
 			saychannel( socket, fromwhere, message )
 		else:
