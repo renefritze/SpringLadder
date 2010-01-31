@@ -510,7 +510,7 @@ class Main:
 			self.battleoptions["mapname"] = tabsplit[0]
 		if command == "CLIENTSTATUS" and len(args) > 1 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
 			print "CLIENTSTATUS %s"%self.battlefounder , args
-			self.gamestarted = getingame(int(args[2]))
+			self.gamestarted = getingame(int(args[1]))
 			if self.joinedbattle:
 				sendstatus( self, self.socket )
 				if not self.gamestarted:
