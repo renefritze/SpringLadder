@@ -144,7 +144,7 @@ class Main:
 					print yellow + "*** STDOUT+STDERR: " + h + normal
 					time.sleep(float(len(h))/900.0+0.05)
 			elif doSubmit:
-				mr = AutomaticMatchToDbWrapper( self.output, self.battlefounder, self.ladderid )
+				mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
 			else:
 				log("*** Spring has exited with status %i" % status )
 			sendstatus( self, socket )
