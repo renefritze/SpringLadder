@@ -508,16 +508,9 @@ class Main:
 			tabbedstring = " ".join(args[4:])
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
-		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
+		if command == "CLIENTSTATUS" and len(args) > 1 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
 			print "CLIENTSTATUS %s"%self.battlefounder , args
-			try:
-				self.gamestarted = self.tsc.users[self.battlefounder].ingame
-			except:
-				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-				print red+"*** EXCEPTION: BEGIN"
-				for line in exc:
-					print line
-				print"*** EXCEPTION: END"+normal
+			self.gamestarted = getingame(int(args[2]))
 			if self.joinedbattle:
 				sendstatus( self, self.socket )
 				if not self.gamestarted:
