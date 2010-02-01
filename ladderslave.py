@@ -146,6 +146,7 @@ class Main:
 			elif doSubmit:
 				mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
 				self.db.ReportMatch( mr, True )
+				saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
 			else:
 				log("*** Spring has exited with status %i" % status )
 			sendstatus( self, socket )
