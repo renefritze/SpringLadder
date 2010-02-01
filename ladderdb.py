@@ -229,7 +229,7 @@ class LadderDB:
 		if not isinstance( matchresult, MatchToDbWrapper ):
 			raise TypeError
 		matchresult.CommitMatch(self,doValidation)
-		
+
 	def GetRanks( self, ladder_id, player_name=None ):
 		session = self.sessionmaker()
 		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
@@ -239,7 +239,7 @@ class LadderDB:
 			player = session.query( Player ).filter( Player.nick == player_name ).first()
 			if player:
 				#needs to be a list so the printing in GlobalRankingAlgoSelector works
-				ranks = [ session.query( entityType ).filter( entityType.ladder_id == ladder_id ).filter(entityType.player_id == player.id).first() ] 
+				ranks = [ session.query( entityType ).filter( entityType.ladder_id == ladder_id ).filter(entityType.player_id == player.id).first() ]
 			else:
 				raise ElementNotFoundException( Player( player_name ) )
 		else:
@@ -262,7 +262,7 @@ class LadderDB:
 					res[rank] = ( algoname, ladder.name )
 			session.close()
 		return res
-		
+
 	def AccessCheck( self, ladder_id, username, role ):
 		session = self.sessionmaker()
 		player_query = session.query( Player ).filter( Player.nick == username )
@@ -270,11 +270,17 @@ class LadderDB:
 			self.AddPlayer( username, Roles.User )
 			player_query = session.query( Player ).filter( Player.nick == username )
 		is_superadmin = player_query.filter( Player.role >= Roles.GlobalAdmin ).count() == 1
-		if role == Roles.LadderAdmin and ladder_id != -1:
-			is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
-				.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
-			session.close()
-			return is_superadmin or is_ladderadmin
+		if role == Roles.LadderAdmin:
+			if ladder_id != -1:
+				is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
+					.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
+				session.close()
+				return is_superadmin or is_ladderadmin
+			else:
+				is_ladderadmin = session.query( Option ).filter( Option.key == Option.adminkey ) \
+					.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
+				session.close()
+				return is_superadmin or is_ladderadmin
 		player = player_query.first()
 		if player:
 			is_global_banned = player.role == Roles.GlobalBanned
