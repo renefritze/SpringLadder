@@ -361,7 +361,7 @@ class Main:
 			else:
 				return
 
-			if command == "!checksetup":
+			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -476,25 +476,6 @@ class Main:
 
 					except ElementNotFoundException, e:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
-			if command == '!forcejoin':
-				g = time.time()
-				try:
-					os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
-				except:
-					pass
-				if platform.system() == "Linux":
-					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
-				else:
-					f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
-				self.script = "[GAME]\n{"
-				self.script += "\n\tHostIP=" + self.hostip + ";"
-				self.script += "\n\tHostPort=" + self.hostport + ";"
-				self.script += "\n\tIsHost=0;"
-				self.script += "\n\tMyPlayerName=" + self.app.config["nick"] + ";"
-				self.script += "\n}"
-				f.write(self.script)
-				f.close()
-				thread.start_new_thread(self.startspring,(s,g))
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
@@ -508,9 +489,16 @@ class Main:
 			tabbedstring = " ".join(args[4:])
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
-		if command == "CLIENTSTATUS" and len(args) > 1 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
-			print "CLIENTSTATUS %s"%self.battlefounder , args
-			self.gamestarted = getingame(int(args[1]))
+
+		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
+			try:
+				self.gamestarted = self.tsc.users[self.battlefounder].ingame
+			except:
+				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
+				print red+"*** EXCEPTION: BEGIN"
+				for line in exc:
+					print line
+				print"*** EXCEPTION: END"+normal
 			if self.joinedbattle:
 				sendstatus( self, self.socket )
 				if not self.gamestarted:
