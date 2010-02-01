@@ -145,6 +145,7 @@ class Main:
 					time.sleep(float(len(h))/900.0+0.05)
 			elif doSubmit:
 				mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
+				self.db.ReportMatch( mr, True )
 			else:
 				log("*** Spring has exited with status %i" % status )
 			sendstatus( self, socket )
