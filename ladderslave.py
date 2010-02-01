@@ -149,7 +149,6 @@ class Main:
 				saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
 			else:
 				log("*** Spring has exited with status %i" % status )
-			sendstatus( self, socket )
 
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
@@ -159,8 +158,10 @@ class Main:
 			print "*** EXCEPTION: END"+normal
 			os.chdir(currentworkingdir)
 			self.ingame = False
+			sendstatus( self, socket )
 		os.chdir(currentworkingdir)
 		self.ingame = False
+		sendstatus( self, socket )
 
 	def KillBot(self):
 		if platform.system() == "Windows":
