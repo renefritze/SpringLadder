@@ -396,13 +396,13 @@ class Main:
 						self.ladderid = ladderid
 						saybattle( self.socket, self.battleid,"Ladder reporting disabled.")
 				else:
-					saybattle( self.socket, self.battleid,"Invalid command syntax, check !help for usage.")
+					saybattle( self.socket, self.battleid,"Invalid command syntax, check !ladderhelp for usage.")
 			if command == "!ladderleave":
 				self.joinedbattle = False
 				good( "Leaving battle: " + str(self.battleid) )
 				self.socket.send("LEAVEBATTLE\n")
 				self.KillBot()
-			if command == "!help":
+			if command == "!ladderhelp":
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
 			if command == '!debug':
@@ -436,7 +436,7 @@ class Main:
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
 			if command == "!ladderreportgame":
 				if len(args) < 2:
-					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !help for usage." )
+					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !ladderhelp for usage." )
 				else:
 					ladderid = self.ladderid
 					try:
@@ -450,7 +450,7 @@ class Main:
 						while ( usercounter != len(args) ):
 							username, equal, result = args[usercounter].partition("=")
 							if ( len(result) == 0 ):
-								saybattle( self.socket, self.battleid, "Invalid command syntax, check !help for usage." )
+								saybattle( self.socket, self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
 								return
 							userresults[username] = int(result)
 							usercounter = usercounter +1

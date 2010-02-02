@@ -49,7 +49,7 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !score ladderID : lists scores for all the players for the given ladderID
 !score playername : lists scores for the given player in all ladders
 !score ladderID playername : lists score for the given player for the given ladderID
-!ladderlistmatches ladderID : list all matches for ladderId, newest first"""
+!ladderlistmatches ladderID : list all matches for ladderID, newest first"""
 
 def pm(s,p,m):
 	try:
@@ -172,7 +172,7 @@ class Main:
 				#log
 				return
 			if len(args) < 1:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				channel = " ".join(args[0:])
 				socket.send("JOIN " + channel + "\n")
@@ -186,7 +186,7 @@ class Main:
 				#log
 				return
 			if len(args) != 1:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				channel = args[0]
 				if channel in self.channels:
@@ -218,7 +218,7 @@ class Main:
 				#log
 				return
 			if len(args) != 1 or not args[0].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				try:
@@ -228,7 +228,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangeaicount":
 			if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				try:
@@ -251,7 +251,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangecontrolteamsize":
 			if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				try:
@@ -274,7 +274,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangeallysize":
 			if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				try:
@@ -297,7 +297,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangecontrolteamcount":
 			if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				try:
@@ -320,7 +320,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderchangeallycount":
 			if len(args) > 3 or not args[0].isdigit() or not args[1].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				try:
@@ -343,7 +343,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderaddoption":
 			if len(args) < 4 or not args[0].isdigit() or not args[1].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				if self.db.LadderExists( ladderid ):
@@ -369,7 +369,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderremoveoption":
 			if len(args) < 3 or not args[0].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				if self.db.LadderExists( ladderid ):
@@ -399,7 +399,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "!ladderlistoptions":
 			if len(args) != 1 or not args[0].isdigit():
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				if self.db.LadderExists( ladderid ):
@@ -428,7 +428,7 @@ class Main:
 				#log
 				return
 			if len(args) > 2:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = -1
 				playername = ""
@@ -444,7 +444,7 @@ class Main:
 
 				elif len(args) == 2:
 					if not args[0].isdigit():
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 					else:
 						ladderid = int(args[0])
 						playername = args[1]
@@ -463,7 +463,7 @@ class Main:
 				#log
 				return
 			if len(args) < 2:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				source_id = args[0]
 				target_name = " ".join(args[1:])
@@ -477,7 +477,7 @@ class Main:
 				#log
 				return
 			if len(args) < 1:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				username = args[0]
 				try:
@@ -490,7 +490,7 @@ class Main:
 				#log
 				return
 			if len(args) < 2:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = args[0]
 				username = args[1]
@@ -504,7 +504,7 @@ class Main:
 				#log
 				return
 			if len(args) < 1:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				username = args[0]
 				try:
@@ -517,7 +517,7 @@ class Main:
 				#log
 				return
 			if len(args) < 2:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = args[0]
 				username = args[1]
@@ -527,12 +527,12 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't delete ladder admin" )
 		if command == "!ladderlistrankingalgos":
 			if len(args) > 0:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, GlobalRankingAlgoSelector.ListRegisteredAlgos() )
 		if command == "!laddersetrankingalgo":
 			if len(args) < 2:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = args[0]
 				algoname = args[1]
@@ -543,7 +543,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't set ranking algo: " + str(e) )
 		if command == "!ladderlistmatches":
 			if len(args) != 1:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = args[0]
 				try:
@@ -556,7 +556,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 		if command == "!ladderdeletematch":
 			if len(args) != 2:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = int(args[0])
 				match_id = int(args[1])
@@ -571,7 +571,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 		if command == "!ladderbanuserglobal":
 			if len(args) < 1:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				username = args[0]
 				if len(args) == 2:
@@ -595,7 +595,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 		if command == "!ladderunbanuserglobal":
 			if len(args) != 1:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				username = args[0]
 				if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
@@ -608,7 +608,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 		if command == "!ladderbanuser":
 			if len(args) < 2:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = args[0]
 				username = args[1]
@@ -633,7 +633,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 		if command == "!ladderunbanuser":
 			if len(args) < 2:
-				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !help for usage." )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 			else:
 				ladderid = args[0]
 				username = args[1]
