@@ -365,7 +365,7 @@ class Main:
 				return
 
 			try:
-				if self.battle_statusmap[who].spec and who != self.battlefounder:
+				if self.battle_statusmap[who].spec and who != self.battlefounder and not self.db.AccessCheck( -1, who, Roles.LadderAdmin ):
 					return
 			except:
 				pass
