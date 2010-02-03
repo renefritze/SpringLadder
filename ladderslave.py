@@ -85,6 +85,7 @@ class Main:
 	ingame = False
 	gamestarted = False
 	joinedbattle = False
+	toshutdown = False
 	ladderid = -1
 	if platform.system() == "Windows":
 		scriptbasepath = os.environ['USERPROFILE']
@@ -111,7 +112,7 @@ class Main:
 			self.ingame = True
 			doSubmit = self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0)
 			if doSubmit:
-				saybattleex(socket, self.battleid, "is gonna submit to the ladder the score results")
+				saybattleex(socket, self.battleid, "will submit to the ladder the score results")
 			else:
 				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
 			sendstatus( self, socket )
@@ -138,15 +139,23 @@ class Main:
 			status = self.pr.wait()
 			et = time.time()
 			if status != 0:
-				saybattle( self.socket,self.battleid,"Error: Spring Exited with status %i" % status)
+				saybattle( self.socket,self.battleid,"Error: Spring exited with status %i" % status)
 				g = self.output.split("\n")
 				for h in g:
 					print yellow + "*** STDOUT+STDERR: " + h + normal
 					time.sleep(float(len(h))/900.0+0.05)
 			elif doSubmit:
-				mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
-				self.db.ReportMatch( mr, True )
-				saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+				try:
+					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
+					self.db.ReportMatch( mr, True )
+					saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+				except:
+					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
+					print red+"*** EXCEPTION: BEGIN"
+					for line in exc:
+						print line
+					print "*** EXCEPTION: END"+normal
+					saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
 			else:
 				log("*** Spring has exited with status %i" % status )
 
@@ -156,12 +165,11 @@ class Main:
 			for line in exc:
 				print line
 			print "*** EXCEPTION: END"+normal
-			os.chdir(currentworkingdir)
-			self.ingame = False
-			sendstatus( self, socket )
 		os.chdir(currentworkingdir)
 		self.ingame = False
 		sendstatus( self, socket )
+		if self.toshutdown:
+			self.KillBot()
 
 	def KillBot(self):
 		if platform.system() == "Windows":
@@ -407,7 +415,9 @@ class Main:
 				self.joinedbattle = False
 				good( "Leaving battle: " + str(self.battleid) )
 				self.socket.send("LEAVEBATTLE\n")
-				self.KillBot()
+				self.toshutdown = True
+				if not self.ingame:
+					self.KillBot()
 			if command == "!ladderhelp":
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
