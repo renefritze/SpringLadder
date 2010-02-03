@@ -409,7 +409,7 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Min Players in a Team ( sharing control ): " + str(self.db.GetLadderOption( ladderid, "min_team_size" )) )
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Max Players in a Team ( sharing control ): " + str(self.db.GetLadderOption( ladderid, "max_team_size" )) )
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Min Teams in an Ally ( being allied ): " + str(self.db.GetLadderOption( ladderid, "min_ally_size" )) )
-					self.notifyuser( socket, fromwho, fromwhere, ispm, "Max Teams in an Ally ( being allied ): " + str(self.db.GetLadderOption( ladderid, "max_team_size" )) )
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Max Teams in an Ally ( being allied ): " + str(self.db.GetLadderOption( ladderid, "max_ally_size" )) )
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Min Teams in a Match ( how many Teams ): " + str(self.db.GetLadderOption( ladderid, "min_team_count" )) )
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Max Teams in a Match ( how many Teams ): " + str(self.db.GetLadderOption( ladderid, "max_team_count" )) )
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Min Alliances in a Match ( how many Allys ): " + str(self.db.GetLadderOption( ladderid, "min_ally_count" )) )
