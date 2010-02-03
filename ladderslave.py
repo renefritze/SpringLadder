@@ -242,7 +242,7 @@ class Main:
 		minteamsize = self.db.GetLadderOption( ladderid, "min_team_size" )
 		maxteamsize = self.db.GetLadderOption( ladderid, "max_team_size" )
 		minallysize = self.db.GetLadderOption( ladderid, "min_ally_size" )
-		maxallysize = self.db.GetLadderOption( ladderid, "max_team_size" )
+		maxallysize = self.db.GetLadderOption( ladderid, "max_ally_size" )
 		teamsizesok = True
 		errorstring = "The following control teams have too few players in them for " + laddername + ":\n"
 		for team in self.teams:
