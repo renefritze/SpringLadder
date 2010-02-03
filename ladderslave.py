@@ -329,11 +329,15 @@ class Main:
 		if command == "FORCEQUITBATTLE":
 			self.joinedbattle = False
 			bad( "Kicked from battle: " + str(self.battleid) )
-			self.KillBot()
+			self.toshutdown = True
+			if not self.ingame:
+				self.KillBot()
 		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
 			self.joinedbattle = False
 			notice( "Battle closed: " + str(self.battleid) )
-			self.KillBot()
+			self.toshutdown = True
+			if not self.ingame:
+				self.KillBot()
 		if command == "ENABLEALLUNITS":
 			self.disabledunits = dict()
 		if command == "ENABLEUNITS" and len(args) > 1:
