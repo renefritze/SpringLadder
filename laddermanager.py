@@ -121,7 +121,11 @@ class Main:
 		self.notifyuser( socket, username, fromwhere, ispm, msg )
 
 	def spawnbot( self,  socket, battleid, password, fromwho, ladderid ):
-		slot = len(self.botstatus)
+		slot = 0
+		busyslot = self.botstatus.find(slot) >= 0
+		while foundslot:
+			slot = slot+1
+			busyslot = self.botstatus.find(slot) >= 0
 		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(ladderid))
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,password,fromwho,ladderid)))
 
