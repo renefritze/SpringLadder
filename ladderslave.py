@@ -500,7 +500,7 @@ class Main:
 							print e
 
 					except ElementNotFoundException, e:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+						saybattle( self.socket, self.battleid, "Invalid ladder ID." )
 			if command == '!forcejoin':
 				g = time.time()
 				try:
@@ -521,7 +521,7 @@ class Main:
 				f.close()
 				thread.start_new_thread(self.startspring,(s,g))
 			if command == "!score":
-				if not self.db.AccessCheck( -1, fromwho, Roles.User ):
+				if not self.db.AccessCheck( -1, who, Roles.User ):
 					sayPermissionDenied( socket, who, command )
 					#log
 					return
