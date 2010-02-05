@@ -123,7 +123,7 @@ class Main:
 	def spawnbot( self,  socket, battleid, password, fromwho, ladderid ):
 		slot = 0
 		busyslot = slot in self.botstatus
-		while foundslot:
+		while busyslot:
 			slot = slot+1
 			busyslot = slot in self.botstatus
 		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(ladderid))
