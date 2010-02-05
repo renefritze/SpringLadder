@@ -25,7 +25,7 @@ class ElementNotFoundException( Exception ):
 class LadderDB:
 	def __init__(self,alchemy_uri,owner=[], verbose=False):
 #		print "loading db at " + alchemy_uri
-		self.engine = create_engine(alchemy_uri, echo=verbose)
+		self.engine = create_engine(alchemy_uri, echo=verbose, pool_size=10, max_overflow=20)
 		self.metadata = Base.metadata
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)
