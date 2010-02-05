@@ -69,6 +69,8 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !ladderlistoptions ladderID : lists enforced options for given ladderID
 !checksetup : checks that all options and player setup are compatible with current set ladder
 !checksetup ladderID: checks that all options and player setup are compatible for given ladderID
+!score playername : lists scores for the given player in the current ladder
+!score : lists scores for all the players for the current ladder
 """
 
 def sendstatus(self, socket ):
@@ -518,6 +520,21 @@ class Main:
 				f.write(self.script)
 				f.close()
 				thread.start_new_thread(self.startspring,(s,g))
+			if command == "!score":
+				if not self.db.AccessCheck( -1, fromwho, Roles.User ):
+					sayPermissionDenied( socket, who, command )
+					#log
+					return
+				if len(args) > 1:
+					saybattle( self.socket, self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
+				else:
+					rep = ''
+					if len(args) == 0:
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+					elif len(args) == 1:
+						playername = args[0]
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid, playername ), self.db )
+					saybattle( self.socket, self.battleid, rep )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
