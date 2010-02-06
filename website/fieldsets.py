@@ -5,7 +5,10 @@ import cgi
 from ladderdb import *
 from db_entities import *
 from formalchemy import FieldSet, Grid, ValidationError, FieldRenderer
-db = LadderDB("sqlite:///../ladder.db")
+import ParseConfig
+
+config = ParseConfig.readconfigfile( 'Main.conf' )
+db = LadderDB(config['alchemy-uri'])
 session = db.getSession()
 
 fields = cgi.FieldStorage()

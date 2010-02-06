@@ -19,7 +19,7 @@ class Roles:
 
 class Ladder(Base):
 	__tablename__ 	= 'ladders'
-	id 				= Column( Integer, primary_key=True )
+	id 				= Column( Integer, primary_key=True,index=True )
 	name 			= Column( String(100) )
 	description 	= Column( Text )
 	min_team_size 	= Column( Integer )
@@ -54,7 +54,7 @@ class Ladder(Base):
 class Option(Base):
 	__tablename__ 	= 'options'
 	id 				= Column( Integer, primary_key=True )
-	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ),index=True )
 	key 			= Column( String(100) )
 	value 			= Column( String(100) )
 	is_whitelist 	= Column( Boolean )
@@ -72,7 +72,7 @@ class Option(Base):
 class Player(Base):
 	__tablename__ 	= 'players'
 	id 				= Column( Integer, primary_key=True )
-	nick 			= Column( String(50) )
+	nick 			= Column( String(50),index=True )
 	pwhash 			= Column( String(80) )
 	role			= Column( Integer )
 	do_hide_results = Column( Boolean )
@@ -88,7 +88,7 @@ class Player(Base):
 class Match(Base):
 	__tablename__ 	= 'matches'
 	id 				= Column( Integer, primary_key=True )
-	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ),index=True )
 	date 			= Column( DateTime )
 	modname 		= Column( String( 60 ) )
 	mapname 		= Column( String( 60 ) )
@@ -105,14 +105,14 @@ class MatchSetting(Base):
 	id 				= Column( Integer, primary_key=True )
 	key 			= Column( String(40) )
 	value 			= Column( String(80) )
-	match_id 		= Column( Integer, ForeignKey( Match.id ) )
+	match_id 		= Column( Integer, ForeignKey( Match.id ),index=True )
 
 class Result(Base):
 	__tablename__ 	= 'results'
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	match_id 		= Column( Integer, ForeignKey( Match.id ) )
-	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ),index=True )
 	date 			= Column( DateTime )
 	team			= Column( Integer )
 	ally			= Column( Integer )
@@ -164,7 +164,7 @@ class SimpleRanks(Base):
 	__tablename__	= 'simpleranks'
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
-	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ),index=True )
 	points			= Column( Integer )
 
 	def __init__(self):
@@ -176,7 +176,7 @@ class GlickoRanks(Base):
 	__tablename__	= 'glickoranks'
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
-	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ),index=True )
 	rating			= Column( Float )
 	rd				= Column( Float )
 

@@ -428,7 +428,7 @@ class Main:
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
 			if command == '!debug':
-				if not self.db.AccessCheck( self.ladderid, who, Roles.GlobalAdmin ):
+				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					sayPermissionDenied( self.socket, who, command )
 					#log
 					return
@@ -438,7 +438,6 @@ class Main:
 					output = fakeoutput.fakeoutput[idx]
 				else:
 					output = fakeoutput.fakeoutput[-1]
-
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				#saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
@@ -456,6 +455,38 @@ class Main:
 
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
+			if command == '!stress':
+				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
+					sayPermissionDenied( self.socket, who, command )
+					#log
+					return
+				import fakeoutput
+				if len(args) > 0 and args[0].isdigit():
+					idx = max( int(args[0]), len(fakeoutput.fakeoutput) -1 )
+					output = fakeoutput.fakeoutput[idx]
+				else:
+					output = fakeoutput.fakeoutput[-1]
+				if len(args) > 1 and args[1].isdigit():
+					times = int(args[1])
+				else:
+					times = 1
+				
+				now = datetime.now()
+				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+				for i in range ( times ):
+					try:
+						mr = AutomaticMatchToDbWrapper( output, self.ladderid )
+						repeats = int(args[1]) if len(args) > 1 else 1
+						for i in range(repeats):
+							self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
+						upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+						self.db.RecalcRankings(self.ladderid)
+					except InvalidOptionSetup, e:
+						saybattle( self.socket, self.battleid, str(e) )
+						return
+				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+				saybattle( self.socket, self.battleid, '%i recalcs took %s:\n'%(times, str(datetime.now() - now) ))
+			
 			if command == "!ladderreportgame":
 				if len(args) < 2:
 					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !ladderhelp for usage." )
@@ -500,41 +531,7 @@ class Main:
 							print e
 
 					except ElementNotFoundException, e:
-						saybattle( self.socket, self.battleid, "Invalid ladder ID." )
-			if command == '!forcejoin':
-				g = time.time()
-				try:
-					os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
-				except:
-					pass
-				if platform.system() == "Linux":
-					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
-				else:
-					f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
-				self.script = "[GAME]\n{"
-				self.script += "\n\tHostIP=" + self.hostip + ";"
-				self.script += "\n\tHostPort=" + self.hostport + ";"
-				self.script += "\n\tIsHost=0;"
-				self.script += "\n\tMyPlayerName=" + self.app.config["nick"] + ";"
-				self.script += "\n}"
-				f.write(self.script)
-				f.close()
-				thread.start_new_thread(self.startspring,(s,g))
-			if command == "!score":
-				if not self.db.AccessCheck( -1, who, Roles.User ):
-					sayPermissionDenied( socket, who, command )
-					#log
-					return
-				if len(args) > 1:
-					saybattle( self.socket, self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
-				else:
-					rep = ''
-					if len(args) == 0:
-						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-					elif len(args) == 1:
-						playername = args[0]
-						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid, playername ), self.db )
-					saybattle( self.socket, self.battleid, rep )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
@@ -548,9 +545,16 @@ class Main:
 			tabbedstring = " ".join(args[4:])
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
-		if command == "CLIENTSTATUS" and len(args) > 1 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
-			print "CLIENTSTATUS %s"%self.battlefounder , args
-			self.gamestarted = getingame(int(args[1]))
+
+		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
+			try:
+				self.gamestarted = self.tsc.users[self.battlefounder].ingame
+			except:
+				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
+				print red+"*** EXCEPTION: BEGIN"
+				for line in exc:
+					print line
+				print"*** EXCEPTION: END"+normal
 			if self.joinedbattle:
 				sendstatus( self, self.socket )
 				if not self.gamestarted:
