@@ -70,7 +70,8 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !checksetup : checks that all options and player setup are compatible with current set ladder
 !checksetup ladderID: checks that all options and player setup are compatible for given ladderID
 !score playername : lists scores for the given player in the current ladder
-!score : lists scores for all the players for the current ladder
+!score ladderid: lists scores for all the players for given ladderid
+!score ladderID playername : lists score for the given player for the given ladderID
 """
 
 def sendstatus(self, socket ):
@@ -170,6 +171,10 @@ class Main:
 		os.chdir(currentworkingdir)
 		self.ingame = False
 		sendstatus( self, socket )
+		try:
+			os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
+		except:
+			pass
 		if self.toshutdown:
 			self.KillBot()
 
@@ -470,7 +475,7 @@ class Main:
 					times = int(args[1])
 				else:
 					times = 1
-				
+
 				now = datetime.now()
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				for i in range ( times ):
@@ -486,7 +491,7 @@ class Main:
 						return
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, '%i recalcs took %s:\n'%(times, str(datetime.now() - now) ))
-			
+
 			if command == "!ladderreportgame":
 				if len(args) < 2:
 					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !ladderhelp for usage." )
@@ -531,7 +536,32 @@ class Main:
 							print e
 
 					except ElementNotFoundException, e:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+						saybattle( self.socket,self.battleid, "Invalid ladder ID." )
+			if command == "!score":
+				if not self.db.AccessCheck( -1, who, Roles.User ):
+					sayPermissionDenied(  socket, who, command )
+					#log
+					return
+				if len(args) > 2:
+					saybattle( self.socket,self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
+				else:
+					ladderid = self.ladderid
+					playername = ""
+					rep = ''
+					if len(args) > 0:
+						if args[0].isdigit():
+							ladderid = int(args[0])
+							if len(args) > 1:
+								playername = args[1]
+						else:
+							playername = args[0]
+					if ladderid != -1 and len(playername) == 0:
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( ladderid ), self.db )
+					elif ladderid != -1 and len(playername) != 0:
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( ladderid, playername ), self.db )
+					elif ladderid == -1 and len(playername) != 0:
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentationPlayer( self.db.GetPlayerRanks( playername ), self.db )
+					saybattle( self.socket,self.battleid, rep )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
@@ -546,15 +576,8 @@ class Main:
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
 
-		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
-			try:
-				self.gamestarted = self.tsc.users[self.battlefounder].ingame
-			except:
-				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-				print red+"*** EXCEPTION: BEGIN"
-				for line in exc:
-					print line
-				print"*** EXCEPTION: END"+normal
+		if command == "CLIENTSTATUS" and len(args) > 1 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
+			self.gamestarted = getingame(int(args[1]))
 			if self.joinedbattle:
 				sendstatus( self, self.socket )
 				if not self.gamestarted:
@@ -563,10 +586,6 @@ class Main:
 					return
 				#start spring
 				g = time.time()
-				try:
-					os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
-				except:
-					pass
 				if platform.system() == "Linux":
 					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
 				else:
