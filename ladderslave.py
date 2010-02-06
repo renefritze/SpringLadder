@@ -85,6 +85,7 @@ class Main:
 	ingame = False
 	gamestarted = False
 	joinedbattle = False
+	toshutdown = False
 	ladderid = -1
 	if platform.system() == "Windows":
 		scriptbasepath = os.environ['USERPROFILE']
@@ -111,7 +112,7 @@ class Main:
 			self.ingame = True
 			doSubmit = self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0)
 			if doSubmit:
-				saybattleex(socket, self.battleid, "is gonna submit to the ladder the score results")
+				saybattleex(socket, self.battleid, "will submit to the ladder the score results")
 			else:
 				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
 			sendstatus( self, socket )
@@ -138,16 +139,25 @@ class Main:
 			status = self.pr.wait()
 			et = time.time()
 			if status != 0:
-				saybattle( self.socket,self.battleid,"Error: Spring Exited with status %i" % status)
+				saybattle( self.socket,self.battleid,"Error: Spring exited with status %i" % status)
 				g = self.output.split("\n")
 				for h in g:
 					print yellow + "*** STDOUT+STDERR: " + h + normal
 					time.sleep(float(len(h))/900.0+0.05)
 			elif doSubmit:
-				mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
+				try:
+					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
+					self.db.ReportMatch( mr, True )
+					saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+				except:
+					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
+					print red+"*** EXCEPTION: BEGIN"
+					for line in exc:
+						print line
+					print "*** EXCEPTION: END"+normal
+					saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
 			else:
 				log("*** Spring has exited with status %i" % status )
-			sendstatus( self, socket )
 
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
@@ -155,10 +165,11 @@ class Main:
 			for line in exc:
 				print line
 			print "*** EXCEPTION: END"+normal
-			os.chdir(currentworkingdir)
-			self.ingame = False
 		os.chdir(currentworkingdir)
 		self.ingame = False
+		sendstatus( self, socket )
+		if self.toshutdown:
+			self.KillBot()
 
 	def KillBot(self):
 		if platform.system() == "Windows":
@@ -231,7 +242,7 @@ class Main:
 		minteamsize = self.db.GetLadderOption( ladderid, "min_team_size" )
 		maxteamsize = self.db.GetLadderOption( ladderid, "max_team_size" )
 		minallysize = self.db.GetLadderOption( ladderid, "min_ally_size" )
-		maxallysize = self.db.GetLadderOption( ladderid, "max_team_size" )
+		maxallysize = self.db.GetLadderOption( ladderid, "max_ally_size" )
 		teamsizesok = True
 		errorstring = "The following control teams have too few players in them for " + laddername + ":\n"
 		for team in self.teams:
@@ -318,11 +329,15 @@ class Main:
 		if command == "FORCEQUITBATTLE":
 			self.joinedbattle = False
 			bad( "Kicked from battle: " + str(self.battleid) )
-			self.KillBot()
+			self.toshutdown = True
+			if not self.ingame:
+				self.KillBot()
 		if command == "BATTLECLOSED" and len(args) == 1 and int(args[0]) == self.battleid:
 			self.joinedbattle = False
 			notice( "Battle closed: " + str(self.battleid) )
-			self.KillBot()
+			self.toshutdown = True
+			if not self.ingame:
+				self.KillBot()
 		if command == "ENABLEALLUNITS":
 			self.disabledunits = dict()
 		if command == "ENABLEUNITS" and len(args) > 1:
@@ -353,7 +368,7 @@ class Main:
 			command = args[1]
 			args = args[2:]
 
-			if len(command) > 0 and command[0] == "!" and ( who == self.battlefounder or who == self.app.config["fromwho"] ) :
+			if len(command) > 0 and command[0] == "!":
 				if not self.db.AccessCheck( -1, who, Roles.User ):
 					sayPermissionDenied( socket, who, command )
 					#log
@@ -361,7 +376,13 @@ class Main:
 			else:
 				return
 
-			if command == "!ladderchecksetup":
+			try:
+				if self.battle_statusmap[who].spec and who != self.battlefounder and not self.db.AccessCheck( -1, who, Roles.LadderAdmin ):
+					return
+			except:
+				pass
+
+			if command == "!checksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -393,13 +414,15 @@ class Main:
 						self.ladderid = ladderid
 						saybattle( self.socket, self.battleid,"Ladder reporting disabled.")
 				else:
-					saybattle( self.socket, self.battleid,"Invalid command syntax, check !help for usage.")
+					saybattle( self.socket, self.battleid,"Invalid command syntax, check !ladderhelp for usage.")
 			if command == "!ladderleave":
 				self.joinedbattle = False
 				good( "Leaving battle: " + str(self.battleid) )
 				self.socket.send("LEAVEBATTLE\n")
-				self.KillBot()
-			if command == "!help":
+				self.toshutdown = True
+				if not self.ingame:
+					self.KillBot()
+			if command == "!ladderhelp":
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
 			if command == '!debug':
@@ -433,7 +456,7 @@ class Main:
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
 			if command == "!ladderreportgame":
 				if len(args) < 2:
-					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !help for usage." )
+					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !ladderhelp for usage." )
 				else:
 					ladderid = self.ladderid
 					try:
@@ -447,7 +470,7 @@ class Main:
 						while ( usercounter != len(args) ):
 							username, equal, result = args[usercounter].partition("=")
 							if ( len(result) == 0 ):
-								saybattle( self.socket, self.battleid, "Invalid command syntax, check !help for usage." )
+								saybattle( self.socket, self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
 								return
 							userresults[username] = int(result)
 							usercounter = usercounter +1

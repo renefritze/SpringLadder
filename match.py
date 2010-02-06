@@ -196,7 +196,7 @@ class AutomaticMatchToDbWrapper(MatchToDbWrapper):
 		minteamsize = db.GetLadderOption( self.ladder_id, "min_team_size" )
 		maxteamsize = db.GetLadderOption( self.ladder_id, "max_team_size" )
 		minallysize = db.GetLadderOption( self.ladder_id, "min_ally_size" )
-		maxallysize = db.GetLadderOption( self.ladder_id, "max_team_size" )
+		maxallysize = db.GetLadderOption( self.ladder_id, "max_ally_size" )
 		for team in teamsdict:
 			teamsize = teamsdict[team]
 			if teamsize < minteamsize:
@@ -212,7 +212,7 @@ class AutomaticMatchToDbWrapper(MatchToDbWrapper):
 				return False
 
 		return True
-		
+
 	def ParseSpringOutput(self):
 		setup_section 	= getSectionContect( self.springoutput, 'SETUP' )
 		self.teams		= parseSec( getSectionContect( setup_section, 'TEAMS' 		) )
@@ -248,8 +248,8 @@ class AutomaticMatchToDbWrapper(MatchToDbWrapper):
 					if team_id == tokens[2]:
 						self.players[name].died = tokens[1]
 			elif tokens[0] == 'DISCONNECT':
-				assert len(tokens) > 2
-				self.players[tokens[2]].disconnect = tokens[1]
+				assert len(tokens) > 3
+				self.players[tokens[3]].disconnect = tokens[1]
 			elif tokens[0] == 'GAMESTART':
 				self.game_started = True
 			elif tokens[0] == 'GAMEID':
@@ -322,4 +322,3 @@ class ManualMatchToDbWrapper(MatchToDbWrapper):
 				playername = self.bots[playername]
 			tempplayers[playername] = playercontent
 		self.players = tempplayers
-		
