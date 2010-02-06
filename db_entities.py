@@ -54,7 +54,7 @@ class Ladder(Base):
 class Option(Base):
 	__tablename__ 	= 'options'
 	id 				= Column( Integer, primary_key=True )
-	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ),index=True )
 	key 			= Column( String(100) )
 	value 			= Column( String(100) )
 	is_whitelist 	= Column( Boolean )
@@ -105,7 +105,7 @@ class MatchSetting(Base):
 	id 				= Column( Integer, primary_key=True )
 	key 			= Column( String(40) )
 	value 			= Column( String(80) )
-	match_id 		= Column( Integer, ForeignKey( Match.id ) )
+	match_id 		= Column( Integer, ForeignKey( Match.id ),index=True )
 
 class Result(Base):
 	__tablename__ 	= 'results'
