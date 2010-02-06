@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Match #{{matchinfo.match.id}}</h1>
+<h3>Ladder: {{ladder.name}}</h3>
+<h3> General info </h3>
+<table >
+<tbody>
+{% for row in matchinfo.rows %}
+<tr>
+	{% for field in row %}
+		<td>{{field}}</td>
+	{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<br/>
+<h3> Results </h3>
+<table >
+<thead>
+	<tr>
+		<td>nick</td>
+		<td>died</td>
+		<td>team</td>
+		<td>ally</td>
+		<td>disconnect</td>
+		<td>quit</td>
+		<td>desync</td>
+		<td>connected</td>
+		<td>timeout</td>
+	</tr>
+</thead>
+<tbody>
+{% for r in matchinfo.match.results %}
+<tr>
+		<td>{{r.player.nick}}</td>
+		<td>{{r.died}}</td>
+		<td>{{r.team}}</td>
+		<td>{{r.ally}}</td>
+		<td>{{r.disconnect}}</td>
+		<td>{{r.quit}}</td>
+		<td>{{r.desync}}</td>
+		<td>{{r.connected}}</td>
+		<td>{{r.timeout}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<br/>
+<h3> Settings </h3>
+<table >
+<tbody>
+{% for s in matchinfo.match.settings %}
+<tr>
+		<td>{{s.key}}</td><td>{{s.value}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
