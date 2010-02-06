@@ -3,36 +3,42 @@
 {% block content %}
 <div id='index_block_center_wrapper'>
 	<div id='index_block_center'>
-	{% if matches_header %}
-		<h1>center{{matches_header}}</h1>
-		{% endif %}
-		<ul>
-		{% for l in matches %}
-		<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
-		{% endfor %}
-		</ul>
+		<div id='index_block_content'>
+			{% if matches_header %}
+			<h1>{{matches_header}}</h1>
+			{% endif %}
+			<ul>
+			{% for l in matches %}
+			<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+			{% endfor %}
+			</ul>
+		</div>
 	</div>
 </div>
 	<div id='index_block_left'>
-		{% if matches_header %}
-		<h1>left{{matches_header}}</h1>
-		{% endif %}
-		<ul>
-		{% for l in matches %}
-		<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
-		{% endfor %}
-		</ul>
+		<div id='index_block_content'>
+			{% if matches_header %}
+			<h1>{{matches_header}}</h1>
+			{% endif %}
+			<ul>
+			{% for l in matches %}
+			<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+			{% endfor %}
+			</ul>
+		</div>
 	</div>
 
 	<div id='index_block_right'>
-		{% if matches_header %}
-		<h1>right{{matches_header}}</h1>
-		{% endif %}
-		<ul>
-		{% for l in matches %}
-		<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
-		{% endfor %}
-		</ul>
+		<div id='index_block_content'>
+			{% if matches_header %}
+			<h1>{{matches_header}}</h1>
+			{% endif %}
+			<ul>
+			{% for l in matches %}
+			<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+			{% endfor %}
+			</ul>
+		</div>
 	</div>
 
 {% endblock %}

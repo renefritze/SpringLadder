@@ -133,7 +133,6 @@ a.nav:hover {
 }
 
 #index_block_left {
-	margin-top: 20px;
 	margin-left: -100%;
 	width: 33%;
 	float: left;
@@ -142,21 +141,26 @@ a.nav:hover {
 #index_block_center {
 	padding: 10px;
 	margin: 0 33% 0 33%;
-	/*margin-top: 20px;*/
 	border-left: 2px dashed #000;
 	border-right: 2px dashed #000;	
 }
 
 #index_block_right {
 	margin-left: -33%;
-	/*margin-top: 20px;*/
 	width: 33%;
 	float: left;
-
 }
 #index_block_center_wrapper {
 	width: 100%;
 	float: left;
+	margin-top: -10px;
+}
+
+#index_block_content {
+	padding-left: 5px;
+	padding-right: 5px;
+	text-align: center;
+	font-size: 80%;
 }
 /*---------------------pagination-----------------------------*/
 
