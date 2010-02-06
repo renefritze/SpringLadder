@@ -170,6 +170,10 @@ class Main:
 		os.chdir(currentworkingdir)
 		self.ingame = False
 		sendstatus( self, socket )
+		try:
+			os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
+		except:
+			pass
 		if self.toshutdown:
 			self.KillBot()
 
@@ -470,7 +474,7 @@ class Main:
 					times = int(args[1])
 				else:
 					times = 1
-				
+
 				now = datetime.now()
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				for i in range ( times ):
@@ -486,7 +490,7 @@ class Main:
 						return
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, '%i recalcs took %s:\n'%(times, str(datetime.now() - now) ))
-			
+
 			if command == "!ladderreportgame":
 				if len(args) < 2:
 					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !ladderhelp for usage." )
@@ -546,15 +550,8 @@ class Main:
 			tabsplit = parselist(tabbedstring,"\t")
 			self.battleoptions["mapname"] = tabsplit[0]
 
-		if command == "CLIENTSTATUS" and len(args) > 0 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
-			try:
-				self.gamestarted = self.tsc.users[self.battlefounder].ingame
-			except:
-				exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-				print red+"*** EXCEPTION: BEGIN"
-				for line in exc:
-					print line
-				print"*** EXCEPTION: END"+normal
+		if command == "CLIENTSTATUS" and len(args) > 1 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
+			self.gamestarted = getingame(int(args[1]))
 			if self.joinedbattle:
 				sendstatus( self, self.socket )
 				if not self.gamestarted:
@@ -563,10 +560,6 @@ class Main:
 					return
 				#start spring
 				g = time.time()
-				try:
-					os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
-				except:
-					pass
 				if platform.system() == "Linux":
 					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
 				else:
