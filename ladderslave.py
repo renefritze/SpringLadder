@@ -426,7 +426,7 @@ class Main:
 				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				saybattle( self.socket, self.battleid, helpstring_user )
 			if command == '!debug':
-				if not self.db.AccessCheck( self.ladderid, who, Roles.GlobalAdmin ):
+				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					sayPermissionDenied( self.socket, who, command )
 					#log
 					return
@@ -436,7 +436,6 @@ class Main:
 					output = fakeoutput.fakeoutput[idx]
 				else:
 					output = fakeoutput.fakeoutput[-1]
-
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				#saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
 				saybattle( self.socket, self.battleid, 'before:\n' + upd )
@@ -454,6 +453,38 @@ class Main:
 
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				saybattle( self.socket, self.battleid, 'after:\n' +upd )
+			if command == '!stress':
+				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
+					sayPermissionDenied( self.socket, who, command )
+					#log
+					return
+				import fakeoutput
+				if len(args) > 0 and args[0].isdigit():
+					idx = max( int(args[0]), len(fakeoutput.fakeoutput) -1 )
+					output = fakeoutput.fakeoutput[idx]
+				else:
+					output = fakeoutput.fakeoutput[-1]
+				if len(args) > 1 and args[1].isdigit():
+					times = int(args[1])
+				else:
+					times = 1
+				
+				now = datetime.now()
+				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+				for i in range ( times ):
+					try:
+						mr = AutomaticMatchToDbWrapper( output, self.ladderid )
+						repeats = int(args[1]) if len(args) > 1 else 1
+						for i in range(repeats):
+							self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
+						upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+						self.db.RecalcRankings(self.ladderid)
+					except InvalidOptionSetup, e:
+						saybattle( self.socket, self.battleid, str(e) )
+						return
+				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
+				saybattle( self.socket, self.battleid, '%i recalcs took %s:\n'%(times, str(datetime.now() - now) ))
+			
 			if command == "!ladderreportgame":
 				if len(args) < 2:
 					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !ladderhelp for usage." )
