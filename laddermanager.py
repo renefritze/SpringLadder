@@ -676,6 +676,7 @@ class Main:
 				s.close()
 			except ElementNotFoundException, e:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
+				s.close()
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)

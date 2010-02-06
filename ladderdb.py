@@ -49,6 +49,7 @@ class LadderDB:
 			session.close()
 			self.AddOption( ladderid, True, "battletype", "0" )#default for all ladders
 		else:
+			session.close()
 			raise ElementExistsException( ladder )
 		return ladderid
 
@@ -62,6 +63,7 @@ class LadderDB:
 			session.commit()
 			session.close()
 		else:
+			session.close()
 			raise ElementNotFoundException( Ladder(id) )
 
 	def GetLadderName(self, ladder_id):
@@ -84,11 +86,13 @@ class LadderDB:
 		session = self.sessionmaker()
 
 		if not self.LadderExists( ladderID ):
+			session.close()
 			raise ElementNotFoundException( Ladder( ladderID ) )
 
 		option = session.query( Option ).filter( Option.ladder_id == ladderID ).filter( Option.key == optionkey ).filter( Option.value == optionvalue ).first()
 		#should this reset an key.val pair if already exists?
 		if option:
+			session.close()
 			raise ElementExistsException( option )
 		else:
 			option = Option( optionkey, optionvalue, is_whitelist )
@@ -179,6 +183,7 @@ class LadderDB:
 		session = self.sessionmaker()
 		source_ladder = session.query(Ladder).filter( Ladder.id == source_id ).first()
 		if not source_ladder:
+			session.close()
 			raise ElementNotFoundException( Ladder( source_id ) )
 		else:
 			target_ladder = Ladder( target_name )
@@ -241,6 +246,7 @@ class LadderDB:
 				#needs to be a list so the printing in GlobalRankingAlgoSelector works
 				ranks = [ session.query( entityType ).filter( entityType.ladder_id == ladder_id ).filter(entityType.player_id == player.id).first() ]
 			else:
+				session.close()
 				raise ElementNotFoundException( Player( player_name ) )
 		else:
 			ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).order_by( algo_instance.OrderByKey() ).all()
@@ -260,7 +266,7 @@ class LadderDB:
 				rank = session.query( entityType ).filter( entityType.ladder_id == ladder.id ).filter(entityType.player_id == player.id).first()
 				if rank:
 					res[rank] = ( algoname, ladder.name )
-			session.close()
+		session.close()
 		return res
 
 	def AccessCheck( self, ladder_id, username, role ):
@@ -341,6 +347,7 @@ class LadderDB:
 			diff = time.mktime(matches[i].date.timetuple())
 			diff -= time.mktime(matches[i+1].date.timetuple())
 			total += diff
+		session.close()
 		if len(matches) > 2:
 			return max(total,1) / float( len(matches) - 1  )
 		else:
@@ -362,6 +369,7 @@ class LadderDB:
 	def GetMatches( self, ladder_id, order=Match.date.desc() ):
 		session = self.sessionmaker()
 		matches = session.query( Match ).filter( Match.ladder_id == ladder_id ).order_by( order )
+		session.close()
 		if matches.count() < 1:
 			raise ElementNotFoundException( "no matches for ladder id %s found"%str(ladder_id) )
 		return matches.all()
