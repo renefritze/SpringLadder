@@ -1,7 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam molestie lacinia euismod. Ut aliquam lobortis lorem sed tempus. In convallis ipsum condimentum urna aliquet fringilla. Etiam ligula mi, blandit id pulvinar quis, elementum et justo. Ut augue purus, blandit ac bibendum eu, dapibus eget felis. Maecenas fringilla, eros nec consectetur imperdiet, leo nunc sodales massa, tempus varius dolor odio in urna. Aliquam lectus leo, vehicula nec commodo id, ornare in elit. Maecenas rhoncus, neque ac aliquet egestas, elit elit fermentum libero, a pellentesque est massa non tortor. Suspendisse non velit dui. Suspendisse vel massa lacinia turpis ultrices aliquet. Aenean ultrices nulla in tortor interdum rutrum cursus justo laoreet. </p>
+<div id='index_block_center_wrapper'>
+	<div id='index_block_center'>
+	{% if matches_header %}
+		<h1>center{{matches_header}}</h1>
+		{% endif %}
+		<ul>
+		{% for l in matches %}
+		<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+		{% endfor %}
+		</ul>
+	</div>
+</div>
+	<div id='index_block_left'>
+		{% if matches_header %}
+		<h1>left{{matches_header}}</h1>
+		{% endif %}
+		<ul>
+		{% for l in matches %}
+		<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+		{% endfor %}
+		</ul>
+	</div>
+
+	<div id='index_block_right'>
+		{% if matches_header %}
+		<h1>right{{matches_header}}</h1>
+		{% endif %}
+		<ul>
+		{% for l in matches %}
+		<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+		{% endfor %}
+		</ul>
+	</div>
 
 {% endblock %}
 
