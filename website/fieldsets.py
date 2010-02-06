@@ -28,12 +28,12 @@ def getAllFields( prefix ):
 		filtered[k] = fields.getvalue(k)
 	return filtered
 
-def getSingleField( key ):
+def getSingleField( key, default=None ):
 	global fields
 	if key in fields.keys():
 		return fields.getvalue(key)
 	else:
-		return None
+		return default
 
 class SubmitRenderer(FieldRenderer):
 	def render(self):

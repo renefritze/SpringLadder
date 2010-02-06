@@ -235,7 +235,7 @@ class LadderDB:
 			raise TypeError
 		matchresult.CommitMatch(self,doValidation)
 
-	def GetRanks( self, ladder_id, player_name=None ):
+	def GetRanks( self, ladder_id, player_name=None,limit=-1 ):
 		session = self.sessionmaker()
 		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
 		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
@@ -249,7 +249,10 @@ class LadderDB:
 				session.close()
 				raise ElementNotFoundException( Player( player_name ) )
 		else:
-			ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).order_by( algo_instance.OrderByKey() ).all()
+			if limit > -1:
+				ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).order_by( algo_instance.OrderByKey() ).limit(limit).all()
+			else:
+				ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).order_by( algo_instance.OrderByKey() ).all()
 		session.close()
 		return ranks
 

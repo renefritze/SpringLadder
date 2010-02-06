@@ -17,9 +17,9 @@ try:
 	else:
 		ladder = db.GetLadder( id )
 		template = env.get_template('viewladder.html')
-		options = db.GetOptions( id )
-		opt_headers = ['key','val','wl/bl']
-		print template.render(ladder=ladder, laddertable=LadderInfoToTableAdapter(ladder), options=options, opt_headers=opt_headers )
+		ranks = db.GetRanks( id, None, 10 )
+		rank_table = GlobalRankingAlgoSelector.GetWebRepresentation( ranks, db )
+		print template.render(ladder=ladder, rank_table=rank_table )
 
 except ElementNotFoundException, e:
 	template = env.get_template('error.html')

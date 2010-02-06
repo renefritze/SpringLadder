@@ -16,7 +16,6 @@ note = ''
 
 try:
 	lad = db.GetLadder( id )
-	ranks = db.GetRanks( id )
 	
 	rank_table = GlobalRankingAlgoSelector.GetWebRepresentation( db.GetRanks( id ), db )
 	template = env.get_template('scoreboard.html')
