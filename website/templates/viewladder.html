@@ -21,14 +21,16 @@
 <thead>
 <tr>
 {% for h in opt_headers %}
-	<td> {{h}} <td>
+	<td> {{h}} </td>
 {% endfor %}
 </tr>
 </thead>
 <tbody>
 {% for opt in options %}
 <tr>
-		<td>{{opt.key}}</td><td>{{opt.value}}</td><td>{{opt.is_whitelist}}</td>
+		<td>{{opt.key}}</td>
+		<td>{{opt.value}}</td>
+		<td>{{opt.is_whitelist}}</td>
 </tr>
 {% endfor %}
 </tbody>
