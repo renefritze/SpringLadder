@@ -69,6 +69,8 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !ladderlistoptions ladderID : lists enforced options for given ladderID
 !checksetup : checks that all options and player setup are compatible with current set ladder
 !checksetup ladderID: checks that all options and player setup are compatible for given ladderID
+!score playername : lists scores for the given player in the current ladder
+!score : lists scores for all the players for the current ladder
 """
 
 def sendstatus(self, socket ):
