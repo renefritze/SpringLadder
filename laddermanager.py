@@ -64,13 +64,6 @@ def saychannel( socket, channel, message ):
 			print purple+"Channel :%s, Message: %s" %(channel,line) + normal
 			socket.send("SAY %s %s\n" %(channel,line) )
 
-def find_in_list( list_, item ):
-	try:
-		index = list_.index(item)
-	except:
-		index = -1
-	return index
-
 class Main:
 	botpid = dict() # slot -> bot pid
 	botstatus = [] # slot -> bot already spawned
@@ -129,10 +122,10 @@ class Main:
 
 	def spawnbot( self,  socket, battleid, password, fromwho, ladderid ):
 		slot = 0
-		busyslot = find_in_list( self.botstatus, slot ) >= 0
-		while busyslot:
+		busyslot = self.botstatus.find(slot) >= 0
+		while foundslot:
 			slot = slot+1
-			busyslot = find_in_list( self.botstatus, slot ) >= 0
+			busyslot = self.botstatus.find(slot) >= 0
 		notice("spawning " + self.app.config["nick"]+str(slot) + " to join battle " + str(battleid) + " with ladder " + str(ladderid))
 		self.threads.append(thread.start_new_thread(self.botthread,(slot,battleid,password,fromwho,ladderid)))
 
