@@ -70,7 +70,8 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !checksetup : checks that all options and player setup are compatible with current set ladder
 !checksetup ladderID: checks that all options and player setup are compatible for given ladderID
 !score playername : lists scores for the given player in the current ladder
-!score : lists scores for all the players for the current ladder
+!score ladderid: lists scores for all the players for given ladderid
+!score ladderID playername : lists score for the given player for the given ladderID
 """
 
 def sendstatus(self, socket ):
@@ -535,7 +536,32 @@ class Main:
 							print e
 
 					except ElementNotFoundException, e:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladder ID." )
+						saybattle( self.socket,self.battleid, "Invalid ladder ID." )
+			if command == "!score":
+				if not self.db.AccessCheck( -1, who, Roles.User ):
+					sayPermissionDenied(  socket, who, command )
+					#log
+					return
+				if len(args) > 2:
+					saybattle( self.socket,self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
+				else:
+					ladderid = self.ladderid
+					playername = ""
+					rep = ''
+					if len(args) > 0:
+						if args[0].isdigit():
+							ladderid = int(args[0])
+							if len(args) > 1:
+								playername = args[1]
+						else:
+							playername = args[0]
+					if ladderid != -1 and len(playername) == 0:
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( ladderid ), self.db )
+					elif ladderid != -1 and len(playername) != 0:
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( ladderid, playername ), self.db )
+					elif ladderid == -1 and len(playername) != 0:
+						rep = GlobalRankingAlgoSelector.GetPrintableRepresentationPlayer( self.db.GetPlayerRanks( playername ), self.db )
+					saybattle( self.socket,self.battleid, rep )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
