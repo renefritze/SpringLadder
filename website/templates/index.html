@@ -17,12 +17,14 @@
 </div>
 	<div id='index_block_left'>
 		<div id='index_block_content'>
-			{% if matches_header %}
-			<h1>{{matches_header}}</h1>
+			{% if ladders_header %}
+			<h1>{{ladders_header}}</h1>
 			{% endif %}
 			<ul>
-			{% for l in matches %}
-			<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+			{% for l in ladders %}
+			<li>
+				<!--({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a>-->
+			</li>
 			{% endfor %}
 			</ul>
 		</div>
@@ -30,12 +32,14 @@
 
 	<div id='index_block_right'>
 		<div id='index_block_content'>
-			{% if matches_header %}
-			<h1>{{matches_header}}</h1>
+			{% if players_header %}
+			<h1>{{players_header}}</h1>
 			{% endif %}
 			<ul>
-			{% for l in matches %}
-			<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+			{% for l in players %}
+			<li>
+				<!--({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a>-->
+			</li>
 			{% endfor %}
 			</ul>
 		</div>

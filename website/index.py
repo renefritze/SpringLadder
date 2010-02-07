@@ -11,9 +11,13 @@ try:
 	s = db.sessionmaker()
 	limit = 10
 	matches = s.query( Match ).order_by(Match.date.desc())[:limit]
-	matches_header = 'last %i matches'%limit
+	matches_header = 'Recent Matches'
+	players_header = 'Active Players'
+	players = []
+	ladders_header = 'Active Ladders'
+	ladders = []
 	template = env.get_template('index.html')
-	print template.render( matches=matches, matches_header= matches_header  )
+	print template.render( matches=matches, matches_header= matches_header, ladders_header=ladders_header, ladders=ladders, players_header=players_header, players=players  )
 
 except Exception, m:
 	template = env.get_template('error.html')
