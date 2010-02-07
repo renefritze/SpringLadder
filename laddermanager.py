@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from customlog import *
 from ParseConfig import *
-import commands, thread, os, sys, signal, traceback, subprocess
+import commands, thread, os, sys, signal, traceback, subprocess, platform
 from db_entities import *
 from ladderdb import *
 if platform.system() == "Windows":
