@@ -172,6 +172,7 @@ class GlickoRankAlgo(IRanking):
 	def GetWebRepresentation(self,rank_list,db):
 		ret = RankingTable()
 		ret.header = ['nick','rating','RD']
+		ret.rows = []
 		s = db.sessionmaker()
 		for rank in rank_list:
 			s.add( rank )

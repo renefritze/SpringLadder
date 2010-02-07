@@ -33,6 +33,8 @@ try:
 	print template.render( matches=matches, matches_header= matches_header, ladders_header=ladders_header, ladders=ladders, players_header=players_header, players=players  )
 	
 except Exception, m:
+	if s:
+		s.close()
 	template = env.get_template('error.html')
 	print template.render( err_msg=(str(m)) )
 

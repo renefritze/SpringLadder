@@ -20,6 +20,13 @@ a{
 	color:#444;
 }
 
+h1{
+}
+
+p{
+}
+
+
 #header{
 	height:100px;
 	clear:both;
@@ -161,6 +168,14 @@ a.nav:hover {
 }
 #help p {
 	margin-bottom:0.2em;
+}
+
+#ladderlist td {
+	width: 33%;
+}
+
+#ladderlist table {
+	width: 100%;
 }
 /*---------------------pagination-----------------------------*/
 
