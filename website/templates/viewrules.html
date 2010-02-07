@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Rules for ladder {{ladder.name}}</h1>
+<hr>
+<br/>
+<h2> General settings</h2>
+<table >
+<tbody>
+{% for row in laddertable.rows %}
+<tr>
+	{% for field in row %}
+		<td>{{field}}</td>
+	{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<br/>
+
+<h2> White/Blacklisted options</h2>
+<table >
+<thead>
+<tr>
+{% for h in opt_headers %}
+	<td> {{h}} </td>
+{% endfor %}
+</tr>
+</thead>
+<tbody>
+{% for opt in options %}
+<tr>
+		<td>{{opt.key}}</td>
+		<td>{{opt.value}}</td>
+		<td>{{opt.is_whitelist}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<br/>
+{% endblock %}
