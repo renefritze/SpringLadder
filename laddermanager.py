@@ -111,6 +111,7 @@ class Main:
 		self.admins = parselist(self.app.config["admins"],",")
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], self.admins, parselist(self.app.config["alchemy-verbose"],",")[0] )
 		self.closewhenempty = False
+		self.enabled = True
 
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main" or fromwhere == "newbies":
@@ -146,6 +147,9 @@ class Main:
 
 		# !TODO refactor to use function dict
 		if command == "!ladder":
+			if not self.enabled and not self.db.AccessCheck( ladderid, fromwho, Roles.GlobalAdmin ):
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder functionality is temporarily disabled." )
+				return
 			ladderid = -1
 			battleid = -2
 			password = ""
@@ -682,6 +686,20 @@ class Main:
 			self.closewhenempty = True
 			if len(self.botstatus) == 0:
 				self.KillBot()
+		if command == "!ladderdisable":
+			if not self.db.AccessCheck( ladderid, fromwho, Roles.GlobalAdmin ):
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+				#log
+				return
+			self.enabled = False
+			self.updatestatus( socket )
+		if command == "!ladderenable":
+			if not self.db.AccessCheck( ladderid, fromwho, Roles.GlobalAdmin ):
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+				#log
+				return
+			self.enabled = True
+			self.updatestatus( socket )
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
@@ -732,7 +750,7 @@ class Main:
 						if battleid in self.battleswithbots:
 							self.battleswithbots.remove(battleid)
 	def updatestatus(self,socket):
-		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))
+		socket.send("MYSTATUS %i\n" % int(int(0)+int(not self.enabled)*2))
 	def onloggedin(self,socket):
 		self.updatestatus(socket)
 	def KillBot(self):
