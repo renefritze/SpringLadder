@@ -3,7 +3,6 @@ Main.py
 Main.conf
 ParseConfig.py
 Plugin.py
-colors.py
 testplugin.py
 utilities.py
 *.pyc
