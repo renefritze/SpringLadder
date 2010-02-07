@@ -46,6 +46,7 @@ helpstring_user_manager ="""!ladderlist : lists available ladders with their IDs
 helpstring_user_slave = """!ladderlist : lists available ladders with their IDs
 !ladder ladderID: sets the ladder to report scores to, -1 to disable reporting
 !ladderlistoptions ladderID : lists enforced options for given ladderID
+!ladderlistoptions: lists enforced options for currently active ladderID
 !checksetup : checks that all options and player setup are compatible with current set ladder
 !checksetup ladderID: checks that all options and player setup are compatible for given ladderID
 !score playername : lists scores for the given player in the current ladder

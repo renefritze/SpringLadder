@@ -500,6 +500,32 @@ class Main:
 					except ElementNotFoundException, e:
 						self.saybattle( self.socket,self.battleid, "Invalid ladder ID." )
 						self.log.Error( e, 'ElementNotFoundException' )
+			if command == "!ladderlistoptions":
+				if len(args) != 1 or not args[0].isdigit():
+					ladderid =  self.ladderid
+				else:
+					ladderid = int(args[0])
+					if self.db.LadderExists( ladderid ):
+						self.saybattle( self.socket,self.battleid, "Ladder: " + self.db.GetLadderName(ladderid) )
+						self.saybattle( self.socket,self.battleid, "Min AIs in a Match ( how many AIs ): " + str(self.db.GetLadderOption( ladderid, "min_ai_count" )) )
+						self.saybattle( self.socket,self.battleid, "Max Ais in a Match ( how many AIs ): " + str(self.db.GetLadderOption( ladderid, "max_ai_count" )) )
+						self.saybattle( self.socket,self.battleid, "Min Players in a Team ( sharing control ): " + str(self.db.GetLadderOption( ladderid, "min_team_size" )) )
+						self.saybattle( self.socket,self.battleid, "Max Players in a Team ( sharing control ): " + str(self.db.GetLadderOption( ladderid, "max_team_size" )) )
+						self.saybattle( self.socket,self.battleid, "Min Teams in an Ally ( being allied ): " + str(self.db.GetLadderOption( ladderid, "min_ally_size" )) )
+						self.saybattle( self.socket,self.battleid, "Max Teams in an Ally ( being allied ): " + str(self.db.GetLadderOption( ladderid, "max_ally_size" )) )
+						self.saybattle( self.socket,self.battleid, "Min Teams in a Match ( how many Teams ): " + str(self.db.GetLadderOption( ladderid, "min_team_count" )) )
+						self.saybattle( self.socket,self.battleid, "Max Teams in a Match ( how many Teams ): " + str(self.db.GetLadderOption( ladderid, "max_team_count" )) )
+						self.saybattle( self.socket,self.battleid, "Min Alliances in a Match ( how many Allys ): " + str(self.db.GetLadderOption( ladderid, "min_ally_count" )) )
+						self.saybattle( self.socket,self.battleid, "Max Alliances in a Match ( how many Allys ): " + str(self.db.GetLadderOption( ladderid, "max_ally_count" )) )
+						self.saybattle( self.socket,self.battleid, "Whitelisted options ( if a key is present, no other value except for those listed will be allowed for such key ):" )
+						for opt in self.db.GetFilteredOptions( ladderid, True ):
+							self.saybattle( self.socket,self.battleid, opt.key + ": " + opt.value )
+						self.saybattle( self.socket,self.battleid, "Blacklisted options ( if a value is present for a key, such value won't be allowed ):" )
+						for opt in self.db.GetFilteredOptions( ladderid, False ):
+							self.saybattle( self.socket,self.battleid, opt.key + ": " + opt.value )
+					else:
+						self.saybattle( self.socket,self.battleid, "Invalid ladder ID." )
+			
 			if command == "!score":
 				if not self.db.AccessCheck( -1, who, Roles.User ):
 					self.self.sayPermissionDenied(  socket, who, command )

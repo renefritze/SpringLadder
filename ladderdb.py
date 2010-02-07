@@ -2,7 +2,7 @@
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
-from datetime import datetime
+import datetime
 from db_entities import *
 from ranking import *
 from match import *
@@ -293,7 +293,7 @@ class LadderDB:
 		player = player_query.first()
 		if player:
 			is_global_banned = player.role == Roles.GlobalBanned
-			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.now() ).count()
+			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.datetime.now() ).count()
 			if is_banned:
 				session.close()
 				return False
