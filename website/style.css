@@ -172,11 +172,13 @@ a.nav:hover {
 
 #ladderlist td {
 	width: 33%;
+	vertical-align: top;
 }
 
 #ladderlist table {
 	width: 100%;
 	margin-top: 0px;
+	
 }
 /*---------------------pagination-----------------------------*/
 
