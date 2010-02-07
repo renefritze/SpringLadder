@@ -39,10 +39,7 @@ try:
 			item['id'] = ladder_id
 			try:
 				ranks = db.GetRanks( ladder_id, None, 3 )
-				#print 'ranks %i'%(len(ranks))
-				table = GlobalRankingAlgoSelector.GetWebRepresentation( ranks, db )
-				#print 'table %i'%(len(table))
-				item['ranks'] = table
+				item['ranks'] = GlobalRankingAlgoSelector.GetWebRepresentation( ranks, db )
 			except Exception, e:
 				item['ranks'] = None
 			ladder_list.append( item )
