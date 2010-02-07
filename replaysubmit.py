@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from colors import *
+from customlog import *
 from ParseConfig import *
 import commands
 import thread
@@ -32,10 +32,10 @@ class ReplayReporter:
 			output = ""
 			doSubmit = ladderid != -1 and db.LadderExists( ladderid )
 			if not doSubmit:
-				print red + "Error: ladder %d does not exist" % ( ladderid ) + normal
+				Log.Error( red + "Error: ladder %d does not exist" % ( ladderid ) + normal, 'ReplayReporter' )
 				return False
 			st = time.time()
-			print "*** Starting spring: command line \"%s %s\"" % (self.springdedclientpath, replaypath )
+			Log.Info( "*** Starting spring: command line \"%s %s\"" % (self.springdedclientpath, replaypath ), 'ReplayReporter' ) 
 			if platform.system() == "Windows":
 				dedpath = "\\".join(self.springdedclientpath.replace("/","\\").split("\\")[:self.springdedclientpath.replace("/","\\").count("\\")])
 				if not dedpath in sys.path:
@@ -52,24 +52,19 @@ class ReplayReporter:
 				l = pr.stdout.readline()
 			status = pr.wait()
 			et = time.time()
-			print "*** Spring has exited with status %i" % status
+			Log.Info(  "*** Spring has exited with status %i" % status, 'ReplayReporter' )
 			if status != 0:
-				g = output.split("\n")
-				for h in g:
-					print yellow + "*** STDOUT+STDERR: " + h + normal
-					time.sleep(float(len(h))/900.0+0.05)
+				Log.Error( output, 'ReplayReporter' )
 			elif doSubmit:
 				mr = MatchToDbWrapper( output, ladderid )
 				try:
 					db.ReportMatch( mr )
 				except:
+					Log.Error( 'reporting match failed', 'ReplayReporter' )
 					return False
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-			print red+"*** EXCEPTION: BEGIN"
-			for line in exc:
-				print line
-			print "*** EXCEPTION: END"+normal
+			Log.Error( "*** EXCEPTION: BEGIN\n%s\nEXCEPTION: END"%exc, 'ReplayReporter' )
 			os.chdir(currentworkingdir)
 			return False
 		os.chdir(currentworkingdir)

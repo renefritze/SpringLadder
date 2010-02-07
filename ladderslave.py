@@ -1,40 +1,15 @@
 # -*- coding: utf-8 -*-
-from colors import *
+from customlog import *
 from ParseConfig import *
-import commands
-import thread
-import signal
-import os
-import time
-import subprocess
-import traceback
-import platform
-import sys
+import commands, thread, signal, os, time, subprocess, traceback, platform, sys
 from db_entities import *
 from ladderdb import *
-from colors import *
 from match import *
 from ranking import GlobalRankingAlgoSelector
 if platform.system() == "Windows":
 	import win32api
 
 from utilities import *
-
-def log(message):
-	print green + message + normal
-
-def saybattle( socket,battleid,message):
-	for line in message.split('\n'):
-		print yellow+"Battle:%i, Message: %s" %(battleid,line) + normal
-		socket.send("SAYBATTLE %s\n" % line)
-
-def saybattleex(socket,battleid,message):
-	for line in message.split('\n'):
-		print green+"Battle:%i, Message: %s" %(battleid,line) + normal
-		socket.send("SAYBATTLEEX %s\n" % line)
-
-def sayPermissionDenied(socket, command, username ):
-	socket.send("SAYPRIVATE %s You do not have sufficient access right to execute %s on this bot\n" %( username, command ) )
 
 bstr_nonneg = lambda n: n>0 and bstr_nonneg(n>>1).lstrip('0')+str(n&1) or '0'
 
@@ -109,18 +84,18 @@ class Main:
 		currentworkingdir = os.getcwd()
 		try:
 			if self.ingame == True:
-				saybattle( self.socket, self.battleid, "Error: game is already running")
+				self.saybattle( self.socket, self.battleid, "Error: game is already running")
 				return
 			self.output = ""
 			self.ingame = True
 			doSubmit = self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0)
 			if doSubmit:
-				saybattleex(socket, self.battleid, "will submit to the ladder the score results")
+				self.saybattleex(socket, self.battleid, "will submit to the ladder the score results")
 			else:
-				saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
+				self.saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
 			sendstatus( self, socket )
 			st = time.time()
-			log("*** Starting spring: command line \"%s %s\"" % (self.app.config["springdedclientpath"], os.path.join(self.scriptbasepath,"%f.txt" % g )) )
+			self.log.Info("*** Starting spring: command line \"%s %s\"" % (self.app.config["springdedclientpath"], os.path.join(self.scriptbasepath,"%f.txt" % g )) )
 			if platform.system() == "Windows":
 				dedpath = "\\".join(self.app.config["springdedclientpath"].replace("/","\\").split("\\")[:self.app.config["springdedclientpath"].replace("/","\\").count("\\")])
 				if not dedpath in sys.path:
@@ -142,32 +117,24 @@ class Main:
 			status = self.pr.wait()
 			et = time.time()
 			if status != 0:
-				saybattle( self.socket,self.battleid,"Error: Spring exited with status %i" % status)
-				g = self.output.split("\n")
-				for h in g:
-					print yellow + "*** STDOUT+STDERR: " + h + normal
-					time.sleep(float(len(h))/900.0+0.05)
+				self.saybattle( self.socket,self.battleid,"Error: Spring exited with status %i" % status)
+				self.log.Error( "Error: Spring exited with status %i" % status) )
+				self.log.Error( self.output )
 			elif doSubmit:
 				try:
 					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
 					self.db.ReportMatch( mr, True )
-					saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+					self.saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
 				except:
 					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-					print red+"*** EXCEPTION: BEGIN"
-					for line in exc:
-						print line
-					print "*** EXCEPTION: END"+normal
-					saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
+					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
+					self.saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
 			else:
-				log("*** Spring has exited with status %i" % status )
+				self.log.Info( "*** Spring has exited with status %i" % status )
 
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-			print red+"*** EXCEPTION: BEGIN"
-			for line in exc:
-				print line
-			print "*** EXCEPTION: END"+normal
+			self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
 		os.chdir(currentworkingdir)
 		self.ingame = False
 		sendstatus( self, socket )
@@ -212,9 +179,9 @@ class Main:
 					IsOk = False
 					duplicatebots += " " + player
 		if not len(bannedplayers) == 0 and echoerrors:
-			saybattle( socket, self.battleid, "There are banned player for " + laddername  + " (" + bannedplayers + " )" )
+			self.saybattle( socket, self.battleid, "There are banned player for " + laddername  + " (" + bannedplayers + " )" )
 		if not len(duplicatebots) == 0 and echoerrors:
-			saybattle( socket, self.battleid, "There are too many bots of the same type (" + duplicatebots + " )" )
+			self.saybattle( socket, self.battleid, "There are too many bots of the same type (" + duplicatebots + " )" )
 
 		minbotcount = self.db.GetLadderOption( ladderid, "min_ai_count" )
 		maxbotcount = self.db.GetLadderOption( ladderid, "max_ai_count" )
@@ -224,27 +191,27 @@ class Main:
 		maxallycount = self.db.GetLadderOption( ladderid, "max_ally_count" )
 		if botcount < minbotcount:
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too few AIs for " + laddername  + " (" + str(botcount) + ")" )
+				self.saybattle( socket, self.battleid, "There are too few AIs for " + laddername  + " (" + str(botcount) + ")" )
 			IsOk =  False
 		if botcount > maxbotcount:
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too many AIs for " + laddername + " (" + str(botcount) + ")" )
+				self.saybattle( socket, self.battleid, "There are too many AIs for " + laddername + " (" + str(botcount) + ")" )
 			IsOk = False
 		if teamcount < minteamcount:
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too few control teams for " + laddername  + " (" + str(teamcount) + ")" )
+				self.saybattle( socket, self.battleid, "There are too few control teams for " + laddername  + " (" + str(teamcount) + ")" )
 			IsOk =  False
 		if teamcount > maxteamcount:
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too many control teams for " + laddername + " (" + str(teamcount) + ")" )
+				self.saybattle( socket, self.battleid, "There are too many control teams for " + laddername + " (" + str(teamcount) + ")" )
 			IsOk = False
 		if allycount < minallycount:
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too few allies for " + laddername  + " (" + str(allycount) + ")" )
+				self.saybattle( socket, self.battleid, "There are too few allies for " + laddername  + " (" + str(allycount) + ")" )
 			IsOk = False
 		if allycount > maxallycount:
 			if echoerrors:
-				saybattle( socket, self.battleid, "There are too few allies for " + laddername  + " (" + str(allycount) + ")" )
+				self.saybattle( socket, self.battleid, "There are too few allies for " + laddername  + " (" + str(allycount) + ")" )
 			IsOk = False
 		minteamsize = self.db.GetLadderOption( ladderid, "min_team_size" )
 		maxteamsize = self.db.GetLadderOption( ladderid, "max_team_size" )
@@ -259,7 +226,7 @@ class Main:
 				teamsizesok = False
 				IsOk = False
 		if not teamsizesok and echoerrors:
-			saybattle( socket, self.battleid, errorstring )
+			self.saybattle( socket, self.battleid, errorstring )
 		teamsizesok = True
 		errorstring = "The following control teams have too many players in them for " + laddername + ":\n"
 		for team in self.teams:
@@ -268,7 +235,7 @@ class Main:
 				errorstring += str(team) + "=" + str(teamsize) + " "
 				teamsizesok = False
 		if not teamsizesok and echoerrors:
-			saybattle( socket, self.battleid, errorstring )
+			self.saybattle( socket, self.battleid, errorstring )
 		allysizesok = True
 		errorstring = "The following ally have too few players in them for " + laddername + ":\n"
 		for ally in self.allies:
@@ -278,7 +245,7 @@ class Main:
 				allysizesok = False
 				errorstring += str(team) + "=" + str(teamsize) + " "
 		if not allysizesok and echoerrors:
-			saybattle( socket, self.battleid, errorstring )
+			self.saybattle( socket, self.battleid, errorstring )
 		allysizesok = True
 		errorstring = "The following ally have too many players in them for " + laddername + ":\n"
 		for ally in self.allies:
@@ -288,7 +255,7 @@ class Main:
 				allysizesok = False
 				errorstring += str(team) + "=" + str(teamsize) + " "
 		if not allysizesok and echoerrors:
-			saybattle( socket, self.battleid, errorstring )
+			self.saybattle( socket, self.battleid, errorstring )
 		return IsOk
 
 
@@ -300,10 +267,10 @@ class Main:
 			OptionOk = self.CheckOptionOk( ladderid, key, value )
 			if not OptionOk:
 				if IsOk and echoerrors:
-					saybattle( socket, self.battleid, "The following settings are not compatible with " + laddername + ":" )
+					self.saybattle( socket, self.battleid, "The following settings are not compatible with " + laddername + ":" )
 				IsOk = False
 				if echoerrors:
-					saybattle( socket, self.battleid, key + "=" + value )
+					self.saybattle( socket, self.battleid, key + "=" + value )
 		return IsOk
 
 	def CheckOptionOk( self, ladderid, keyname, value ):
@@ -321,6 +288,7 @@ class Main:
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
 		self.battlepassword = self.app.config["battlepassword"]
+		self.log = Clog( self.app.config['nick']+'.log', self.app.config['nick']+'.err' )
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], [], parselist(self.app.config["alchemy-verbose"],",")[0] )
 
 	def oncommandfromserver(self,command,args,s):
@@ -377,7 +345,7 @@ class Main:
 
 			if len(command) > 0 and command[0] == "!":
 				if not self.db.AccessCheck( -1, who, Roles.User ):
-					sayPermissionDenied( socket, who, command )
+					self.sayPermissionDenied( socket, who, command )
 					#log
 					return
 			else:
@@ -394,34 +362,34 @@ class Main:
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
 				if ladderid == -1:
-					saybattle( self.socket, self.battleid,"No ladder has been enabled.")
+					self.saybattle( self.socket, self.battleid,"No ladder has been enabled.")
 				elif self.db.LadderExists( ladderid ):
 					laddername = self.db.GetLadderName( ladderid )
 					if self.CheckValidSetup( ladderid, True, self.socket ):
-						saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
+						self.saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 				else:
-					saybattle( self.socket, self.battleid,"Invalid ladder ID.")
+					self.saybattle( self.socket, self.battleid,"Invalid ladder ID.")
 			if command == "!ladderlist":
-				saybattle( self.socket, self.battleid, "Available ladders, format name: ID:" )
+				self.saybattle( self.socket, self.battleid, "Available ladders, format name: ID:" )
 				for l in self.db.GetLadderList(Ladder.name):
-					saybattle( self.socket, self.battleid, "%s: %d" %(l.name, l.id ) )
+					self.saybattle( self.socket, self.battleid, "%s: %d" %(l.name, l.id ) )
 			if command == "!ladder":
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
 					if ladderid != -1:
 						if self.db.LadderExists( ladderid ):
 							laddername = self.db.GetLadderName( ladderid )
-							saybattle( self.socket, self.battleid,"Enabled ladder reporting for ladder: " + laddername )
+							self.saybattle( self.socket, self.battleid,"Enabled ladder reporting for ladder: " + laddername )
 							self.ladderid = ladderid
 							if self.CheckValidSetup( ladderid, True, self.socket ):
-								saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
+								self.saybattle( self.socket, self.battleid, "All settings are compatible with the ladder " + laddername )
 						else:
-							saybattle( self.socket, self.battleid,"Invalid ladder ID.")
+							self.saybattle( self.socket, self.battleid,"Invalid ladder ID.")
 					else:
 						self.ladderid = ladderid
-						saybattle( self.socket, self.battleid,"Ladder reporting disabled.")
+						self.saybattle( self.socket, self.battleid,"Ladder reporting disabled.")
 				else:
-					saybattle( self.socket, self.battleid,"Invalid command syntax, check !ladderhelp for usage.")
+					self.saybattle( self.socket, self.battleid,"Invalid command syntax, check !ladderhelp for usage.")
 			if command == "!ladderleave":
 				self.joinedbattle = False
 				good( "Leaving battle: " + str(self.battleid) )
@@ -430,11 +398,11 @@ class Main:
 				if not self.ingame:
 					self.KillBot()
 			if command == "!ladderhelp":
-				saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
-				saybattle( self.socket, self.battleid, helpstring_user )
+				self.saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
+				self.saybattle( self.socket, self.battleid, helpstring_user )
 			if command == '!debug':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
-					sayPermissionDenied( self.socket, who, command )
+					self.sayPermissionDenied( self.socket, who, command )
 					#log
 					return
 				import fakeoutput
@@ -444,25 +412,25 @@ class Main:
 				else:
 					output = fakeoutput.fakeoutput[-1]
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				#saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
-				saybattle( self.socket, self.battleid, 'before:\n' + upd )
+				#self.saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
+				self.saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
 					mr = AutomaticMatchToDbWrapper( output, self.ladderid )
 					repeats = int(args[1]) if len(args) > 1 else 1
 					for i in range(repeats):
 						self.db.ReportMatch( mr, False )#false skips validation check of output against ladder rules
 					upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-					saybattle( self.socket, self.battleid, 'pre-recalc:\n' +upd )
+					self.saybattle( self.socket, self.battleid, 'pre-recalc:\n' +upd )
 					self.db.RecalcRankings(self.ladderid)
 				except InvalidOptionSetup, e:
-					saybattle( self.socket, self.battleid, str(e) )
+					self.saybattle( self.socket, self.battleid, str(e) )
 					return
 
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				saybattle( self.socket, self.battleid, 'after:\n' +upd )
+				self.saybattle( self.socket, self.battleid, 'after:\n' +upd )
 			if command == '!stress':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
-					sayPermissionDenied( self.socket, who, command )
+					self.sayPermissionDenied( self.socket, who, command )
 					#log
 					return
 				import fakeoutput
@@ -487,19 +455,19 @@ class Main:
 						upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 						self.db.RecalcRankings(self.ladderid)
 					except InvalidOptionSetup, e:
-						saybattle( self.socket, self.battleid, str(e) )
+						self.saybattle( self.socket, self.battleid, str(e) )
 						return
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				saybattle( self.socket, self.battleid, '%i recalcs took %s:\n'%(times, str(datetime.now() - now) ))
+				self.saybattle( self.socket, self.battleid, '%i recalcs took %s:\n'%(times, str(datetime.now() - now) ))
 
 			if command == "!ladderreportgame":
 				if len(args) < 2:
-					saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !ladderhelp for usage." )
+					self.saybattle( self.socket, self.battleid, "Invalid command syntax (too few args), check !ladderhelp for usage." )
 				else:
 					ladderid = self.ladderid
 					try:
 						if not self.db.AccessCheck( ladderid, who, Roles.LadderAdmin ):
-							sayPermissionDenied( socket, who, command )
+							self.sayPermissionDenied( socket, who, command )
 							#log
 							return
 						ladder = self.db.GetLadder( ladderid )
@@ -508,13 +476,13 @@ class Main:
 						while ( usercounter != len(args) ):
 							username, equal, result = args[usercounter].partition("=")
 							if ( len(result) == 0 ):
-								saybattle( self.socket, self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
+								self.saybattle( self.socket, self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
 								return
 							userresults[username] = int(result)
 							usercounter = usercounter +1
 
 						if  not self.CheckvalidPlayerSetup( ladderid, True , self.socket ):
-							saybattle( self.socket, self.battleid, "Invalid setup" )
+							self.saybattle( self.socket, self.battleid, "Invalid setup" )
 						players = []
 						teams_map = dict()
 						allies_map = dict()
@@ -527,23 +495,24 @@ class Main:
 						mr = ManualMatchToDbWrapper( players, userresults, self.teams, ladderid, self.battleoptions, self.disabledunits, self.bots, self.allies, teams_map, allies_map )
 						try:
 							self.db.ReportMatch( mr )
-							saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+							self.saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
 						except BannedPlayersDetectedException, b:
-							saybattle( self.socket,self.battleid,str(b) )
-							print b
+							self.saybattle( self.socket,self.battleid,str(b) )
+							self.log.Error( b, 'BannedPlayersDetectedException' )
 						except Exception, e:
-							saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome: %s"%str(e) )
-							print e
+							self.saybattle( self.socket,self.battleid,"There was an error reporting the battle outcome: %s"%str(e) )
+							self.log.Error( e, 'Exception' )
 
 					except ElementNotFoundException, e:
-						saybattle( self.socket,self.battleid, "Invalid ladder ID." )
+						self.saybattle( self.socket,self.battleid, "Invalid ladder ID." )
+						self.log.Error( e, 'ElementNotFoundException' )
 			if command == "!score":
 				if not self.db.AccessCheck( -1, who, Roles.User ):
-					sayPermissionDenied(  socket, who, command )
+					self.self.sayPermissionDenied(  socket, who, command )
 					#log
 					return
 				if len(args) > 2:
-					saybattle( self.socket,self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
+					self.saybattle( self.socket,self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
 				else:
 					ladderid = self.ladderid
 					playername = ""
@@ -561,7 +530,7 @@ class Main:
 						rep = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( ladderid, playername ), self.db )
 					elif ladderid == -1 and len(playername) != 0:
 						rep = GlobalRankingAlgoSelector.GetPrintableRepresentationPlayer( self.db.GetPlayerRanks( playername ), self.db )
-					saybattle( self.socket,self.battleid, rep )
+					self.saybattle( self.socket,self.battleid, rep )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
@@ -662,3 +631,16 @@ class Main:
 #		print "allies:", self.allies
 #		print "teams: ",self.teams
 #		print "battle_statusmap",self.battle_statusmap
+
+	def saybattle(self,socket,battleid,message):
+		for line in message.split('\n'):
+			self.log.Info( "Battle:%i, Message: %s" %(battleid,line) )
+			socket.send("SAYBATTLE %s\n" % line)
+
+	def saybattleex(self,socket,battleid,message):
+		for line in message.split('\n'):
+			self.log.Info( "Battle:%i, Message: %s" %(battleid,line) )
+			socket.send("SAYBATTLEEX %s\n" % line)
+
+	def sayPermissionDenied(self,socket, command, username ):
+		socket.send("SAYPRIVATE %s You do not have sufficient access right to execute %s on this bot\n" %( username, command ) )

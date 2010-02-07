@@ -1,4 +1,4 @@
-from colors import *
+# -*- coding: utf-8 -*-
 from ParseConfig import *
 class Main:
 	sock = 0

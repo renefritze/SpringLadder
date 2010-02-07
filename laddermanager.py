@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-from colors import *
+from customlog import *
 from ParseConfig import *
-import commands
-import thread
-import os
-import sys
-import signal
-import traceback
-import subprocess
+import commands, thread, os, sys, signal, traceback, subprocess
 from db_entities import *
 from ladderdb import *
 
@@ -51,17 +45,23 @@ helpstring_user = """!ladderlist : lists available ladders with their IDs
 !score ladderID playername : lists score for the given player for the given ladderID
 !ladderlistmatches ladderID : list all matches for ladderID, newest first"""
 
+def mError( msg ):
+	Log.Error( msg, '[LadderManager]' )
+
+def mInfo( msg ):
+	Log.Info( msg, '[LadderManager]' )
+
 def pm(s,p,m):
 	try:
 		for line in m.split('\n'):
-			print yellow+"PM To:%s, Message: %s" %(p,line) + normal
+			mInfo( "PM To:%s, Message: %s" %(p,line))
 			s.send("SAYPRIVATE %s %s\n" %(p,line))
 	except:
 		pass
 
 def saychannel( socket, channel, message ):
 		for line in message.split('\n'):
-			print purple+"Channel :%s, Message: %s" %(channel,line) + normal
+			mInfo( "Channel :%s, Message: %s" %(channel,line) )
 			socket.send("SAY %s %s\n" %(channel,line) )
 
 class Main:
@@ -81,7 +81,7 @@ class Main:
 			d.update([("nick",nick)])
 			d.update([("password",self.app.config["password"])])
 			d.update([("plugins","ladderslave")])
-			d.update([("bans",self.app.config["bans"])])
+			d.update( [ ( "bans", self.app.config["bans"] ) ] )
 			d.update([("battleid",str(battleid))])
 			d.update([("battlepassword",str(battlepassword))])
 			d.update([("ladderid",str(ladderid))])
@@ -96,9 +96,7 @@ class Main:
 			self.botpid[slot] = p.pid
 			p.wait()
 		except:
-			print '-'*60
-			traceback.print_exc(file=sys.stdout)
-			print '-'*60
+			mError(traceback.print_exc(file=sys.stdout))
 
 	def onload(self,tasc):
 		self.tsc = tasc

@@ -6,6 +6,7 @@ from datetime import datetime
 from db_entities import *
 from ranking import *
 from match import *
+from customlog import *
 import time
 
 class ElementExistsException( Exception ):
@@ -24,7 +25,7 @@ class ElementNotFoundException( Exception ):
 
 class LadderDB:
 	def __init__(self,alchemy_uri,owner=[], verbose=False):
-#		print "loading db at " + alchemy_uri
+		Log.Info( "loading db at " + alchemy_uri )
 		self.engine = create_engine(alchemy_uri, echo=verbose, pool_size=10, max_overflow=20)
 		self.metadata = Base.metadata
 		self.metadata.bind = self.engine
@@ -227,7 +228,7 @@ class LadderDB:
 			try:
 				self.AddPlayer( name,Roles.Owner, '')
 			except:
-				print 'error adding owner ',name
+				Log.Error( 'error adding owner '+ name, 'LadderDB' )
 
 	def ReportMatch( self, matchresult, doValidation=True ):
 		"""false skips validation check of output against ladder rules"""
@@ -290,7 +291,7 @@ class LadderDB:
 		player = player_query.first()
 		if player:
 			is_global_banned = player.role == Roles.GlobalBanned
-			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.now() ).count()
+			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.datetime.now() ).count()
 			if is_banned:
 				session.close()
 				return False
