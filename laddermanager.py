@@ -4,6 +4,8 @@ from ParseConfig import *
 import commands, thread, os, sys, signal, traceback, subprocess
 from db_entities import *
 from ladderdb import *
+if platform.system() == "Windows":
+	import win32api
 
 helpstring_ladder_admin = """!ladderjoinchannel channelname password: joins set channel and stores for automatic join
 !ladderleavechannel channelname : leaves set channel and removes it from autojoin list
@@ -24,7 +26,10 @@ helpstring_ladder_admin = """!ladderjoinchannel channelname password: joins set 
 !ladderdeletematch ladderID matchID: delete a match and all associated data from db, forces a recalculation of entire history of rankings for that ladder
 !ladderbanuser ladderID username [time] : ban username from participating in any match on ladder ladderID for given amount of time (optional,floats, format: [D:]H )
 !ladderunbanuser ladderID username : unban username from participating in any match on ladder ladderID
-!ladderlistbans ladderID"""
+!ladderlistbans ladderID : list bans for given ladderID
+!ladderclosewhenempty : schedules a bot stop when there are no bot spawned
+!ladderdisable : disables possibility for users to spawn new bots
+!ladderenable : re-enables possibility for users to spawn new bots"""
 
 helpstring_global_admin = """!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -105,6 +110,7 @@ class Main:
 		self.channels = parselist(self.app.config["channelautojoinlist"],",")
 		self.admins = parselist(self.app.config["admins"],",")
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], self.admins, parselist(self.app.config["alchemy-verbose"],",")[0] )
+		self.closewhenempty = False
 
 	def notifyuser( self, socket, fromwho, fromwhere, ispm, message ):
 		if fromwhere == "main" or fromwhere == "newbies":
@@ -668,6 +674,14 @@ class Main:
 			except ElementNotFoundException, e:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 				s.close()
+		if command == "!ladderclosewhenempty":
+			if not self.db.AccessCheck( ladderid, fromwho, Roles.GlobalAdmin ):
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+				#log
+				return
+			self.closewhenempty = True
+			if len(self.botstatus) == 0:
+				self.KillBot()
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
@@ -692,6 +706,9 @@ class Main:
 				name = name[len(basebotname):] # truncate prefix
 				if name.isdigit():
 					self.botstatus.remove(int(name))
+					if self.closewhenempty:
+						if len(self.botstatus) == 0:
+							self.KillBot()
 		if command == "JOINEDBATTLE" and len(args) > 1:
 			name = args[1]
 			battleid = int(args[0])
@@ -718,3 +735,9 @@ class Main:
 		socket.send("MYSTATUS %i\n" % int(int(0)+int(0)*2))
 	def onloggedin(self,socket):
 		self.updatestatus(socket)
+	def KillBot(self):
+		if platform.system() == "Windows":
+			handle = win32api.OpenProcess(1, 0, os.getpid())
+			win32api.TerminateProcess(handle, 0)
+		else:
+			os.kill(os.getpid(),signal.SIGKILL)
