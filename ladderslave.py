@@ -118,7 +118,7 @@ class Main:
 			et = time.time()
 			if status != 0:
 				self.saybattle( self.socket,self.battleid,"Error: Spring exited with status %i" % status)
-				self.log.Error( "Error: Spring exited with status %i" % status) )
+				self.log.Error( "Error: Spring exited with status %i" % status ) 
 				self.log.Error( self.output )
 			elif doSubmit:
 				try:
@@ -288,7 +288,8 @@ class Main:
 		self.battleid = int(self.app.config["battleid"])
 		self.ladderid = int(self.app.config["ladderid"])
 		self.battlepassword = self.app.config["battlepassword"]
-		self.log = Clog( self.app.config['nick']+'.log', self.app.config['nick']+'.err' )
+		self.log = CLog()
+		self.log.Init( self.app.config['nick']+'.log', self.app.config['nick']+'.err' )
 		self.db = LadderDB( parselist(self.app.config["alchemy-uri"],",")[0], [], parselist(self.app.config["alchemy-verbose"],",")[0] )
 
 	def oncommandfromserver(self,command,args,s):
@@ -444,7 +445,7 @@ class Main:
 				else:
 					times = 1
 
-				now = datetime.now()
+				now = datetime.datetime.now()
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				for i in range ( times ):
 					try:
@@ -458,7 +459,7 @@ class Main:
 						self.saybattle( self.socket, self.battleid, str(e) )
 						return
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				self.saybattle( self.socket, self.battleid, '%i recalcs took %s:\n'%(times, str(datetime.now() - now) ))
+				self.saybattle( self.socket, self.battleid, '%i recalcs took %s:\n'%(times, str(datetime.datetime.now() - now) ))
 
 			if command == "!ladderreportgame":
 				if len(args) < 2:
