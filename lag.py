@@ -1,5 +1,5 @@
-from colors import *
-from ParseConfig import *
+# -*- coding: utf-8 -*-
+
 class Main:
 	sock = 0
 	app = 0
