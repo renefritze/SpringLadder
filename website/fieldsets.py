@@ -35,6 +35,12 @@ def getSingleField( key, default=None ):
 	else:
 		return default
 
+def SortAsc( condition, ascending = True ):
+	if ascending:
+		return condition.asc()
+	else:
+		return condition.desc()
+
 class SubmitRenderer(FieldRenderer):
 	def render(self):
 		value= self._value and self._value or ''

@@ -150,7 +150,7 @@ a.nav:hover {
 }
 
 #index_block_content ul li {
-/* 	margin-left: -10px; */
+ 	margin-left: -40px;
 	padding: 2px 2px;
 	list-style: none;
 	list-style-position:inside;

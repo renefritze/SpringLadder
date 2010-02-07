@@ -4,10 +4,27 @@
 {% if header %}
 <h1>{{header}}</h1>
 {% endif %}
-<ul>
-{% for l in matches %}
-  <li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
-{% endfor %}
-</ul>
-<br/>
+{% set new_asc = not asc %}
+<table>
+	<theader>
+		<tr>
+			<td>
+				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}{% if order is sameas 'id'%}&asc={{new_asc}}{%endif%}&order=id" >
+				ID </a>
+			</td>
+			<td>
+				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}{% if order is sameas 'nick'%}&asc={{new_asc}}{%endif%}&order=nick" >
+				Nickname</a>
+			<td>
+		</tr>
+	</theader>
+	<tbody>
+	{% for p in players %}
+		<tr>
+			<td>{{p.id}}</td>
+			<td><a href="/viewmatch.py?player={{ p.nick }}">{{ p.nick }}</a> </li>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
 {% endblock %}

@@ -27,6 +27,15 @@ try:
 		template = env.get_template('viewmatchlist.html')
 		matches = s.query( Match ).filter(Match.ladder_id == ladder_id).order_by(Match.date.desc()).all()
 		print template.render(matches=matches, header=header_string )
+	elif player_name:
+		player = db.GetPlayer( player_name )
+		template = env.get_template('viewmatchlist.html')
+		header_string = 'Matches for %s'%(player.nick)
+		results = s.query( Result ).filter( Result.player_id == player.id).order_by(Result.date.desc())
+		matches = []
+		for r in results:
+			matches.append( r.match )
+		print template.render(matches=matches, header=header_string )
 	elif not id:
 		template = env.get_template('viewmatchlist.html')
 		limit = int(getSingleField( 'limit', 10 ))

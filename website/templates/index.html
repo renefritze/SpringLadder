@@ -9,7 +9,7 @@
 			{% endif %}
 			<ul>
 			{% for l in matches %}
-			<li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+			<li><a href="/viewmatch.py?id={{ l.id }}">({{l.date}})</a> </li>
 			{% endfor %}
 			</ul>
 		</div>
@@ -23,7 +23,7 @@
 			<ul>
 			{% for l in ladders %}
 			<li>
-				<!--({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a>-->
+				<a href="/viewladder.py?id={{ l[0].id }}"> {{l[0].name}}</a> ({{ l[1] }})
 			</li>
 			{% endfor %}
 			</ul>
@@ -36,9 +36,9 @@
 			<h1>{{players_header}}</h1>
 			{% endif %}
 			<ul>
-			{% for l in players %}
+			{% for p in players %}
 			<li>
-				<!--({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a>-->
+				<a href="/viewmatch.py?player={{ p[0].nick }}"> {{p[0].nick}}</a> ({{ p[1] }}) 
 			</li>
 			{% endfor %}
 			</ul>
