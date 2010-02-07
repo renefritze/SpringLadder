@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import cgi
+import cgi,ParseConfig
 from ladderdb import *
 from db_entities import *
 from formalchemy import FieldSet, Grid, ValidationError, FieldRenderer
-import ParseConfig
+from customlog import Log
 
 config = ParseConfig.readconfigfile( 'Main.conf' )
+Log.Init( 'website.log', 'website.log' )
 db = LadderDB(config['alchemy-uri'])
 session = db.getSession()
 

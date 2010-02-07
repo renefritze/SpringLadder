@@ -20,13 +20,6 @@ a{
 	color:#444;
 }
 
-h1{
-}
-
-p{
-}
-
-
 #header{
 	height:100px;
 	clear:both;
@@ -39,7 +32,7 @@ p{
 	font-family: monospace;
 	font-variant: small-caps;
 	color: #ccc;
-	font-size: 300%;
+	font-size: 450%;
 	text-align: center;
 	font-weight: bolder;
 }
@@ -156,6 +149,19 @@ a.nav:hover {
 	list-style-position:inside;
 }
 
+.command {
+	background-color: #eee;
+	color: #f00;
+	font-family: monospace;
+}
+
+#help ul li{
+	list-style-position: outside;
+	padding: 0px;
+}
+#help p {
+	margin-bottom:0.2em;
+}
 /*---------------------pagination-----------------------------*/
 
 
