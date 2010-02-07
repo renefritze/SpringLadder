@@ -17,14 +17,14 @@
 							<li>Players: {{l.player_count}}</li>
 							<li>Matches: {{l.match_count}}</li>
 						</ul>
-					<div>
+					</div>
 					<div >
 						<ol>
 							{% for row in l.ranks.rows %}
 							<li> <a href="/viewmatch.py?ladder={{l.id}}&player={{row[0]}}"> {{row[0]}}</a> </li>
 							{% endfor %}
 						</ol>
-					<div>
+					</div>
 					{% if l.last_match %}
 						<div>
 							<h4>Most recent match:</h4>
