@@ -70,16 +70,15 @@ class LadderDB:
 	def GetLadderName(self, ladder_id):
 		session = self.sessionmaker()
 
-		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
-		laddername = ""
-		if ladder:
-			laddername = ladder.name
+		laddername = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
+		if not laddername:
+			laddername = ""
 		session.close()
 		return laddername
 
 	def LadderExists(self, id ):
 		session = self.sessionmaker()
-		count = session.query( Ladder ).filter( Ladder.id == id ).count()
+		count = session.query( Ladder.id ).filter( Ladder.id == id ).count()
 		session.close()
 		return count == 1
 
@@ -90,7 +89,7 @@ class LadderDB:
 			session.close()
 			raise ElementNotFoundException( Ladder( ladderID ) )
 
-		option = session.query( Option ).filter( Option.ladder_id == ladderID ).filter( Option.key == optionkey ).filter( Option.value == optionvalue ).first()
+		option = session.query( Option.id ).filter( Option.ladder_id == ladderID ).filter( Option.key == optionkey ).filter( Option.value == optionvalue ).first()
 		#should this reset an key.val pair if already exists?
 		if option:
 			session.close()
@@ -123,13 +122,13 @@ class LadderDB:
 
 	def GetOptionKeyExists(self, ladder_id, whitelist_only, keyname ):
 		session = self.sessionmaker()
-		count = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).count()
+		count = session.query( Option.id ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).count()
 		session.close()
 		return count > 0
 
 	def GetOptionKeyValueExists(self, ladder_id, whitelist_only, keyname, value ):
 		session = self.sessionmaker()
-		count = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).count()
+		count = session.query( Option.id ).filter( Option.ladder_id == ladder_id ).filter( Option.is_whitelist == whitelist_only).filter( Option.key == keyname ).filter( Option.value == value ).count()
 		session.close()
 		return count == 1
 
@@ -157,7 +156,7 @@ class LadderDB:
 		ladder = session.query(Ladder).filter( Ladder.id == ladder_id ).first()
 		session.close()
 		if not ladder:
-			raise ElementNotFoundException( Ladder( ladderID ) )
+			raise ElementNotFoundException( Ladder( ladder_id ) )
 		else:
 			return getattr(ladder, field)
 
@@ -208,8 +207,8 @@ class LadderDB:
 
 	def AddPlayer(self,name,role,pw=''):
 		session = self.sessionmaker()
-		player = session.query( Player ).filter( Player.nick == name ).first()
-		if not player:
+		player_exists = session.query( Player.id ).filter( Player.nick == name ).count() > 0
+		if not player_exists:
 			player = Player( name,role, pw )
 			session.add( player )
 			session.commit()
@@ -238,8 +237,8 @@ class LadderDB:
 
 	def GetRanks( self, ladder_id, player_name=None ):
 		session = self.sessionmaker()
-		ladder = session.query( Ladder ).filter( Ladder.id == ladder_id ).first()
-		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
+		( ladder_id, ladder_ranking_algo_id ) = session.query( Ladder.id, Ladder.ranking_algo_id ).filter( Ladder.id == ladder_id ).first()
+		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder_ranking_algo_id )
 		entityType = algo_instance.GetDbEntityType()
 		if player_name:
 			player = session.query( Player ).filter( Player.nick == player_name ).first()
@@ -257,46 +256,46 @@ class LadderDB:
 	def GetPlayerRanks( self, player_name ):
 		res = dict() # rank -> ( algoname , laddername )
 		session = self.sessionmaker()
-		ladders = session.query( Ladder ).all()
-		player = session.query( Player ).filter( Player.nick == player_name ).first()
-		if player:
-			for ladder in ladders:
-				aloginstance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
+		ladders = session.query( Ladder.id, Ladder.ranking_algo_id, Ladder.name ).all()
+		player_id = session.query( Player.id ).filter( Player.nick == player_name ).first()
+		if player_id:
+			for (ladder_id,ranking_algo_id, ladder_name) in ladders:
+				aloginstance = GlobalRankingAlgoSelector.GetInstance( ranking_algo_id )
 				algoname = aloginstance.__class__.__name__
 				entityType = aloginstance.GetDbEntityType()
-				rank = session.query( entityType ).filter( entityType.ladder_id == ladder.id ).filter(entityType.player_id == player.id).first()
+				rank = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).filter(entityType.player_id == player_id).first()
 				if rank:
-					res[rank] = ( algoname, ladder.name )
+					res[rank] = ( algoname, ladder_name )
 		session.close()
 		return res
 
 	def AccessCheck( self, ladder_id, username, role ):
 		session = self.sessionmaker()
-		player_query = session.query( Player ).filter( Player.nick == username )
+		player_query = session.query( Player.id, Player.role ).filter( Player.nick == username )
 		if player_query.count () == 0:
 			self.AddPlayer( username, Roles.User )
-			player_query = session.query( Player ).filter( Player.nick == username )
+			player_query = session.query( Player.id, Player.role ).filter( Player.nick == username )
 		is_superadmin = player_query.filter( Player.role >= Roles.GlobalAdmin ).count() == 1
 		if role == Roles.LadderAdmin:
 			if ladder_id != -1:
-				is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
+				is_ladderadmin = session.query( Option.id ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
 					.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
 				session.close()
 				return is_superadmin or is_ladderadmin
 			else:
-				is_ladderadmin = session.query( Option ).filter( Option.key == Option.adminkey ) \
+				is_ladderadmin = session.query( Option.id ).filter( Option.key == Option.adminkey ) \
 					.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
 				session.close()
 				return is_superadmin or is_ladderadmin
-		player = player_query.first()
-		if player:
-			is_global_banned = player.role == Roles.GlobalBanned
-			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.datetime.now() ).count()
+		(player_id,player_role) = player_query.first()
+		if player_id and player_role:
+			is_global_banned = player_role == Roles.GlobalBanned
+			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player_id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.datetime.now() ).count()
 			if is_banned:
 				session.close()
 				return False
 			session.close()
-			return player.role >= role or is_superadmin
+			return player_role >= role or is_superadmin
 		session.close()
 		return False
 
@@ -340,17 +339,17 @@ class LadderDB:
 	def GetAvgMatchDelta( self, ladder_id, maxDate=None ):
 		session = self.sessionmaker()
 		if maxDate:
-			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).filter(Match.date <= maxDate ).order_by(Match.date.desc()).all()
+			match_dates = session.query(Match.date).filter(Match.ladder_id == ladder_id ).filter(Match.date <= maxDate ).order_by(Match.date.desc()).all()
 		else:
-			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.desc()).all()
+			match_dates = session.query(Match.date).filter(Match.ladder_id == ladder_id ).order_by(Match.date.desc()).all()
 		total = 0.0
-		for i in range( len(matches) -1 ):
-			diff = time.mktime(matches[i].date.timetuple())
-			diff -= time.mktime(matches[i+1].date.timetuple())
+		for i in range( len(match_dates) -1 ):
+			diff = time.mktime(match_dates[i][0].timetuple())
+			diff -= time.mktime(match_dates[i+1][0].timetuple())
 			total += diff
 		session.close()
-		if len(matches) > 2:
-			return max(total,1) / float( len(matches) - 1  )
+		if len(match_dates) > 2:
+			return max(total,1) / float( len(match_dates) - 1  )
 		else:
 			return 1.0
 
