@@ -25,7 +25,7 @@ try:
 			ladder_description = l.description
 			player_count = s.query( Result.id ).group_by( Result.player_id ).\
 				filter(Result.ladder_id == ladder_id).count()
-			match_query = s.query( Match.id,Match.date,Match.mapname ).group_by( Match.ladder_id ).\
+			match_query = s.query( Match.id,Match.date,Match.mapname ).\
 				filter(Match.ladder_id == ladder_id)
 			match_count = match_query.count()
 			last_match = match_query.order_by( Match.date.desc() ).first()
