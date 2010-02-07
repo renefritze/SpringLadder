@@ -147,7 +147,7 @@ class Main:
 
 		# !TODO refactor to use function dict
 		if command == "!ladder":
-			if not self.enabled and not self.db.AccessCheck( ladderid, fromwho, Roles.GlobalAdmin ):
+			if not self.enabled and not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder functionality is temporarily disabled." )
 				return
 			ladderid = -1
@@ -679,7 +679,7 @@ class Main:
 				self.notifyuser( socket, fromwho, fromwhere, ispm, "Error: " + str(e) )
 				s.close()
 		if command == "!ladderclosewhenempty":
-			if not self.db.AccessCheck( ladderid, fromwho, Roles.GlobalAdmin ):
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
@@ -687,14 +687,14 @@ class Main:
 			if len(self.botstatus) == 0:
 				self.KillBot()
 		if command == "!ladderdisable":
-			if not self.db.AccessCheck( ladderid, fromwho, Roles.GlobalAdmin ):
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
 			self.enabled = False
 			self.updatestatus( socket )
 		if command == "!ladderenable":
-			if not self.db.AccessCheck( ladderid, fromwho, Roles.GlobalAdmin ):
+			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 				#log
 				return
