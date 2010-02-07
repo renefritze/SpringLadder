@@ -170,15 +170,25 @@ a.nav:hover {
 	margin-bottom:0.2em;
 }
 
-#ladderlist,#matchgrid td {
+#ladderlist td {
 	width: 33%;
 	vertical-align: top;
 }
 
-#ladderlist,#matchgrid table {
+#ladderlist table {
 	width: 100%;
 	margin-top: 0px;
 }
+#matchgrid td {
+	width: 33%;
+	vertical-align: top;
+}
+
+#matchgrid table {
+	width: 100%;
+	margin-top: 0px;
+}
+
 /*---------------------pagination-----------------------------*/
 
 
