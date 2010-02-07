@@ -2,49 +2,33 @@
 
 {% block content %}
 {% if header %}
-<h1>{{header}}</h1>
+	<h1>{{header}}</h1>
 {% endif %}
-<ul>
-{% for l in matches %}
-  <li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
-{% endfor %}
-</ul>
-<br/>
 
 {% set count = 1 %}
-<div id='ladderlist'>
+<div id='matchgrid'>
 	<table>
 	<tbody>
 		<tr>
-			{% for l in ladders %}
+			{% for l in matches %}
 				<td>
-					<h3><a href="/viewladder.py?id={{ l.id }}">{{ l.name }}</a>
-						{% if l.description %} - {{l.description}} {% endif %}
+					<h3><a href="/viewmatch.py?id={{ l.id }}">Match #{{ l.id }}</a> 
+						- <a href="/viewladder.py?id={{l.ladder.id}}">{{l.ladder.name}} </a>
 					</h3>
-					<div>
-						<ul>
-							<li>Players: {{l.player_count}}</li>
-							<li>Matches: {{l.match_count}}</li>
-						</ul>
-					</div>
 					<div >
 						<ol>
-							{% for row in l.ranks.rows %}
-							<li> <a href="/viewmatch.py?ladder={{l.id}}&player={{row[0]}}"> {{row[0]}}</a> </li>
+							{% for r in l.results %}
+								<li>
+									<a href="/viewplayer.py?ladder={{l.ladder.id}}&player={{r.player.id}}"> {{r.player.nick}}</a>
+								</li>
 							{% endfor %}
 						</ol>
 					</div>
-					{% if l.last_match %}
-						<div>
-							<h4>Most recent match:</h4>
-								{% if l.last_match.mapname %}
-									{{l.last_match.mapname}}
-									<br/>
-								{% endif %}
-								<a href="/viewmatch.py?id={{l.last_match.id}}">{{l.last_match.date}}</a>
-						</div>
-					{% endif %}
-				<!--		<a href="/admin/change_ladder.py?id={{ l.id }}">edit</a>-->
+				<p>Duration: {{l.duration}}</p>
+				<p>Played on {{l.date}}</p>
+				{% if l.replay %}
+					<p><a href="/replays/{{l.replay}}"> Replay </a> </p>
+				{% endif %}
 				</td>
 				{% if count is divisibleby 3 %}
 					</tr><tr>

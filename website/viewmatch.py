@@ -37,8 +37,8 @@ try:
 			matches.append( r.match )
 		print template.render(matches=matches, header=header_string )
 	elif not id:
-		template = env.get_template('viewmatchlist.html')
-		limit = int(getSingleField( 'limit', 10 ))
+		template = env.get_template('viewmatchgrid.html')
+		limit = int(getSingleField( 'limit', 18 ))
 		matches = s.query( Match ).order_by(Match.date.desc())[:limit]
 		header_string = 'last %i matches'%limit
 		print template.render(matches=matches, header=header_string )

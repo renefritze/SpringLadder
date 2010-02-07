@@ -98,6 +98,7 @@ class Match(Base):
 
 	settings    	= relation("MatchSetting", 	order_by="MatchSetting.key" )#, backref="match" )#this would auto-create a relation in MatchSetting too
 	results			= relation("Result", 		order_by="Result.died" )
+	ladder			= relation("Ladder" )
 
 
 class MatchSetting(Base):
