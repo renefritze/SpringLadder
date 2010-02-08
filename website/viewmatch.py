@@ -43,13 +43,11 @@ try:
 		header_string = 'last %i matches'%limit
 		print template.render(matches=matches, header=header_string )
 	else:
-		match = s.query( Match ).filter(Match.id == id ).first()
-		ladder = db.GetLadder( match.ladder_id )
+		match = s.query( Match ).options(eagerload('settings')).filter(Match.id == id ).first()
 		template = env.get_template('viewmatch.html')
 		
-		ladder = s.query( Ladder ).filter( Ladder.id == match.ladder_id ).first()
 		opt_headers = ['key','val','wl/bl']
-		print template.render(ladder=ladder, matchinfo=MatchInfoToTableAdapter(match) )
+		print template.render(ladder=match.ladder, matchinfo=MatchInfoToTableAdapter(match) )
 
 except ElementNotFoundException, e:
 	template = env.get_template('error.html')
