@@ -20,9 +20,7 @@ helpstring_ladder_admin_manager = """!ladderjoinchannel channelname password: jo
 !ladderbanuser ladderID username [time] : ban username from participating in any match on ladder ladderID for given amount of time (optional,floats, format: [D:]H )
 !ladderunbanuser ladderID username : unban username from participating in any match on ladder ladderID
 !ladderlistbans ladderID : list bans for given ladderID
-!ladderclosewhenempty : schedules a bot stop when there are no bot spawned
-!ladderdisable : disables possibility for users to spawn new bots
-!ladderenable : re-enables possibility for users to spawn new bots"""
+ladderrecalculateranks ladderID : recalculates full player rankings for given ladderID"""
 
 helpstring_global_admin_manager ="""!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder
@@ -32,7 +30,10 @@ helpstring_global_admin_manager ="""!ladderadd laddername : creates a new ladder
 !ladderdeleteladderadmin ladderID username : delete new (local) admin from the ladder with LadderID
 !ladderdeleteglobaladmin username : delete global admin
 !ladderbanuserglobal username [time] : ban username from participating in any match on any ladder for given amount of time (optional,floats, format: [D:]H )
-!ladderunbanuserglobal username : unban username from participating in any match on any ladder"""
+!ladderunbanuserglobal username : unban username from participating in any match on any ladder
+!ladderclosewhenempty : schedules a bot stop when there are no bot spawned
+!ladderdisable : disables possibility for users to spawn new bots
+!ladderenable : re-enables possibility for users to spawn new bots"""
 
 helpstring_user_manager ="""!ladderlist : lists available ladders with their IDs
 !ladder [password]: requests a bot to join your current game to monitor and submit scores
