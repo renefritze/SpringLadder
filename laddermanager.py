@@ -655,6 +655,7 @@ class Main:
 				return
 			self.enabled = False
 			self.updatestatus( socket )
+			self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder bot spawning is now disabled." )
 		if command == "!ladderenable":
 			if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
@@ -662,6 +663,22 @@ class Main:
 				return
 			self.enabled = True
 			self.updatestatus( socket )
+			self.notifyuser( socket, fromwho, fromwhere, ispm, "Ladder bot spawning is now enabled." )
+		if command == "!ladderrecalculateranks":
+			if len(args) != 1:
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
+			ladderid = int(args[0])
+			if not self.db.AccessCheck( ladderid, fromwho, Roles.LadderAdmin ):
+				self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+				#log
+				return
+			else:
+				try:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Beginning to recalculate rankings." )
+					self.db.RecalcRankings(ladderid)
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Done recalculating the ranks." )
+				except:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't recalulcate the ranks." )
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
