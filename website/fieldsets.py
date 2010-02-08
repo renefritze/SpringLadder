@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import cgi
+import cgi,ParseConfig
 from ladderdb import *
 from db_entities import *
 from formalchemy import FieldSet, Grid, ValidationError, FieldRenderer
-import ParseConfig
+from customlog import Log
 
 config = ParseConfig.readconfigfile( 'Main.conf' )
+Log.Init( 'website.log', 'website.log' )
 db = LadderDB(config['alchemy-uri'])
 session = db.getSession()
 
@@ -28,12 +29,18 @@ def getAllFields( prefix ):
 		filtered[k] = fields.getvalue(k)
 	return filtered
 
-def getSingleField( key ):
+def getSingleField( key, default=None ):
 	global fields
 	if key in fields.keys():
 		return fields.getvalue(key)
 	else:
-		return None
+		return default
+
+def SortAsc( condition, ascending = True ):
+	if ascending:
+		return condition.asc()
+	else:
+		return condition.desc()
 
 class SubmitRenderer(FieldRenderer):
 	def render(self):

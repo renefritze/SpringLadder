@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from db_entities import *
-from customlog import *
 
 class RankingTable:
 	header 	= []
@@ -49,7 +48,7 @@ class RankingAlgoSelector:
 			for algo in self.algos.values():
 				if isinstance( el, algo.GetDbEntityType() ):
 					return algo.GetPrintableRepresentation( rank_list,db )
-			Log.Error( 'no suitable algo for printing rank list found ', 'RankingAlgoSelector' )
+			print 'no suitable algo for printing rank list found '
 			return ''
 
 	def GetPrintableRepresentationPlayer(self, rank_dict,db ):
@@ -114,7 +113,7 @@ class SimpleRankAlgo(IRanking):
 			elif name not in scores.keys():
 				reldeath = deaths[name] / float(match.last_frame)
 				scores[name] = reldeath * playercount
-		
+		print 'scores ',scores
 		for name,player in result_dict.iteritems():
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( SimpleRanks ).filter( SimpleRanks.ladder_id == ladder_id ).filter( SimpleRanks.player_id == player_id ).first()

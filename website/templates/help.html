@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id='help'>
+	<h1>Controlling LadderBot via the lobby interface</h3>
+	<h2>User commands</h2>
+		<ul>
+			{% for h in user_commands %}
+				<li> <p class='command'>{{h[0]}}</p>{{h[1]}} </li>
+			{% endfor %}
+		</ul>
+	<h2>Ladderadmin commands</h2>
+		<ul>
+			{% for h in ladder_admin_commands %}
+				<li> <p class='command'>{{h[0]}}</p>{{h[1]}} </li>
+			{% endfor %}
+		</ul>
+	<h2>Globaladmin commands</h2>
+		<ul>
+			{% for h in global_admin_commands %}
+				<li> <p class='command'>{{h[0]}}</p>{{h[1]}} </li>
+			{% endfor %}
+		</ul>
+	<h2>Battleroom commands</h2>
+			<ul>
+			{% for h in battleroom_commands %}
+				<li> <p class='command'>{{h[0]}}</p>{{h[1]}} </li>
+			{% endfor %}
+		</ul>
+</div>
+{% endblock %}

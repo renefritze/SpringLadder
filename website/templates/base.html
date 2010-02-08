@@ -6,37 +6,36 @@
 	{% block head %}{% endblock %}
 </head>
 <body>
-<div id="main_container">
-
-	<div id="header">
-		<div class="logo">
-			<a href="index.py"><img src="images/logo.gif" alt="" title="" border="0" /></a>
-		</div>
-    </div>
-	<div id="main_content">
-    	<div class="center_content">
-            <div id="menu_tab">
-                    <ul class="menu">
-						<li><a class="nav" href="/viewladder.py">Ladders</a></li>
-						<li><a class="nav" href="/viewmatch.py">Matches</a></li>
-                    </ul>
-            </div>
-			<div class="some_pad">
-			{% block content %}{% endblock %}
+	<div id='all'>
+		<div id="header">
+			<div class="logo">
+				<a href="index.py">SpringLadder</a>
 			</div>
-			<div class="clear"></div>
-        </div>
-    </div>
+		</div>
 
-    <div id="footer">
-        <div class="left_footer">
-			{% block left_footer %}{% endblock %}
+		<div id="menu_top">
+			<ul>
+				<li class='first'><a class="nav" href="/viewladder.py">Ladders</a></li>
+				<li><a href="/viewmatch.py">Matches</a></li>
+				<li><a href="/viewplayer.py">Players</a></li>
+				<li><a href="/fame.py">Hall Of Fame</a></li>
+				<li><a href="/admin/">Admin</a></li>
+				<li><a href="/help.py">Help</a></li>
+			</ul>
 		</div>
-        <div class="right_footer">
-			{% block right_footer %}{% endblock %}
+
+		<div id="content">
+				{% block content %}{% endblock %}
 		</div>
-    </div>
-</div>
-<!--- structure based on http://csscreme.com/freecsstemplate/musical_instruments -->
+
+		<div id="footer">
+			<div class="left_footer">
+				{% block left_footer %}{% endblock %}
+			</div>
+			<div class="right_footer">
+				{% block right_footer %}{% endblock %}
+			</div>
+		</div>
+	</div>
 </body>
 </html>

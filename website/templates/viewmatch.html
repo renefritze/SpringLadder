@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ladder.name}}</h1>
-<p>{{ladder.description}}
-</p>
-<h3> general info </h3>
+<h1>Match #{{matchinfo.match.id}}</h1>
+<h3>Ladder: {{ladder.name}}</h3>
+<h3> General info </h3>
 <table >
 <tbody>
 {% for row in matchinfo.rows %}
@@ -17,17 +16,7 @@
 </tbody>
 </table>
 <br/>
-<h3> settings </h3>
-<table >
-<tbody>
-{% for s in matchinfo.match.settings %}
-<tr>
-		<td>{{s.key}}</td><td>{{s.value}}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-<h3> settings </h3>
+<h3> Results </h3>
 <table >
 <thead>
 	<tr>
@@ -54,6 +43,18 @@
 		<td>{{r.desync}}</td>
 		<td>{{r.connected}}</td>
 		<td>{{r.timeout}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<br/>
+<h3> Settings </h3>
+<table >
+<tbody>
+{% for s in matchinfo.match.settings %}
+<tr>
+		<td>{{s.key}}</td><td>{{s.value}}</td>
 </tr>
 {% endfor %}
 </tbody>

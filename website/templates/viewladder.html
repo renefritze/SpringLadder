@@ -1,37 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ladder.name}}</h1>
-<p>{{ladder.description}}
-</p>
-<table >
-<tbody>
-{% for row in laddertable.rows %}
-<tr>
-	{% for field in row %}
-		<td>{{field}}</td>
+<h1>{{ladder.name}} ladder</h1>
+{% if ladder.description %}
+	<p>{{ladder.description}}
+	</p>
+{% endif %}
+<hr>
+<h2>Top {{ rank_table.rows|length }}</h2>
+<ol>
+	{% for row in rank_table.rows %}
+	<li> <a href="/viewmatch.py?ladder={{ladder.id}}&player={{row[0]}}"> {{row[0]}}</a> </li>
 	{% endfor %}
-</tr>
-{% endfor %}
-</tbody>
-</table>
-<br/>
-<br/>
-<table >
-<thead>
-<tr>
-{% for h in opt_headers %}
-	<td> {{h}} <td>
-{% endfor %}
-</tr>
-</thead>
-<tbody>
-{% for opt in options %}
-<tr>
-		<td>{{opt.key}}</td><td>{{opt.value}}</td><td>{{opt.is_whitelist}}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+</ol>
+<hr>
+<a href="/viewmatch.py?ladder={{ladder.id}}">Matches</a>
+</br>
+<a href="/scoreboard.py?id={{ladder.id}}">Full List</a>
+</br>
+<a href="/viewrules.py?id={{ladder.id}}">Rules</a>
+<hr>
 
 {% endblock %}
