@@ -189,6 +189,10 @@ a.nav:hover {
 	margin-top: 0px;
 }
 
+.padded td{
+	padding: 0.3em;
+}
+
 /*---------------------pagination-----------------------------*/
 
 

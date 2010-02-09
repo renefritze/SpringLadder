@@ -4,12 +4,18 @@
 <h1>Match #{{matchinfo.match.id}}</h1>
 <h3>Ladder: {{ladder.name}}</h3>
 <h3> General info </h3>
-<table >
+<table class="padded">
 <tbody>
 {% for row in matchinfo.rows %}
 <tr>
 	{% for field in row %}
-		<td>{{field}}</td>
+		<td>
+			{% if not field %}
+				not available
+			{% else %}
+				{{field}}
+			{% endif %}
+		</td>
 	{% endfor %}
 </tr>
 {% endfor %}
@@ -17,19 +23,23 @@
 </table>
 <br/>
 <h3> Results </h3>
-<table >
+<table class="padded">
 <thead>
 	<tr>
-		<td>&nbsp;</td>
+		<td>#</td>
 		<td>nick</td>
+		<td>team</td>
+		<td>ally</td>
 		<td>note</td>
 	</tr>
 </thead>
 <tbody>
 {% for r in matchinfo.match.results %}
 <tr>
-		<td></td>
+		<td>{{loop.index}}</td>
 		<td>{{r.player.nick}}</td>
+		<td>{{r.team}}</td>
+		<td>{{r.ally}}</td>
 		<td>
 			{% if r.disconnect != -1 %}
 				{% if r.kick %}
@@ -50,12 +60,15 @@
 
 <br/>
 <h3> Settings </h3>
-<table >
+<table class="padded">
 <tbody>
 {% for s in matchinfo.match.settings %}
-<tr>
-		<td>{{s.key}}</td><td>{{s.value}}</td>
-</tr>
+	{% if not ( s.key == 'modname' or s.key == 'mapname' ) %}
+		<tr>
+				<td>{{s.key}}</td>
+				<td>{{s.value}}</td>
+		</tr>
+	{% endif %}
 {% endfor %}
 </tbody>
 </table>
