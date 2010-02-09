@@ -20,29 +20,29 @@
 <table >
 <thead>
 	<tr>
+		<td>&nbsp;</td>
 		<td>nick</td>
-		<td>died</td>
-		<td>team</td>
-		<td>ally</td>
-		<td>disconnect</td>
-		<td>quit</td>
-		<td>desync</td>
-		<td>connected</td>
-		<td>timeout</td>
+		<td>note</td>
 	</tr>
 </thead>
 <tbody>
 {% for r in matchinfo.match.results %}
 <tr>
+		<td></td>
 		<td>{{r.player.nick}}</td>
-		<td>{{r.died}}</td>
-		<td>{{r.team}}</td>
-		<td>{{r.ally}}</td>
-		<td>{{r.disconnect}}</td>
-		<td>{{r.quit}}</td>
-		<td>{{r.desync}}</td>
-		<td>{{r.connected}}</td>
-		<td>{{r.timeout}}</td>
+		<td>
+			{% if r.disconnect != -1 %}
+				{% if r.kick %}
+					kicked
+				{% elif r.timeout %}
+					timeout
+				{% elif r.quit %}
+					quit
+				{% else %}
+					undefined
+				{% endif %}
+			{% endif %}
+		</td>
 </tr>
 {% endfor %}
 </tbody>

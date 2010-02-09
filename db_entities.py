@@ -97,7 +97,7 @@ class Match(Base):
 	last_frame		= Column( Integer )
 
 	settings    	= relation("MatchSetting", 	order_by="MatchSetting.key" )#, backref="match" )#this would auto-create a relation in MatchSetting too
-	results			= relation("Result", 		order_by="Result.died" )
+	results			= relation("Result", 		order_by="Result.died.desc()" )
 	ladder			= relation("Ladder" )
 
 
@@ -118,10 +118,11 @@ class Result(Base):
 	team			= Column( Integer )
 	ally			= Column( Integer )
 	disconnect		= Column( Integer )
-	quit			= Column( Integer )
+	quit			= Column( Boolean )
 	died			= Column( Integer )
 	desync			= Column( Integer )
-	timeout			= Column( Integer )
+	timeout			= Column( Boolean )
+	kicked			= Column( Boolean )
 	connected		= Column( Boolean )
 
 	player			= relation(Player)
@@ -133,9 +134,10 @@ class Result(Base):
 		self.ally		= -1
 		self.died		= -1
 		self.desync		= -1
-		self.timeout	= -1
+		self.timeout	= False
 		self.connected	= False
-		self.quit		= -1
+		self.quit		= False
+		self.kicked		= False
 
 class Bans(Base):
 	__tablename__	= 'bans'

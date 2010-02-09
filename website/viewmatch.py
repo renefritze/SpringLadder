@@ -45,7 +45,6 @@ try:
 	else:
 		match = s.query( Match ).options(eagerload('settings')).filter(Match.id == id ).first()
 		template = env.get_template('viewmatch.html')
-		
 		opt_headers = ['key','val','wl/bl']
 		print template.render(ladder=match.ladder, matchinfo=MatchInfoToTableAdapter(match) )
 
