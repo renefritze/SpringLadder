@@ -36,8 +36,8 @@ def getSingleField( key, default=None ):
 	else:
 		return default
 
-def SortAsc( condition, ascending = True ):
-	if ascending:
+def SortAsc( condition, ascending = 'True' ):
+	if ascending == 'True':
 		return condition.asc()
 	else:
 		return condition.desc()

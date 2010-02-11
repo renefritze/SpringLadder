@@ -11,7 +11,7 @@ cgitb.enable()
 env = Environment(loader=FileSystemLoader('templates'))
 
 player_name = getSingleField( 'player' )
-order = getSingleField( 'order', 'nick' )
+order = getSingleField( 'order', 'played' )
 ladder_id = getSingleField( 'ladder' )
 try:
 	s = db.sessionmaker()
@@ -20,7 +20,9 @@ try:
 		template = env.get_template('viewplayer.html')
 		print template.render(player=player )
 	else:
-		asc = bool(getSingleField( 'asc', False ))
+		asc = getSingleField( 'asc', 'False' )
+		if not asc:
+			asc = 'False'
 		q = s.query( Player, func.count(Result.id).label('played')).outerjoin( (Result, Result.player_id == Player.id ) )\
 			.filter( Player.id.in_(s.query( Result.player_id ).filter( Player.id == Result.player_id  ) ) ) \
 			.filter( Result.player_id == Player.id ).group_by( Player.id )
@@ -28,15 +30,18 @@ try:
 			q = q.filter( Player.id.in_( s.query( Result.player_id ).filter( Result.ladder_id == ladder_id ) ) )
 		if order == 'nick':
 			q = q.order_by( SortAsc( Player.nick, asc ) )
-		else:
-			order = 'id'
+		elif order == 'id' :
 			q = q.order_by( SortAsc( Player.id, asc ) )
+		else:
+			order = 'played'
+			q = q.order_by( SortAsc( func.count(Result.id), asc ) )
 
 		limit = int(getSingleField( 'limit', q.count() ))
 		offset = int(getSingleField( 'offset', 0 ))
 		players = q[offset:offset+limit-1]
 		template = env.get_template('viewplayerlist.html')
-		print template.render(players=players,offset=offset,limit=limit,order=order )
+		print template.render(players=players,offset=offset,limit=limit,order=order,asc=asc )
+		print asc
 
 except ElementNotFoundException, e:
 	template = env.get_template('error.html')

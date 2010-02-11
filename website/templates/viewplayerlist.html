@@ -4,19 +4,47 @@
 {% if header %}
 <h1>{{header}}</h1>
 {% endif %}
-{% set new_asc = not asc %}
+{{ asc }}
+{{ order }}
+{% if asc == 'True' %}
+	{% set new_asc =  'False' %}
+{% else %}
+	{% set new_asc = 'True' %}
+{% endif %}
+{{ new_asc }}
 <table class='padded'>
 	<theader>
 		<tr>
 			<td>
-				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}{% if order is sameas 'id'%}&asc={{new_asc}}{%endif%}&order=id" >
+				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
+					{% if order == 'id'%}
+						&asc={{new_asc}}
+					{% else %}
+						&asc={{asc}}
+					{%endif%}
+					&order=id" >
 				ID </a>
 			</td>
 			<td>
-				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}{% if order is sameas 'nick'%}&asc={{new_asc}}{%endif%}&order=nick" >
+				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
+					{% if order == 'nick'%}
+						&asc={{new_asc}}
+					{% else %}
+						&asc={{asc}}
+					{%endif%}
+					&order=nick" >
 				Nickname</a>
 			</td>
-			<td> Matches played </td>
+			<td>
+				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
+					{% if order == 'played'%}
+						&asc={{new_asc}}
+					{% else %}
+						&asc={{asc}}
+					{%endif%}
+					&order=played" >
+				# Matches</a>
+			</td>
 		</tr>
 	</theader>
 	<tbody>
