@@ -21,7 +21,13 @@ try:
 		print template.render(player=player )
 	else:
 		asc = bool(getSingleField( 'asc', False ))
-		q = s.query( Player ).filter( Player.id.in_(s.query( Result.player_id ).filter( Player.id == Result.player_id  ) ) )
+		#matches_played = s.query( Result.player_id, func,count( Result.id ) ).filter( Player.id
+		q = s.query( Player, func.count(Result.id).label('played')).outerjoin( (Result, Result.player_id == Player.id ) )\
+			.filter( Player.id.in_(s.query( Result.player_id ).filter( Player.id == Result.player_id  ) ) ) \
+			.filter( Result.player_id == Player.id ).group_by( Player.id )
+		#filter( Result.player.nick == 'doofus').group_by( Result.player_id )
+		#print q.first()#str(q.first()[1].id)
+		#print q.count()
 		if ladder_id:
 			q = q.filter( Player.id.in_( s.query( Result.player_id ).filter( Result.ladder_id == ladder_id ) ) )
 		if order == 'nick':
