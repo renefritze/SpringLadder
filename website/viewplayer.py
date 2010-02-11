@@ -5,6 +5,7 @@ import cgi
 from jinja2 import Environment, FileSystemLoader
 from fieldsets import *
 from formalchemy import Field, types
+from sqlalchemy import func
 import cgitb
 cgitb.enable()
 env = Environment(loader=FileSystemLoader('templates'))
@@ -20,7 +21,7 @@ try:
 		print template.render(player=player )
 	else:
 		asc = bool(getSingleField( 'asc', False ))
-		q = s.query( Player )
+		q = s.query( Player ).filter( Player.id.in_(s.query( Result.player_id ).filter( Player.id == Result.player_id  ) ) )
 		if ladder_id:
 			q = q.filter( Player.id.in_( s.query( Result.player_id ).filter( Result.ladder_id == ladder_id ) ) )
 		if order == 'nick':
