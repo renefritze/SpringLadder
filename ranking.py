@@ -97,11 +97,11 @@ class SimpleRankAlgo(IRanking):
 		for name,player in result_dict.iteritems():
 			if player.died > 0:
 				deaths[name] = player.died
-			if player.timeout > -1:
+			if player.timeout:
 				scores[name] = -1
 			if player.disconnect > -1:
 				scores[name] = -2
-			if player.quit > -1:
+			if player.quit:
 				scores[name] = -5
 			if player.desync > -1:
 				scores[name] = 0
