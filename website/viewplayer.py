@@ -23,7 +23,11 @@ try:
 		for ladder in ladders:
 			positions[ladder.id] = db.GetPlayerPostion( ladder.id, player.id )
 			played[ladder.id] = s.query( Result.id ).filter( Result.ladder_id == ladder.id ).filter( Result.player_id == player.id ).count()
-		matches = s.query( Result.match ).filter( Result.player_id == player.id).order_by(Result.date.desc())[0:5]
+
+		results = s.query( Result ).filter( Result.player_id == player.id).order_by(Result.date.desc())[0:5]
+		matches = []
+		for r in results:
+			matches.append( r.match )
 
 		template = env.get_template('viewplayer.html')
 		print template.render(player=player,ladders=ladders, positions=positions,played=played,matches=matches )
