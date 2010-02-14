@@ -4,26 +4,28 @@
 <h1> {{ladder.name}} scoreboard</h1>
 <div id='results'>
 	<table>
-	<thead>
-	<tr>
-		<td>#</td>
-		{% for h in rank_table.header %}
-			<td> {{h}} </td>
-		{% endfor %}
-	</tr>
-	</thead>
+		<thead>
+			<tr>
+				<th scope='col'>#</th>
+				{% for h in rank_table.header %}
+					<th scope='col'> {{h}} </th>
+				{% endfor %}
+			</tr>
+		</thead>
 	<tbody>
-	{% set count = 1 %}
-	{% for row in rank_table.rows %}
-	<tr>
-		<td> {{count}} </td>
-		{% for field in row %}
-			<td>{{field}}</td>
+		{% for row in rank_table.rows %}
+			<tr>
+				<td> {{loop.index}} </td>
+				{% for field in row %}
+					{% if loop.index0 == 0 %}
+						<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
+					{% else %}
+						<td>{{field}}</td>
+					{% endif %}
+				{% endfor %}
+			</tr>
 		{% endfor %}
-		{% set count = count + 1 %}
-	</tr>
-	{% endfor %}
-	</tbody>
+		</tbody>
 	</table>
 	<br/>
 	<a href="/viewladder?id={{ladder.id}}" > back to ladder </a>
