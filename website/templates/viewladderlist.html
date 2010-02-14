@@ -8,7 +8,11 @@
 	<tbody>
 		<tr>
 			{% for l in ladders %}
-				<td>
+				{% if loop.index is even %}
+					<td>
+				{% else %}
+					<td class="unevengridcell">
+				{% endif %}
 					<h3><a href="/viewladder.py?id={{ l.id }}">{{ l.name }}</a>
 						{% if l.description %} - {{l.description}} {% endif %}
 					</h3>

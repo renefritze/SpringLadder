@@ -159,11 +159,17 @@ a.nav:hover {
 	list-style: none;
 	list-style-position:inside;
 }
-
+#index_block_content h1 {
+	margin-bottom: 0;
+}
 .command {
 	background-color: #eee;
 	color: #f00;
 	font-family: monospace;
+}
+
+.unevengridcell {
+	background-color:#ebebeb;
 }
 
 #help ul li{
@@ -177,6 +183,9 @@ a.nav:hover {
 #ladderlist td {
 	width: 33%;
 	vertical-align: top;
+	padding-left:2%;
+	padding-right:2%;
+	padding-bottom:2%;
 }
 
 #ladderlist h4 {
@@ -210,7 +219,9 @@ a.nav:hover {
 	vertical-align: top;
 	padding-left:2%;
 	padding-right:2%;
+	padding-bottom:2%;
 }
+
 #matchgrid h5 {
 	text-align: center;
 }

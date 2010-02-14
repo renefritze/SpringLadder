@@ -4,14 +4,13 @@
 <div id='index_block_center_wrapper'>
 	<div id='index_block_center'>
 		<div id='index_block_content'>
-			{% if matches_header %}
 			<h1>{{matches_header}}</h1>
-			{% endif %}
+			(laddername)
 			<ul>
 			{% for l in matches %}
 			<li>
 				<a href="/viewmatch.py?id={{ l.id }}">{{l.date}}</a><br/>
-				({% if loop.first %}Ladder {% endif %}<a href="/viewladder.py?id={{l.ladder.id}}">{{ l.ladder.name }}</a>)
+				(<a href="/viewladder.py?id={{l.ladder.id}}">{{ l.ladder.name }}</a>)
 			</li>
 			{% endfor %}
 			</ul>
@@ -20,14 +19,13 @@
 </div>
 	<div id='index_block_left'>
 		<div id='index_block_content'>
-			{% if ladders_header %}
 			<h1>{{ladders_header}}</h1>
-			{% endif %}
+			(matches played)
 			<ul>
 			{% for l in ladders %}
 			<li>
 				<a href="/viewladder.py?id={{ l[0].id }}">{{l[0].name}}</a><br/>
-				({{ l[1] }}{% if loop.first %} matches played{% endif %})
+				({{ l[1] }})
 			</li>
 			{% endfor %}
 			</ul>
@@ -36,14 +34,13 @@
 
 	<div id='index_block_right'>
 		<div id='index_block_content'>
-			{% if players_header %}
 			<h1>{{players_header}}</h1>
-			{% endif %}
+			(matches played)
 			<ul>
 			{% for p in players %}
 			<li>
 				<a href="/viewplayer.py?player={{ p[0].nick }}"> {{p[0].nick}}</a><br/>
-				({{ p[1] }}{% if loop.first %} matches played{% endif %})
+				({{ p[1] }})
 			</li>
 			{% endfor %}
 			</ul>
