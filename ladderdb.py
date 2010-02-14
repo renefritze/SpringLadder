@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import *
+#from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
+from sqlalchemy import exc
 import datetime
 from db_entities import *
 from ranking import *
 from match import *
 import time
+from customlog import *
 
 current_db_rev = 1
 
@@ -24,15 +26,28 @@ class ElementNotFoundException( Exception ):
 	def __str__(self):
 		return "Element %s not found in db"%(self.element)
 
+class DbConnectionLostException( Exception ):
+	def __init__( self, trace ):
+		self.trace = trace
+	def __str__(self):
+		return "Database connection temporarily lost during query"
+	def getTrace(self):
+		return self.trace
+
 class LadderDB:
-	def __init__(self,alchemy_uri,owner=[], verbose=False):
-		global current_db_rev
-#		print "loading db at " + alchemy_uri
-		self.engine = create_engine(alchemy_uri, echo=verbose, pool_size=10, max_overflow=20)
+	def Connect(self):
+		self.engine = create_engine(self.alchemy_uri, echo=self.verbose, pool_size=10, max_overflow=20)
 		self.metadata = Base.metadata
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)
 		self.sessionmaker = sessionmaker( bind=self.engine )
+		
+	def __init__(self,alchemy_uri,owner=[], verbose=False):
+		global current_db_rev
+#		print "loading db at " + alchemy_uri
+		self.alchemy_uri = alchemy_uri
+		self.verbose = verbose
+		self.Connect()
 		self.SetOwner(owner)
 		oldrev = self.GetDBRevision()
 		self.UpdateDBScheme( oldrev, current_db_rev )
@@ -280,33 +295,39 @@ class LadderDB:
 
 	def AccessCheck( self, ladder_id, username, role ):
 		session = self.sessionmaker()
-		player_query = session.query( Player ).filter( Player.nick == username )
-		if player_query.count () == 0:
-			self.AddPlayer( username, Roles.User )
+		try:
 			player_query = session.query( Player ).filter( Player.nick == username )
-		is_superadmin = player_query.filter( Player.role >= Roles.GlobalAdmin ).count() == 1
-		if role == Roles.LadderAdmin:
-			if ladder_id != -1:
-				is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
-					.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
+			if player_query.count () == 0:
+				self.AddPlayer( username, Roles.User )
+				player_query = session.query( Player ).filter( Player.nick == username )
+			is_superadmin = player_query.filter( Player.role >= Roles.GlobalAdmin ).count() == 1
+			if role == Roles.LadderAdmin:
+				if ladder_id != -1:
+					is_ladderadmin = session.query( Option ).filter( Option.ladder_id == ladder_id ).filter( Option.key == Option.adminkey ) \
+						.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
+					session.close()
+					return is_superadmin or is_ladderadmin
+				else:
+					is_ladderadmin = session.query( Option ).filter( Option.key == Option.adminkey ) \
+						.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
+					session.close()
+					return is_superadmin or is_ladderadmin
+			player = player_query.first()
+			if player:
+				is_global_banned = player.role == Roles.GlobalBanned
+				is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.datetime.now() ).count()
+				if is_banned:
+					session.close()
+					return False
 				session.close()
-				return is_superadmin or is_ladderadmin
-			else:
-				is_ladderadmin = session.query( Option ).filter( Option.key == Option.adminkey ) \
-					.filter( Option.is_whitelist == True).filter( Option.value == username ).count() >= 1
-				session.close()
-				return is_superadmin or is_ladderadmin
-		player = player_query.first()
-		if player:
-			is_global_banned = player.role == Roles.GlobalBanned
-			is_banned = 0 < session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).filter( Bans.end >= datetime.datetime.now() ).count()
-			if is_banned:
-				session.close()
-				return False
+				return player.role >= role or is_superadmin
 			session.close()
-			return player.role >= role or is_superadmin
-		session.close()
-		return False
+			return False
+		except exc.DBAPIError, e:
+			trace = traceback.format_exc()
+			Log.Error( trace, '[LadderDB Exception]' )
+			self.Connect()
+			raise DbConnectionLostException(trace)
 
 	def AddLadderAdmin( self, ladder_id, username ):
 		self.AddOption( ladder_id, True, Option.adminkey, username )
