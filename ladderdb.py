@@ -8,6 +8,8 @@ from ranking import *
 from match import *
 import time
 
+current_db_rev = 1
+
 class ElementExistsException( Exception ):
 	def __init__(self, element):
 		self.element = element
@@ -24,6 +26,7 @@ class ElementNotFoundException( Exception ):
 
 class LadderDB:
 	def __init__(self,alchemy_uri,owner=[], verbose=False):
+		global current_db_rev
 #		print "loading db at " + alchemy_uri
 		self.engine = create_engine(alchemy_uri, echo=verbose, pool_size=10, max_overflow=20)
 		self.metadata = Base.metadata
@@ -31,6 +34,9 @@ class LadderDB:
 		self.metadata.create_all(self.engine)
 		self.sessionmaker = sessionmaker( bind=self.engine )
 		self.SetOwner(owner)
+		oldrev = self.GetDBRevision()
+		self.UpdateDBScheme( oldrev, current_db_rev )
+		self.SetDBRevision( current_db_rev )
 
 	def getSession(self):
 		return self.sessionmaker()
@@ -441,3 +447,36 @@ class LadderDB:
 		bans = session.query( Bans ).filter( Bans.player_id == player_id ).all()
 		session.close()
 		return bans
+
+	def GetDBRevision(self):
+		session = self.sessionmaker()
+		rev = session.query( Config.dbrevision ).order_by( Config.dbrevision.desc() ).first()
+		if not rev:
+			#default value
+			rev = -1
+		session.close()
+		return rev
+
+	def SetDBRevision(self,rev):
+		session = self.sessionmaker()
+		conf = session.query( Config ).first()
+		if not conf:
+			#default value
+			conf = Config()
+		conf.dbrevision = rev
+		session.add( conf )
+		session.commit()
+		session.close()
+
+	def UpdateDBScheme( self, oldrev, current_db_rev ):
+		session = self.sessionmaker()
+		if current_db_rev > oldrev:
+			if oldrev == -1:
+				results = session.query( Result ).all()
+				for r in results:
+					r.quit = False
+					r.kicked = False
+					r.timeout = False
+					session.add( r )
+		session.commit()
+		session.close()

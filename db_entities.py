@@ -97,7 +97,7 @@ class Match(Base):
 	last_frame		= Column( Integer )
 
 	settings    	= relation("MatchSetting", 	order_by="MatchSetting.key" )#, backref="match" )#this would auto-create a relation in MatchSetting too
-	results			= relation("Result", 		order_by="Result.died.desc()" )
+	results			= relation("Result", 		order_by="Result.died" )
 	ladder			= relation("Ladder" )
 
 
@@ -188,3 +188,10 @@ class GlickoRanks(Base):
 		self.rd		=  350
 
 	player			= relation("Player")
+
+class Config(Base):
+	__tablename__	= 'config'
+	dbrevision		= Column( Integer, primary_key=True )
+
+	def __init__(self):
+		self.dbrevision = 0
