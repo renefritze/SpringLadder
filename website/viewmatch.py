@@ -40,8 +40,7 @@ try:
 		template = env.get_template('viewmatchgrid.html')
 		limit = int(getSingleField( 'limit', 18 ))
 		matches = s.query( Match ).order_by(Match.date.desc())[:limit]
-		header_string = 'last %i matches'%limit
-		print template.render(matches=matches, header=header_string )
+		print template.render( matches=matches, limit=limit )
 	else:
 		match = s.query( Match ).options(eagerload('settings')).filter(Match.id == id ).first()
 		template = env.get_template('viewmatch.html')

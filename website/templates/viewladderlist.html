@@ -13,17 +13,18 @@
 						{% if l.description %} - {{l.description}} {% endif %}
 					</h3>
 					<div>
-						<ul>
-							<li><a href="/viewplayer.py?ladder={{l.id}}">Players</a>: {{l.player_count}}</li>
-							<li><a href="/viewmatch.py?ladder={{l.id}}">Matches</a>: {{l.match_count}}</li>
-						</ul>
+							{{l.player_count}} <a href="/viewplayer.py?ladder={{l.id}}">Players</a>,
+							{{l.match_count}} <a href="/viewmatch.py?ladder={{l.id}}">Matches</a>
 					</div>
 					<div >
-						<ol>
-							{% for row in l.ranks.rows %}
-							<li> <a href="/viewmatch.py?ladder={{l.id}}&player={{row[0]}}"> {{row[0]}}</a> </li>
-							{% endfor %}
-						</ol>
+						{% if l.ranks.rows|length > 0 %}
+							<h4>Top Players</h4>
+							<ol>
+								{% for row in l.ranks.rows %}
+								<li> <a href="/viewmatch.py?ladder={{l.id}}&player={{row[0]}}"> {{row[0]}}</a> </li>
+								{% endfor %}
+							</ol>
+						{% endif %}
 					</div>
 					{% if l.last_match %}
 						<div>

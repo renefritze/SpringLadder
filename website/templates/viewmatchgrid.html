@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if header %}
-	<h1>{{header}}</h1>
-{% endif %}
-
 {% set count = 1 %}
 <div id='matchgrid'>
 	<table>
@@ -12,8 +8,10 @@
 		<tr>
 			{% for l in matches %}
 				<td>
-					<h3><a href="/viewmatch.py?id={{ l.id }}">Match #{{ l.id }}</a> 
-						- <a href="/viewladder.py?id={{l.ladder.id}}">{{l.ladder.name}} </a>
+					<h3>
+						<!--<a href="/viewmatch.py?id={{ l.id }}">Match #{{ l.id }}</a>
+						- <a href="/viewladder.py?id={{l.ladder.id}}">{{l.ladder.name}} </a>-->
+						<a href="/viewmatch.py?id={{ l.id }}">{{l.ladder.name}} match</a>
 					</h3>
 					<div >
 						<ol>
@@ -38,5 +36,8 @@
 		</tr>
 	</tbody>
 	</table>
+	{% if limit > 0 %}
+		<h5>Showing last {{ matches|length }} matches -- <a href="/viewmatch.py?limit=-1">show all</a></h5>
+	{% endif %}
 </div>
 {% endblock %}
