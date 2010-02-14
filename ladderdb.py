@@ -326,7 +326,6 @@ class LadderDB:
 		except exc.DBAPIError, e:
 			trace = traceback.format_exc()
 			Log.Error( trace, '[LadderDB Exception]' )
-			self.Connect()
 			raise DbConnectionLostException(trace)
 
 	def AddLadderAdmin( self, ladder_id, username ):
