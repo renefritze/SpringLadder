@@ -11,7 +11,7 @@
 			{% for l in matches %}
 			<li>
 				<a href="/viewmatch.py?id={{ l.id }}">{{l.date}}</a><br/>
-				(<a href="/viewladder.py?id={{l.ladder.id}}">{{ l.ladder.name }}</a>)
+				({% if loop.first %}Ladder {% endif %}<a href="/viewladder.py?id={{l.ladder.id}}">{{ l.ladder.name }}</a>)
 			</li>
 			{% endfor %}
 			</ul>
