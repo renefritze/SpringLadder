@@ -293,6 +293,20 @@ class LadderDB:
 		session.close()
 		return res
 
+	def GetPlayerPostion(self, ladder_id, player_id):
+		session = self.sessionmaker()
+		player = session.query( Player ).filter( Player.id == player_id ).first()
+		pos = -1
+		ranks = self.GetRanks( ladder_id )
+		i = 1
+		for r in ranks:
+			if r.player_id == player_id:
+				pos = i
+				break
+			i += 1
+		session.close()
+		return pos
+		
 	def AccessCheck( self, ladder_id, username, role ):
 		session = self.sessionmaker()
 		try:
@@ -501,3 +515,13 @@ class LadderDB:
 					session.add( r )
 		session.commit()
 		session.close()
+
+	def GetLadderByPlayer( self, player_id ):
+		session = self.sessionmaker()
+		ret = session.query( Ladder ).filter( Ladder.id.in_( session.query( Result.ladder_id ).\
+			filter( Result.player_id == player_id ) ) ).order_by( Ladder.id )
+		session.close()
+		if ret.count() > 0:
+			return ret.all()
+		else:
+			return []

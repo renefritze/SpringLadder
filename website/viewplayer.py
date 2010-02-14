@@ -17,8 +17,16 @@ try:
 	s = db.sessionmaker()
 	if player_name:
 		player = db.GetPlayer( player_name )
+		ladders = db.GetLadderByPlayer( player.id )
+		played = dict()
+		positions = dict()
+		for ladder in ladders:
+			positions[ladder.id] = db.GetPlayerPostion( ladder.id, player.id )
+			played[ladder.id] = s.query( Result.id ).filter( Result.ladder_id == ladder.id ).filter( Result.player_id == player.id ).count()
+		matches = s.query( Result.match ).filter( Result.player_id == player.id).order_by(Result.date.desc())[0:5]
+
 		template = env.get_template('viewplayer.html')
-		print template.render(player=player )
+		print template.render(player=player,ladders=ladders, positions=positions,played=played,matches=matches )
 	else:
 		asc = getSingleField( 'asc', 'False' )
 		if not asc:

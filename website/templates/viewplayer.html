@@ -1,4 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1>{{player.nick}}</h1>
+<h3>recent matches</h3>
+<ul>
+{% for l in matches %}
+  <li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+{% endfor %}
+</ul>
+<h3>Active on</h3>
+<table class='padded'>
+	<theader>
+		<tr>
+			<td>
+				ladder
+			</td>
+			<td>
+				position
+			</td>
+			<td>
+				#matches played
+			</td>
+		</tr>
+	</theader>
+	<tbody>
+	{% if ladders | length > 0 %}
+		{% for l in ladders %}
+			<tr>
+				<td>
+					<a href="/viewladder.py?id={{l.id}}">{{l.name}}</a>
+				</td>
+				<td>
+					{{positions[l.id]}}
+				</td>
+				<td>
+					{{played[l.id]}}
+				</td>
+			</tr>
+		{% endfor %}
+	{% else %}
+		no activity yet
+	{% endif %}
+	</tbody>
+</table>
+
 {% endblock %}
