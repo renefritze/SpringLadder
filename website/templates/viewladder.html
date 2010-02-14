@@ -1,24 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ladder.name}} ladder</h1>
-{% if ladder.description %}
-	<p>{{ladder.description}}
-	</p>
-{% endif %}
-<hr>
-<h2>Top {{ rank_table.rows|length }}</h2>
-<ol>
-	{% for row in rank_table.rows %}
-	<li> <a href="/viewmatch.py?ladder={{ladder.id}}&player={{row[0]}}"> {{row[0]}}</a> </li>
-	{% endfor %}
-</ol>
-<hr>
-<a href="/viewmatch.py?ladder={{ladder.id}}">Matches</a>
-</br>
-<a href="/scoreboard.py?id={{ladder.id}}">Full List</a>
-</br>
-<a href="/viewrules.py?id={{ladder.id}}">Rules</a>
-<hr>
-
+<div>
+	<h1>{{ladder.name}} ladder</h1>
+	{% if ladder.description %}
+		<p>{{ladder.description}}
+		</p>
+	{% endif %}
+	<a href="/viewrules.py?id={{ladder.id}}">Rules</a>
+	<div style="clear:both;"></div>
+	<div style="float:left;width:50%;">
+		<h2>Top {{ rank_table.rows|length }} players</h2>
+		<ol>
+			{% for row in rank_table.rows %}
+				<li> <a href="/viewmatch.py?ladder={{ladder.id}}&player={{row[0]}}"> {{row[0]}}</a> </li>
+			{% endfor %}
+		</ol>
+		<a href="/scoreboard.py?id={{ladder.id}}">full list</a>
+	</div>
+	<div>
+		<h2>Last {{ matches|length }} matches</h2>
+		<ul>
+			{% for l in matches %}
+				<li><a href="/viewmatch.py?id={{ l.id }}">({{l.date}})</a> </li>
+			{% endfor %}
+		</ul>
+		<a href="/viewmatch.py?ladder={{ladder.id}}">all matches</a>
+	</div>
+	<div style="clear:both;"></div>
+	</br>
+	
+	</br>
+	
+	<hr>
+</div>
 {% endblock %}

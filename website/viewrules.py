@@ -12,9 +12,9 @@ id = getSingleField( 'id' )
 try:
 	ladder = db.GetLadder( id )
 	template = env.get_template('viewrules.html')
-	options = db.GetOptions( id )
-	opt_headers = ['key','val','wl/bl']
-	print template.render(ladder=ladder, laddertable=LadderInfoToTableAdapter(ladder), options=options, opt_headers=opt_headers)
+	opts = db.GetOptions( id )
+	options = LadderOptionsAdapter( opts , ladder )
+	print template.render(ladder=ladder, laddertable=LadderInfoToTableAdapter(ladder), options=options )
 
 except ElementNotFoundException, e:
 	template = env.get_template('error.html')

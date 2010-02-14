@@ -69,6 +69,25 @@ class LadderInfoToTableAdapter:
 		self.rows.append( [ 'max_team_count' 	, ladder.max_team_count ] )
 		self.rows.append( [ 'ranking_algo_id' 	, ladder.ranking_algo_id ] )
 
+class LadderOptionsAdapter:
+	def __init__(self,options,ladder):
+		self.ladder		= ladder
+		self.options 	= options
+		self.optheaders	= ['key','value']
+		self.bloptions 	= []
+		self.wloptions 	= []
+		self.admins		= []
+		for opt in self.options:
+			if opt.key == 'ladderadmin':
+				self.admins.append( opt.value )
+			else:
+				if opt.key == 'modname' or opt.key == 'mapname':
+					continue
+				if opt.is_whitelist:
+					self.wloptions.append( {'key': opt.key, 'value': opt.value } )
+				else:
+					self.bloptions.append( {'key': opt.key, 'value': opt.value } )
+
 class MatchInfoToTableAdapter:
 	def __init__(self, match ):
 		self.match = match

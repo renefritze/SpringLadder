@@ -11,7 +11,7 @@ cgitb.enable()
 env = Environment(loader=FileSystemLoader('templates'))
 
 player_name = getSingleField( 'player' )
-order = getSingleField( 'order', 'played' )
+order = getSingleField( 'order', 'nick' )
 ladder_id = getSingleField( 'ladder' )
 try:
 	s = db.sessionmaker()

@@ -14,10 +14,10 @@ env = Environment(loader=FileSystemLoader('templates'))
 
 id = getSingleField( 'id' )
 try:
+	s = db.sessionmaker()
 	if not id:
-		s = db.sessionmaker()
 		ladder_list = []
-		ladder_triple_list = s.query(Ladder)
+		ladder_triple_list = s.query(Ladder).order_by( Ladder.name )
 		#ladder_triple_list = [db.GetLadder( 17 )]
 		for  l in ladder_triple_list:
 			ladder_id = l.id
@@ -48,9 +48,11 @@ try:
 	else:
 		ladder = db.GetLadder( id )
 		template = env.get_template('viewladder.html')
-		ranks = db.GetRanks( id, None, 10 )
+		limit = 10
+		ranks = db.GetRanks( id, None, limit )
+		matches = s.query( Match ).filter( Match.ladder_id == id ).order_by(Match.date.desc())[:limit]
 		rank_table = GlobalRankingAlgoSelector.GetWebRepresentation( ranks, db )
-		print template.render(ladder=ladder, rank_table=rank_table )
+		print template.render(ladder=ladder, rank_table=rank_table, matches=matches )
 
 except ElementNotFoundException, e:
 	template = env.get_template('error.html')

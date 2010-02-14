@@ -1,62 +1,52 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if header %}
-<h1>{{header}}</h1>
-{% endif %}
-{{ asc }}
-{{ order }}
-{% if asc == 'True' %}
-	{% set new_asc =  'False' %}
-{% else %}
-	{% set new_asc = 'True' %}
-{% endif %}
-{{ new_asc }}
-<table class='padded'>
-	<theader>
-		<tr>
-			<td>
-				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
-					{% if order == 'id'%}
-						&asc={{new_asc}}
-					{% else %}
-						&asc={{asc}}
-					{%endif%}
-					&order=id" >
-				ID </a>
-			</td>
-			<td>
-				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
-					{% if order == 'nick'%}
-						&asc={{new_asc}}
-					{% else %}
-						&asc={{asc}}
-					{%endif%}
-					&order=nick" >
-				Nickname</a>
-			</td>
-			<td>
-				<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
-					{% if order == 'played'%}
-						&asc={{new_asc}}
-					{% else %}
-						&asc={{asc}}
-					{%endif%}
-					&order=played" >
-				# Matches</a>
-			</td>
-		</tr>
-	</theader>
-	<tbody>
-	{% for tuple in players %}
-		{% set p = tuple[0] %}
-		{% set c = tuple[1] %}
-		<tr>
-			<td>{{p.id}}</td>
-			<td><a href="/viewplayer.py?player={{ p.nick }}">{{ p.nick }}</a> </li>
-			<td style="text-align:center;"> {{ c }}</td>
-		</tr>
-	{% endfor %}
-	</tbody>
-</table>
+<div id='results'>
+	{% if header %}
+	<h1>{{header}}</h1>
+	{% endif %}
+
+	{% if asc == 'True' %}
+		{% set new_asc =  'False' %}
+	{% else %}
+		{% set new_asc = 'True' %}
+	{% endif %}
+
+	<table >
+		<theader>
+			<tr>
+				<th scope='col'>
+					<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
+						{% if order == 'nick'%}
+							&asc={{new_asc}}
+						{% else %}
+							&asc={{asc}}
+						{%endif%}
+						&order=nick" >
+					Nickname</a>
+				</th>
+				<th scope='col'>
+					<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
+						{% if order == 'played'%}
+							&asc={{new_asc}}
+						{% else %}
+							&asc={{asc}}
+						{%endif%}
+						&order=played" >
+					# Matches</a>
+				</td>
+			</tr>
+		</theader>
+		<tbody>
+		{% for tuple in players %}
+			{% set p = tuple[0] %}
+			{% set c = tuple[1] %}
+			<tr>
+				<td><a href="/viewplayer.py?player={{ p.nick }}">{{ p.nick }}</a> </li>
+				<td> {{ c }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
 {% endblock %}

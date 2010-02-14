@@ -2,86 +2,91 @@
 
 {% block content %}
 <h1>Match #{{matchinfo.match.id}}</h1>
-<h3>Ladder: {{ladder.name}}</h3>
-<h3> General info </h3>
-<table class="padded">
-<tbody>
-{% for row in matchinfo.rows %}
-<tr>
-	{% for field in row %}
-		<td>
-			{% if not field %}
-				not available
-			{% else %}
-				{{field}}
-			{% endif %}
-		</td>
-	{% endfor %}
-</tr>
-{% endfor %}
-</tbody>
-</table>
-<br/>
-<h3> Results </h3>
-<table class="padded">
-<thead>
-	<tr>
-		<td>#</td>
-		<td>nick</td>
-		<td>team</td>
-		<td>ally</td>
-		<td>note</td>
-	</tr>
-</thead>
-<tbody>
-{% set last_ally = -1 %}
-{% for r in matchinfo.match.results %}
-<tr id='match'
-	{% if r.ally != last_ally %}
-		{% if loop.last %}
-			class="bottomborder topborder"
-		{% else %}
-			class="topborder"
-		{% endif %}
-	{% elif loop.last %}
-		class="bottomborder"
-	{% endif %}
->
-		<td >{{loop.index}}</td>
-		<td>{{r.player.nick}}</td>
-		<td>{{r.team}}</td>
-		<td>{{r.ally}}</td>
-		<td>
-			{% if r.disconnect != -1 %}
-				{% if r.kick %}
-					kicked
-				{% elif r.timeout %}
-					timeout
-				{% elif r.quit %}
-					quit
-				{% else %}
-					undefined
+<div>
+	<h3>Ladder: <a href="/viewladder.py?id={{ladder.id}}" >{{ladder.name}}</a>
+	</h3>
+	<h3>General info</h3>
+	<table class="padded">
+		<tbody>
+		{% for row in matchinfo.rows %}
+			<tr>
+				{% for field in row %}
+					<td>
+						{% if not field %}
+							not available
+						{% else %}
+							{{field}}
+						{% endif %}
+					</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+<div id='results'>
+	<h3>Results</h3>
+	<table>
+		<thead>
+			<tr>
+				<th scope='col'>#</td>
+				<th scope='col'>nick</th>
+				<th scope='col'>team</th>
+				<th scope='col'>ally</th>
+				<th scope='col'>note</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% set last_ally = -1 %}
+		{% for r in matchinfo.match.results %}
+			<tr id='match'
+				{% if r.ally != last_ally %}
+					{% if loop.last %}
+						class="bottomborder topborder"
+					{% else %}
+						class="topborder"
+					{% endif %}
+				{% elif loop.last %}
+					class="bottomborder"
 				{% endif %}
-			{% endif %}
-		</td>
-		{% set last_ally = r.ally %}
-</tr>
-{% endfor %}
-</tbody>
-</table>
-
+			>
+					<td >{{loop.index}}</td>
+					<td><a href="/viewplayer.py?player={{r.player.nick}}">{{r.player.nick}}</a></td>
+					<td>{{r.team}}</td>
+					<td>{{r.ally}}</td>
+					<td>
+						{% if r.disconnect != -1 %}
+							{% if r.kick %}
+								kicked
+							{% elif r.timeout %}
+								timeout
+							{% elif r.quit %}
+								quit
+							{% else %}
+								undefined
+							{% endif %}
+						{% endif %}
+					</td>
+					{% set last_ally = r.ally %}
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
 <br/>
-<h3> Settings </h3>
-<table class="padded">
-<tbody>
-{% for s in matchinfo.match.settings %}
-	{% if not ( s.key == 'modname' or s.key == 'mapname' ) %}
-		<tr>
-				<td>{{s.key}}</td>
-				<td>{{s.value}}</td>
-		</tr>
-	{% endif %}
-{% endfor %}
-</tbody>
-</table>
+<div>
+	<h3> Settings </h3>
+	<table class="padded">
+		<tbody>
+		{% for s in matchinfo.match.settings %}
+			{% if not ( s.key == 'modname' or s.key == 'mapname' ) %}
+				<tr>
+						<td>{{s.key}}</td>
+						<td>{{s.value}}</td>
+				</tr>
+			{% endif %}
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
 {% endblock %}
