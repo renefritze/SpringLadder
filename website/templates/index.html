@@ -9,7 +9,10 @@
 			{% endif %}
 			<ul>
 			{% for l in matches %}
-			<li><a href="/viewmatch.py?id={{ l.id }}">({{l.date}})</a> </li>
+			<li>
+				<a href="/viewmatch.py?id={{ l.id }}">{{l.date}}</a><br/>
+				(<a href="/viewladder.py?id={{l.ladder.id}}">{{ l.ladder.name }}</a>)
+			</li>
 			{% endfor %}
 			</ul>
 		</div>
