@@ -208,6 +208,8 @@ a.nav:hover {
 #matchgrid td {
 	width: 33%;
 	vertical-align: top;
+	padding-left:2%;
+	padding-right:2%;
 }
 #matchgrid h5 {
 	text-align: center;

@@ -7,7 +7,11 @@
 	<tbody>
 		<tr>
 			{% for l in matches %}
-				<td>
+				{% if loop.index is even %}
+					<td>
+				{% else %}
+					<td style="background-color:#f9f9f9;">
+				{% endif %}
 					<h3>
 						<!--<a href="/viewmatch.py?id={{ l.id }}">Match #{{ l.id }}</a>
 						- <a href="/viewladder.py?id={{l.ladder.id}}">{{l.ladder.name}} </a>-->
