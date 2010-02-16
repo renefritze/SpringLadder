@@ -20,7 +20,7 @@ helpstring_ladder_admin_manager = """!ladderjoinchannel channelname password: jo
 !ladderbanuser ladderID username [time] : ban username from participating in any match on ladder ladderID for given amount of time (optional,floats, format: [D:]H )
 !ladderunbanuser ladderID username : unban username from participating in any match on ladder ladderID
 !ladderlistbans ladderID : list bans for given ladderID
-ladderrecalculateranks ladderID : recalculates full player rankings for given ladderID"""
+!ladderrecalculateranks ladderID : recalculates full player rankings for given ladderID"""
 
 helpstring_global_admin_manager ="""!ladderadd laddername : creates a new ladder
 !ladderremove ladderID : deletes a ladder

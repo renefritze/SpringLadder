@@ -57,17 +57,17 @@ class LadderInfoToTableAdapter:
 	def __init__(self,ladder):
 		self.ladder = ladder
 		self.rows 	= []
-		self.rows.append( [ 'min_ai_count' 		, ladder.min_ai_count 	] )
-		self.rows.append( [ 'max_ai_count' 		, ladder.max_ai_count 	] )
-		self.rows.append( [ 'min_team_size' 	, ladder.min_team_size ] )
-		self.rows.append( [ 'max_team_size' 	, ladder.max_team_size ] )
-		self.rows.append( [ 'min_ally_size' 	, ladder.min_ally_size ] )
-		self.rows.append( [ 'max_ally_size' 	, ladder.max_ally_size ] )
-		self.rows.append( [ 'min_ally_count' 	, ladder.min_ally_count ] )
-		self.rows.append( [ 'max_ally_count' 	, ladder.max_ally_count ] )
-		self.rows.append( [ 'min_team_count' 	, ladder.min_team_count ] )
-		self.rows.append( [ 'max_team_count' 	, ladder.max_team_count ] )
-		self.rows.append( [ 'ranking_algo_id' 	, ladder.ranking_algo_id ] )
+		self.rows.append( [ 'min amount of AIs' 		, ladder.min_ai_count 	] )
+		self.rows.append( [ 'max amount of AIs' 		, ladder.max_ai_count 	] )
+		self.rows.append( [ 'min amount players sharing control (controlTeam size)' 	, ladder.min_team_size ] )
+		self.rows.append( [ 'max amount of players sharing control (controlTeam size)' 	, ladder.max_team_size ] )
+		self.rows.append( [ 'min amount of starting positions (controlTeam count)' 	, ladder.min_team_count ] )
+		self.rows.append( [ 'max amount of starting positions (controlTeam count)' 	, ladder.max_team_count ] )
+		self.rows.append( [ 'min amount of controlTeams allied' 	, ladder.min_ally_size ] )
+		self.rows.append( [ 'max amount of controlTeams allied' 	, ladder.max_ally_size ] )
+		self.rows.append( [ 'min amount of ally sides' 	, ladder.min_ally_count ] )
+		self.rows.append( [ 'max amount of ally sides' 	, ladder.max_ally_count ] )
+		self.rows.append( [ 'ranking algorythm' 	, ladder.ranking_algo_id ] )
 
 class LadderOptionsAdapter:
 	def __init__(self,options,ladder):
