@@ -79,7 +79,7 @@ class MatchToDbWrapper:
 		match.date 	= datetime.datetime.now()
 		match.modname  = ''
 		match.mapname = ''
-		match.replay = ''
+		match.replay = self.replay
 		match.game_id = gameid
 		match.ladder_id = ladder.id
 		match.last_frame = self.game_over
@@ -148,6 +148,10 @@ class AutomaticMatchToDbWrapper(MatchToDbWrapper):
 		self.ladder_id		= ladder_id
 		self.game_started	= False
 		self.game_over		= -1
+		f  = file( 'last.output', 'w' )
+		f.writelines( stdout )
+		f.flush()
+		f.close()
 
 	def CheckvalidPlayerSetup( self, db ):
 		laddername = db.GetLadderName( self.ladder_id )
@@ -228,6 +232,7 @@ class AutomaticMatchToDbWrapper(MatchToDbWrapper):
 		self.allies		= parseSec( getSectionContect( setup_section, 'ALLYTEAMS' 	) )
 		self.options 	= parseSec( getSectionContect( setup_section, 'OPTIONS' 	) )
 		self.restr		= parseSec( getSectionContect( setup_section, 'RESTRICTIONS') )
+		self.replay		= parseSec( getSectionContect( self.springoutput, 'DEMO' 		) )['demopath']
 		game_section 	= getSectionContect( self.springoutput, 'GAME' )
 		num_players = len(self.teams)
 		self.players = dict()

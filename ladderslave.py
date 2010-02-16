@@ -111,7 +111,7 @@ class Main:
 			et = time.time()
 			if status != 0:
 				self.saybattle( self.socket,self.battleid,"Error: Spring exited with status %i" % status)
-				self.log.Error( "Error: Spring exited with status %i" % status ) 
+				self.log.Error( "Error: Spring exited with status %i" % status )
 				self.log.Error( self.output )
 			elif doSubmit:
 				try:
@@ -128,13 +128,13 @@ class Main:
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 			self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
-		os.chdir(currentworkingdir)
-		self.ingame = False
-		sendstatus( self, socket )
 		try:
 			os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
 		except:
 			pass
+		os.chdir(currentworkingdir)
+		self.ingame = False
+		sendstatus( self, socket )
 		if self.toshutdown:
 			self.KillBot()
 
@@ -525,7 +525,7 @@ class Main:
 							self.saybattle( self.socket,self.battleid, opt.key + ": " + opt.value )
 					else:
 						self.saybattle( self.socket,self.battleid, "Invalid ladder ID." )
-			
+
 			if command == "!score":
 				if not self.db.AccessCheck( -1, who, Roles.User ):
 					self.self.sayPermissionDenied(  socket, who, command )
