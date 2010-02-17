@@ -680,12 +680,29 @@ class Main:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Done recalculating the ranks." )
 					except:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't recalulcate the ranks." )
+			if command == "!ladderrecalculateranks":
+				if len(args) < 2 or len(args) > 3:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
+				if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
+					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+					#log
+					return
+				else:
+					try:
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Beginning to merge the accounts." )
+						if len(args) == 2:
+							answer = self.db.MergeAccounts( args[0], args[1] )
+						else:
+							answer = self.db.MergeAccounts( args[0], args[1], bool(args[2]) )
+						self.notifyuser( socket, fromwho, fromwhere, ispm, answer )
+					except:
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't recalulcate the ranks." )
 		except DbConnectionLostException, e:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Database temporarily lost in processing your command, please try again" )
 			err = 'DbConnectionLostException: %s\nargs: %s\ncmd" %s\nwho: %s\nwhere" \n'%(e.getTrace(), args, command, fromwho,fromwhere )
 			self.mError( err )
 			self.saychannel( socket, 'ladder', err )
-			
+
 	def oncommandfromserver(self,command,args,socket):
 		if command == "SAID" and len(args) > 2 and args[2].startswith("!"):
 			self.oncommandfromuser(args[1],args[0],False,args[2],args[3:],socket)
