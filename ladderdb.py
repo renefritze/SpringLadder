@@ -500,3 +500,24 @@ class LadderDB:
 					session.add( r )
 		session.commit()
 		session.close()
+
+	def MergeAccounts( self, from_nick, to_nick ):
+		session = self.sessionmaker()
+		from_player = self.GetPlayer( from_nick )
+		to_player = self.GetPlayer( to_nick )
+		from_results = session.query( Result ).filter( Result.player_id == from_player.id )
+		conflicts = []
+		for from_result in from_results:
+			if session.query( Result.id ).filter( Result.match_id == from_result.match_id ).filter( Result.player_id == to_player.id ).count() == 0:
+				#no conflicting result present
+				from_result.player_id = to_player.id
+				session.add( from_result )
+			else:
+				#conflicting
+				print 'omg'
+				conflicts.append( from_result )
+		if len( conflicts ) == 0:
+			session.commit()
+		#else
+			#inform user of fail
+		session.close()
