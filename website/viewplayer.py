@@ -53,7 +53,6 @@ try:
 		players = q[offset:offset+limit-1]
 		template = env.get_template('viewplayerlist.html')
 		print template.render(players=players,offset=offset,limit=limit,order=order,asc=asc )
-		print asc
 
 except ElementNotFoundException, e:
 	template = env.get_template('error.html')
