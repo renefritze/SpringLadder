@@ -6,7 +6,7 @@
 	<table>
 		<thead>
 			<tr>
-				<th scope='col'>#</th>
+				<th scope='col' style='text-align:center;'>#</th>
 				{% for h in rank_table.header %}
 					<th scope='col'> {{h}} </th>
 				{% endfor %}
@@ -15,7 +15,11 @@
 	<tbody>
 		{% for row in rank_table.rows %}
 			<tr>
-				<td> {{loop.index}} </td>
+				{% if loop.index > 3 %}
+					<td style='text-align:center;'> {{loop.index}} </td>
+				{% else %}
+					<td style='text-align:center;'> <img src="/place_{{loop.index}}_big.png" /> </td>
+				{% endif %}
 				{% for field in row %}
 					{% if loop.index0 == 0 %}
 						<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
