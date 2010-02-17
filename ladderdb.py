@@ -41,7 +41,7 @@ class LadderDB:
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)
 		self.sessionmaker = sessionmaker( bind=self.engine )
-		
+
 	def __init__(self,alchemy_uri,owner=[], verbose=False):
 		global current_db_rev
 #		print "loading db at " + alchemy_uri
@@ -501,23 +501,47 @@ class LadderDB:
 		session.commit()
 		session.close()
 
-	def MergeAccounts( self, from_nick, to_nick ):
+	def MergeAccounts( self, from_nick, to_nick, override_conflict = False ):
 		session = self.sessionmaker()
 		from_player = self.GetPlayer( from_nick )
 		to_player = self.GetPlayer( to_nick )
 		from_results = session.query( Result ).filter( Result.player_id == from_player.id )
 		conflicts = []
+		recalc_ladders = []
+		result = "merge sucessful, no conficts detected"
 		for from_result in from_results:
+			if not from_result.ladder_id in recalc_ladders:
+				recalc_ladders.append(from_result.ladder_id)
 			if session.query( Result.id ).filter( Result.match_id == from_result.match_id ).filter( Result.player_id == to_player.id ).count() == 0:
 				#no conflicting result present
 				from_result.player_id = to_player.id
 				session.add( from_result )
 			else:
 				#conflicting
-				print 'omg'
 				conflicts.append( from_result )
-		if len( conflicts ) == 0:
-			session.commit()
-		#else
-			#inform user of fail
+		if len( conflicts ) != 0:
+		 	if override_conflict:
+				result = "merge successful, the following matches have been automatically deleted since they contained conflicts:\n"
+				for result_table in conflicts:
+					match = session.query( Match ).filter( Match.id == result_table.match_id ).first()
+					laddername = session.query( Ladder ).filter( Ladder.id == match.ladder_id ).first()
+					result += "#%d (%s) ladder: %s (%d)\n" % match.id, match.date, laddername, match.ladder_id
+					#delete the match
+					for r in match.results:
+						session.delete( r )
+						session.commit()
+					for s in match.settings:
+						session.delete( s )
+						session.commit()
+					session.delete( match )
+				session.commit()
+			else:
+				result = "merge failed: conflicts existing, please resolve them manually or use the override switch to automatically delete them; conflicting matches:\n"
+				for match in conflicts:
+					laddername = session.query( Ladder ).filter( Ladder.id == match.ladder_id ).first()
+					result += "#%d (%s) ladder: %s (%d)\n" % match.match_id, match.date, laddername, match.ladder_id
 		session.close()
+		if len(conflicts) == 0 or override_conflict: # no conflicts or conflicts autoresolved: recalc ranks
+			for ladderid in recalc_ladders: # recalculate ladders which changed
+				self.RecalcRankings( ladderid )
+		return reset
