@@ -34,7 +34,7 @@ helpstring_global_admin_manager ="""!ladderadd laddername : creates a new ladder
 !ladderclosewhenempty : schedules a bot stop when there are no bot spawned
 !ladderdisable : disables possibility for users to spawn new bots
 !ladderenable : re-enables possibility for users to spawn new bots
-!ladderrecalculateranks fromPlayer toPlayer [forcemerge] : merges all score results for all ladder of fromPlayer in toPlayer, if the 2 accounts fought eachother it will raise an exception ( optional: bool, automatic delete conflicting matches"""
+!laddermergeaccounts fromPlayer toPlayer [forcemerge] : merges all score results for all ladder of fromPlayer in toPlayer, if the 2 accounts fought eachother it will raise an exception ( optional: bool, automatic delete conflicting matches"""
 
 helpstring_user_manager ="""!ladderlist : lists available ladders with their IDs
 !ladder [password]: requests a bot to join your current game to monitor and submit scores
