@@ -680,7 +680,7 @@ class Main:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Done recalculating the ranks." )
 					except:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't recalulcate the ranks." )
-			if command == "!ladderrecalculateranks":
+			if command == "!laddermergeaccounts":
 				if len(args) < 2 or len(args) > 3:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 				if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
