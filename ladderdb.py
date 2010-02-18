@@ -245,7 +245,7 @@ class LadderDB:
 			session.commit()
 		session.close()
 		if not playerfound:
-			raise ElementNotFoundException( str(playerid) )
+			raise ElementNotFoundException( str(serverplayerid) )
 
 	def RenamePlayer(self,serverplayerid,newname):
 		session = self.sessionmaker()
@@ -258,7 +258,7 @@ class LadderDB:
 			session.commit()
 		session.close()
 		if not playerfound:
-			raise ElementNotFoundException( str(playerid) )
+			raise ElementNotFoundException( str(serverplayerid) )
 
 	def GetPlayer( self, name ):
 		session = self.sessionmaker()
@@ -453,7 +453,7 @@ class LadderDB:
 		ban = Bans( )
 		ban.player_id = player.id
 		if not banlength:
-			ban.end = datetime.max
+			ban.end = datetime.date.max
 		else:
 			try:
 				ban.end = datetime.now() + banlength
@@ -581,4 +581,4 @@ class LadderDB:
 			for ladderid in recalc_ladders: # recalculate ladders which changed
 				self.RecalcRankings( ladderid )
 			self.BanPlayer( -1, from_nick )
-		return reset
+		return result
