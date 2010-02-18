@@ -454,7 +454,7 @@ class LadderDB:
 		ban = Bans( )
 		ban.player_id = player.id
 		if not banlength:
-			ban.end = datetime.datetime.max
+			ban.end = datetime.date.max
 		else:
 			try:
 				ban.end = datetime.now() + banlength
