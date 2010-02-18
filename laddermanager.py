@@ -683,6 +683,7 @@ class Main:
 			if command == "!laddermergeaccounts":
 				if len(args) < 2 or len(args) > 3:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
+					return
 				if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
 					#log
