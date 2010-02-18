@@ -10,7 +10,7 @@ from match import *
 import time
 from customlog import *
 
-current_db_rev = 2
+current_db_rev = 3
 
 class ElementExistsException( Exception ):
 	def __init__(self, element):
@@ -48,10 +48,10 @@ class LadderDB:
 		self.alchemy_uri = alchemy_uri
 		self.verbose = verbose
 		self.Connect()
-		self.SetOwner(owner)
 		oldrev = self.GetDBRevision()
 		self.UpdateDBScheme( oldrev, current_db_rev )
 		self.SetDBRevision( current_db_rev )
+		self.SetOwner(owner)
 
 	def getSession(self):
 		return self.sessionmaker()
@@ -515,6 +515,7 @@ class LadderDB:
 		session.close()
 
 	def UpdateDBScheme( self, oldrev, current_db_rev ):
+		global current_db_rev
 		session = self.sessionmaker()
 		if current_db_rev > oldrev:
 			if oldrev == -1:
@@ -524,7 +525,7 @@ class LadderDB:
 					r.kicked = False
 					r.timeout = False
 					session.add( r )
-			if oldrev < 2:
+			if oldrev < 3:
 				Player.__table__.append_column( Column( 'server_id', Integer, index=True ) )
 				for p in session.query( Player ):
 					p.server_id = -1
