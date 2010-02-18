@@ -166,7 +166,7 @@ class GlickoRankAlgo(IRanking):
 		count = 1
 		for rank in rank_list:
 			s.add( rank )
-			ret += '#%d %s\t(%2f/%4f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
+			ret += '#%d %s\t\t(%2f/%4f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
 			count = count +1
 		s.close()
 		return ret
