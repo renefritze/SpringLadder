@@ -187,6 +187,12 @@ a.nav:hover {
 	padding-right:2%;
 	padding-bottom:2%;
 }
+#ladderview td{
+	vertical-align: top;
+	padding-left:2%;
+	padding-right:2%;
+	padding-bottom:2%;
+}
 
 #ladderlist h4 {
 	margin-bottom:0.3em;

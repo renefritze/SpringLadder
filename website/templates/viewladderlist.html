@@ -23,11 +23,20 @@
 					<div >
 						{% if l.ranks.rows|length > 0 %}
 							<h4>Top Players</h4>
-							<ol>
+							<table>
 								{% for row in l.ranks.rows %}
-								<li> <a href="/viewmatch.py?ladder={{l.id}}&player={{row[0]}}"> {{row[0]}}</a> </li>
+									<tr>
+										{% if loop.index > 3 %}
+											<td style='text-align:center;width:10%;'> {{loop.index}}. </td>
+										{% else %}
+											<td style='text-align:center;;width:10%;'> <img src="/place_{{loop.index}}_small.png" /> </td>
+										{% endif %}
+										<td style='text-align:left;'>
+											<a href="/viewmatch.py?ladder={{l.id}}&player={{row[0]}}"> {{row[0]}}</a>
+										</td>
+									</tr>
 								{% endfor %}
-							</ol>
+							</table>
 						{% endif %}
 					</div>
 					{% if l.last_match %}
