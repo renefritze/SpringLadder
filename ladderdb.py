@@ -576,4 +576,4 @@ class LadderDB:
 			for ladderid in recalc_ladders: # recalculate ladders which changed
 				self.RecalcRankings( ladderid )
 			self.BanPlayer( -1, from_nick )
-		return reset
+		return result
