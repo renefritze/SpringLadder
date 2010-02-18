@@ -533,7 +533,7 @@ class LadderDB:
 				except:
 					print "execute: ALTER TABLE players ADD server_id int\n" * 67
 					exit(-1)
-					
+
 		session.commit()
 		session.close()
 
@@ -570,12 +570,12 @@ class LadderDB:
 						session.delete( s )
 						session.commit()
 					session.delete( match )
-				session.commit()
 			else:
 				result = "merge failed: conflicts existing, please resolve them manually or use the override switch to automatically delete them; conflicting matches:\n"
 				for match in conflicts:
 					laddername = session.query( Ladder ).filter( Ladder.id == match.ladder_id ).first()
 					result += "#%d (%s) ladder: %s (%d)\n" % (match.match_id, match.date, laddername, match.ladder_id)
+		session.commit()
 		session.close()
 		if len(conflicts) == 0 or override_conflict: # no conflicts or conflicts autoresolved: recalc ranks and ban the o
 			for ladderid in recalc_ladders: # recalculate ladders which changed
