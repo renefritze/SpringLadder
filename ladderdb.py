@@ -2,7 +2,6 @@
 #from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
-from sqlalchemy import exc
 import datetime
 from db_entities import *
 from ranking import *
@@ -10,7 +9,7 @@ from match import *
 import time
 from customlog import *
 
-current_db_rev = 1
+current_db_rev = 4
 
 class ElementExistsException( Exception ):
 	def __init__(self, element):
@@ -41,17 +40,17 @@ class LadderDB:
 		self.metadata.bind = self.engine
 		self.metadata.create_all(self.engine)
 		self.sessionmaker = sessionmaker( bind=self.engine )
-		
+
 	def __init__(self,alchemy_uri,owner=[], verbose=False):
 		global current_db_rev
 #		print "loading db at " + alchemy_uri
 		self.alchemy_uri = alchemy_uri
 		self.verbose = verbose
 		self.Connect()
-		self.SetOwner(owner)
 		oldrev = self.GetDBRevision()
 		self.UpdateDBScheme( oldrev, current_db_rev )
 		self.SetDBRevision( current_db_rev )
+		self.SetOwner(owner)
 
 	def getSession(self):
 		return self.sessionmaker()
@@ -234,6 +233,32 @@ class LadderDB:
 			session.add( player )
 			session.commit()
 		session.close()
+
+	def AssignServerID(self,name, serverplayerid ):
+		session = self.sessionmaker()
+		player = session.query( Player ).filter( Player.nick == name ).first()
+		playerfound = False
+		if player:
+			playerfound = True
+			player.server_id = serverplayerid
+			session.add( player )
+			session.commit()
+		session.close()
+		if not playerfound:
+			raise ElementNotFoundException( str(serverplayerid) )
+
+	def RenamePlayer(self,serverplayerid,newname):
+		session = self.sessionmaker()
+		player = session.query( Player ).filter( Player.server_id == serverplayerid ).first()
+		playerfound = False
+		if player:
+			playerfound = True
+			player.nick = newname
+			session.add(player)
+			session.commit()
+		session.close()
+		if not playerfound:
+			raise ElementNotFoundException( str(serverplayerid) )
 
 	def GetPlayer( self, name ):
 		session = self.sessionmaker()
@@ -442,12 +467,12 @@ class LadderDB:
 		ban = Bans( )
 		ban.player_id = player.id
 		if not banlength:
-			ban.end = datetime.max
+			ban.end = datetime.date.max
 		else:
 			try:
-				ban.end = datetime.now() + banlength
+				ban.end = datetime.datetime.now() + banlength
 			except OverflowError:
-				ban.end = datetime.max
+				ban.end = datetime.date.max
 		ban.ladder_id = ladder_id
 		session.add( ban )
 		session.commit()
@@ -459,7 +484,7 @@ class LadderDB:
 		bans = session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).all()
 		for b in bans:
 			if just_expire:
-				b.end = datetime.now()
+				b.end = datetime.datetime.now()
 				session.add( b )
 			else:
 				session.delete( b )
@@ -470,9 +495,9 @@ class LadderDB:
 	def GetBansPerLadder( self, ladder_id ):
 		session = self.sessionmaker()
 		if ladder_id == -1:
-			bans = session.query( Bans ).filter( Bans.end >= datetime.now() ).all()
+			bans = session.query( Bans ).filter( Bans.end >= datetime.datetime.now() ).all()
 		else:
-			bans = session.query( Bans ).filter( Bans.end >= datetime.now() ).filter( Bans.ladder_id == ladder_id ).all()
+			bans = session.query( Bans ).filter( Bans.end >= datetime.datetime.now() ).filter( Bans.ladder_id == ladder_id ).all()
 		session.close()
 		return bans
 
@@ -488,6 +513,8 @@ class LadderDB:
 		if not rev:
 			#default value
 			rev = -1
+		else:
+			rev = rev[0]
 		session.close()
 		return rev
 
@@ -512,6 +539,15 @@ class LadderDB:
 					r.kicked = False
 					r.timeout = False
 					session.add( r )
+			if oldrev < 4:
+				try:
+					for p in session.query( Player ).all():
+						p.server_id = -1
+						session.add( p )
+				except:
+					print "execute: ALTER TABLE players ADD server_id int\n" * 67
+					exit(-1)
+
 		session.commit()
 		session.close()
 
@@ -525,23 +561,49 @@ class LadderDB:
 		else:
 			return []
 
-	def MergeAccounts( self, from_nick, to_nick ):
+	def MergeAccounts( self, from_nick, to_nick, override_conflict = False ):
 		session = self.sessionmaker()
 		from_player = self.GetPlayer( from_nick )
 		to_player = self.GetPlayer( to_nick )
 		from_results = session.query( Result ).filter( Result.player_id == from_player.id )
 		conflicts = []
+		recalc_ladders = []
+		result = "merge sucessful, no conficts detected"
 		for from_result in from_results:
+			if not from_result.ladder_id in recalc_ladders:
+				recalc_ladders.append(from_result.ladder_id)
 			if session.query( Result.id ).filter( Result.match_id == from_result.match_id ).filter( Result.player_id == to_player.id ).count() == 0:
 				#no conflicting result present
 				from_result.player_id = to_player.id
 				session.add( from_result )
 			else:
 				#conflicting
-				print 'omg'
 				conflicts.append( from_result )
-		if len( conflicts ) == 0:
-			session.commit()
-		#else
-			#inform user of fail
+
+		if len( conflicts ) != 0:
+		 	if override_conflict:
+				result = "merge successful, the following matches have been automatically deleted since they contained conflicts:\n"
+				for result_table in conflicts:
+					match = session.query( Match ).filter( Match.id == result_table.match_id ).first()
+					laddername = session.query( Ladder ).filter( Ladder.id == match.ladder_id ).first()
+					result += "#%d (%s) ladder: %s (%d)\n" % (match.id, match.date, laddername, match.ladder_id)
+					#delete the match
+					for r in match.results:
+						session.delete( r )
+						session.commit()
+					for s in match.settings:
+						session.delete( s )
+						session.commit()
+					session.delete( match )
+			else:
+				result = "merge failed: conflicts existing, please resolve them manually or use the override switch to automatically delete them; conflicting matches:\n"
+				for match in conflicts:
+					laddername = session.query( Ladder ).filter( Ladder.id == match.ladder_id ).first()
+					result += "#%d (%s) ladder: %s (%d)\n" % (match.match_id, match.date, laddername, match.ladder_id)
+		session.commit()
 		session.close()
+		if len(conflicts) == 0 or override_conflict: # no conflicts or conflicts autoresolved: recalc ranks and ban the o
+			for ladderid in recalc_ladders: # recalculate ladders which changed
+				self.RecalcRankings( ladderid )
+			self.BanPlayer( -1, from_nick )
+		return result

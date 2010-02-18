@@ -76,6 +76,7 @@ class Option(Base):
 class Player(Base):
 	__tablename__ 	= 'players'
 	id 				= Column( Integer, primary_key=True )
+	server_id		= Column( Integer, index=True )
 	nick 			= Column( String(50),index=True )
 	pwhash 			= Column( String(80) )
 	role			= Column( Integer )
@@ -85,9 +86,9 @@ class Player(Base):
 		self.nick 		= nick
 		self.role 		= role
 		do_hide_results = False
-
+		server_id		= -1
 	def __str__(self):
-		return "Player(id:%d) %s "%(self.id, self.nick)
+		return "Player(id:%d,server_id:%d) %s "%(self.id, self.server_id, self.nick)
 
 class Match(Base):
 	__tablename__ 	= 'matches'
@@ -131,7 +132,7 @@ class Result(Base):
 
 	player			= relation(Player)
 	match			= relation(Match)
-	
+
 	def __init__(self):
 		self.team 		= -1
 		self.disconnect = -1
@@ -159,7 +160,7 @@ class Bans(Base):
 		else:
 			ret = '%s (global ban): %s remaining'%( self.player.nick,str(self.end - datetime.now() ) )
 		return ret
-	
+
 
 """this does not actually work, but should only show what's min for new tables
 class IRanks(Base):
@@ -198,4 +199,4 @@ class Config(Base):
 	dbrevision		= Column( Integer, primary_key=True )
 
 	def __init__(self):
-		self.dbrevision = 0
+		self.dbrevision = 1
