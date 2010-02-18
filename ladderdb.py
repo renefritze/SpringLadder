@@ -524,6 +524,11 @@ class LadderDB:
 					r.kicked = False
 					r.timeout = False
 					session.add( r )
+			if oldrev == 0:
+				players = session.query( Player ).all()
+				for p in players:
+					p.server_id = -1
+					session.add( p )
 		session.commit()
 		session.close()
 

@@ -199,4 +199,4 @@ class Config(Base):
 	dbrevision		= Column( Integer, primary_key=True )
 
 	def __init__(self):
-		self.dbrevision = 0
+		self.dbrevision = 1
