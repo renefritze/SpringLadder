@@ -6,7 +6,7 @@ from sqlalchemy.exceptions import UnboundExecutionError
 class GlickoRankAlgo(IRanking):
 
 	q = math.log( 10.0 ) / 400.0
-	
+
 	def __init__(self):
 		self.c = 64.0
 		self.rd_lower_bound = 50.0
@@ -26,7 +26,7 @@ class GlickoRankAlgo(IRanking):
 		#calculate order of deaths
 		deaths = dict()
 		scores = dict()
-		
+
 		playercount = len(result_dict)
 		for name,player in result_dict.iteritems():
 			if player.died > 0:
@@ -71,7 +71,7 @@ class GlickoRankAlgo(IRanking):
 						last_match_unixT = time.mktime(m.date.timetuple())
 						break
 			t = ( last_match_unixT - first_match_unixT ) / avg_match_delta
-				
+
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( GlickoRanks ).filter( GlickoRanks.ladder_id == ladder_id ).filter( GlickoRanks.player_id == player_id ).first()
 			if not rank:
@@ -158,14 +158,16 @@ class GlickoRankAlgo(IRanking):
 			E_val = GlickoRankAlgo.E( r, r_j_list[j], rd_j_list[j] )
 			s += g_val * E_val * ( 1.0 - E_val )
 		return 1.0 / ( GlickoRankAlgo.q*GlickoRankAlgo.q * s )
-	
+
 	@staticmethod
 	def GetPrintableRepresentation(rank_list,db):
-		ret = ''
+		ret = '#position playername (Rating/Rating Deviation):\n'
 		s = db.sessionmaker()
+		count = 1
 		for rank in rank_list:
 			s.add( rank )
-			ret += 'player (R/RD): %s\t(%2f/%4f)\n'%(rank.player.nick,rank.rating, rank.rd)
+			ret += '#%d %s\t(%2f/%4f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
+			count = count +1
 		s.close()
 		return ret
 
