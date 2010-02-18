@@ -721,7 +721,7 @@ class Main:
 				if name.isdigit():
 					self.botstatus.append(int(name))
 			if len(args) > 2:
-				accountid = int(args[3])
+				serveraccountid = int(args[3])
 				try: # if a player is already in the db, but lacks server_id, add it
 					self.db.AssignServerID( name, serveraccountid )
 				except ElementNotFoundException:
