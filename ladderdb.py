@@ -246,7 +246,7 @@ class LadderDB:
 			session.commit()
 		session.close()
 		if not playerfound:
-			raise ElementNotFoundException( str(playerid) )
+			raise ElementNotFoundException( str(serverplayerid) )
 
 	def RenamePlayer(self,serverplayerid,newname):
 		session = self.sessionmaker()
@@ -259,7 +259,7 @@ class LadderDB:
 			session.commit()
 		session.close()
 		if not playerfound:
-			raise ElementNotFoundException( str(playerid) )
+			raise ElementNotFoundException( str(serverplayerid) )
 
 	def GetPlayer( self, name ):
 		session = self.sessionmaker()
