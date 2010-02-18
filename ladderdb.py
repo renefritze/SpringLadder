@@ -2,7 +2,6 @@
 #from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
-from sqlalchemy import exc
 import datetime
 from db_entities import *
 from ranking import *
@@ -10,7 +9,7 @@ from match import *
 import time
 from customlog import *
 
-current_db_rev = 3
+current_db_rev = 4
 
 class ElementExistsException( Exception ):
 	def __init__(self, element):
@@ -500,6 +499,8 @@ class LadderDB:
 		if not rev:
 			#default value
 			rev = -1
+		else:
+			rev = rev[0]
 		session.close()
 		return rev
 
@@ -515,7 +516,6 @@ class LadderDB:
 		session.close()
 
 	def UpdateDBScheme( self, oldrev, current_db_rev ):
-		global current_db_rev
 		session = self.sessionmaker()
 		if current_db_rev > oldrev:
 			if oldrev == -1:
@@ -525,11 +525,15 @@ class LadderDB:
 					r.kicked = False
 					r.timeout = False
 					session.add( r )
-			if oldrev < 3:
-				Player.__table__.append_column( Column( 'server_id', Integer, index=True ) )
-				for p in session.query( Player ):
-					p.server_id = -1
-					session.add( p )
+			if oldrev < 4:
+				try:
+					for p in session.query( Player ).all():
+						p.server_id = -1
+						session.add( p )
+				except:
+					print "execute: ALTER TABLE players ADD server_id int\n" * 67
+					exit(-1)
+					
 		session.commit()
 		session.close()
 
