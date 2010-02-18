@@ -10,7 +10,7 @@ from match import *
 import time
 from customlog import *
 
-current_db_rev = 1
+current_db_rev = 2
 
 class ElementExistsException( Exception ):
 	def __init__(self, element):
@@ -524,9 +524,9 @@ class LadderDB:
 					r.kicked = False
 					r.timeout = False
 					session.add( r )
-			if oldrev == 0:
-				players = session.query( Player ).all()
-				for p in players:
+			if oldrev < 2:
+				Player.__table__.append_column( Column( 'server_id', Integer, index=True ) )
+				for p in session.query( Player ):
 					p.server_id = -1
 					session.add( p )
 		session.commit()
