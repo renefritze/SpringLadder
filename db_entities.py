@@ -81,9 +81,10 @@ class Player(Base):
 	role			= Column( Integer )
 	do_hide_results = Column( Boolean )
 
-	def __init__(self, nick='noname', role=Roles.User, pw=''):
+	def __init__(self, nick='noname', player_id, role=Roles.User, pw=''):
 		self.nick 		= nick
 		self.role 		= role
+		self.id			= player_id
 		do_hide_results = False
 
 	def __str__(self):
@@ -131,7 +132,7 @@ class Result(Base):
 
 	player			= relation(Player)
 	match			= relation(Match)
-	
+
 	def __init__(self):
 		self.team 		= -1
 		self.disconnect = -1
@@ -159,7 +160,7 @@ class Bans(Base):
 		else:
 			ret = '%s (global ban): %s remaining'%( self.player.nick,str(self.end - datetime.now() ) )
 		return ret
-	
+
 
 """this does not actually work, but should only show what's min for new tables
 class IRanks(Base):
