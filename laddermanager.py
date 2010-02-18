@@ -720,10 +720,14 @@ class Main:
 				name = name[len(basebotname):] # truncate prefix
 				if name.isdigit():
 					self.botstatus.append(int(name))
-			if len(args) > 2: # if player in the db with same id exists, rename it to the new nick
+			if len(args) > 2:
 				accountid = int(args[3])
-				try:
-					self.db.RenamePlayer( accountid, name )
+				try: # if a player is already in the db, but lacks server_id, add it
+					self.db.AssignServerID( name, serveraccountid )
+				except ElementNotFoundException:
+					pass
+				try: # if player in the db with same server_id exists, rename it to the new nick
+					self.db.RenamePlayer( serveraccountid, name )
 				except ElementNotFoundException:
 					pass
 		if command == "REMOVEUSER" and len(args) > 0:

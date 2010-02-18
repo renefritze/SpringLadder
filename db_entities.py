@@ -76,19 +76,19 @@ class Option(Base):
 class Player(Base):
 	__tablename__ 	= 'players'
 	id 				= Column( Integer, primary_key=True )
+	server_id		= Column( Integer, index=True )
 	nick 			= Column( String(50),index=True )
 	pwhash 			= Column( String(80) )
 	role			= Column( Integer )
 	do_hide_results = Column( Boolean )
 
-	def __init__(self, nick='noname', player_id, role=Roles.User, pw=''):
+	def __init__(self, nick='noname', role=Roles.User, pw=''):
 		self.nick 		= nick
 		self.role 		= role
-		self.id			= player_id
 		do_hide_results = False
-
+		server_id		= -1
 	def __str__(self):
-		return "Player(id:%d) %s "%(self.id, self.nick)
+		return "Player(id:%d,server_id:%d) %s "%(self.id, self.server_id, self.nick)
 
 class Match(Base):
 	__tablename__ 	= 'matches'
