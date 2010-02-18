@@ -2,6 +2,7 @@
 #from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
+from sqlalchemy import exc
 import datetime
 from db_entities import *
 from ranking import *
