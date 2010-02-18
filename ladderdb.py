@@ -456,9 +456,9 @@ class LadderDB:
 			ban.end = datetime.date.max
 		else:
 			try:
-				ban.end = datetime.now() + banlength
+				ban.end = datetime.datetime.now() + banlength
 			except OverflowError:
-				ban.end = datetime.max
+				ban.end = datetime.date.max
 		ban.ladder_id = ladder_id
 		session.add( ban )
 		session.commit()
@@ -470,7 +470,7 @@ class LadderDB:
 		bans = session.query( Bans ).filter( Bans.player_id == player.id ).filter( Bans.ladder_id == ladder_id ).all()
 		for b in bans:
 			if just_expire:
-				b.end = datetime.now()
+				b.end = datetime.datetime.now()
 				session.add( b )
 			else:
 				session.delete( b )
@@ -481,9 +481,9 @@ class LadderDB:
 	def GetBansPerLadder( self, ladder_id ):
 		session = self.sessionmaker()
 		if ladder_id == -1:
-			bans = session.query( Bans ).filter( Bans.end >= datetime.now() ).all()
+			bans = session.query( Bans ).filter( Bans.end >= datetime.datetime.now() ).all()
 		else:
-			bans = session.query( Bans ).filter( Bans.end >= datetime.now() ).filter( Bans.ladder_id == ladder_id ).all()
+			bans = session.query( Bans ).filter( Bans.end >= datetime.datetime.now() ).filter( Bans.ladder_id == ladder_id ).all()
 		session.close()
 		return bans
 
