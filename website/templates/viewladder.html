@@ -9,7 +9,7 @@
 	{% endif %}
 	<a href="/viewrules.py?id={{ladder.id}}">Rules</a>
 	<div style="clear:both;"></div>
-	<table>
+	<table style='width:80%;'>
 		<tr>
 			<td style="width:50%;">
 				<h2>Top {{ rank_table.rows|length }} players</h2>
@@ -29,7 +29,7 @@
 				</table>
 				
 			</td>
-			<td>
+			<td style="width:50%;">
 				<h2>Last {{ matches|length }} matches</h2>
 				<ul>
 					{% for l in matches %}
