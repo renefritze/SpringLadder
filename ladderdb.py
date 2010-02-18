@@ -226,14 +226,27 @@ class LadderDB:
 				session.commit()
 		session.close()
 
-	def AddPlayer(self,name,role,pw=''):
+	def AddPlayer(self,name,playerid,role,pw=''):
 		session = self.sessionmaker()
-		player = session.query( Player ).filter( Player.nick == name ).first()
+		player = session.query( Player ).filter( Player.id == playerid ).first()
 		if not player:
-			player = Player( name,role, pw )
+			player = Player( name,playerid,role, pw )
 			session.add( player )
 			session.commit()
 		session.close()
+
+	def RenamePlayer(self,playerid,newname):
+		session = self.sessionmaker()
+		player = session.query( Player ).filter( Player.id == playerid ).first()
+		playerfound = False
+		if player:
+			playerfound = True
+			player.nick = newname
+			session.add(player)
+			session.commit()
+		session.close()
+		if not playerfound:
+			raise ElementNotFoundException( str(playerid) )
 
 	def GetPlayer( self, name ):
 		session = self.sessionmaker()
