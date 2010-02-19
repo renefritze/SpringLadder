@@ -86,7 +86,7 @@ class Player(Base):
 		self.nick 		= nick
 		self.role 		= role
 		do_hide_results = False
-		server_id		= -1
+		self.server_id		= -1
 	def __str__(self):
 		return "Player(id:%d,server_id:%d) %s "%(self.id, self.server_id, self.nick)
 
