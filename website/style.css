@@ -246,6 +246,9 @@ a.nav:hover {
 #wideresults table {
 	width:90%;
 }
+#wideresults th {
+	text-align:left;
+}
 #results td {
 	padding: 0.3em;
 	margin: 1.2em;

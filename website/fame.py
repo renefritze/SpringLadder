@@ -26,11 +26,25 @@ try:
 			l_names.append( '%s (%d)'%(l.name,pos) )
 		if ladders.count() > 0:
 			playername = s.query( Player.nick ).filter( Player.id == pid ).first()[0]
-			playerpos.append( (playername, int(score), ' '.join(l_names) ) )
+			playerpos.append( (playername, int(score), ', '.join(l_names) ) )
 
 	playerpos.sort( lambda x, y: cmp(y[1], x[1]) )
-	header = ['Name', 'Score', 'Active on' ]
-	print template.render( playerpos=playerpos[0:limit], header=header )
+	header = ['Name', 'Score', 'Active on (position on ladder)' ]
+
+	leaders = []
+	losers = []
+	for name, id in s.query( Ladder.name, Ladder.id ):
+		try:
+			r = db.GetRanks( id )
+			if len(r) > 1:
+				s.add( r[0] )
+				s.add( r[-1] )
+				leaders.append( (r[0].player.nick, name, r[-1].player.nick  ) )
+		except ElementNotFoundException:
+			continue #empty ladder
+	losers.sort( lambda x, y: cmp(x[1], y[1]) )
+	leaders.sort( lambda x, y: cmp(x[1], y[1]) )
+	print template.render( playerpos_top=playerpos[0:limit],playerpos_bottom=playerpos[-limit:], header=header, leaders=leaders,losers=losers )
 	
 except Exception, m:
 	template = env.get_template('error.html')

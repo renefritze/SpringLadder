@@ -13,7 +13,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for row in playerpos %}
+			{% for row in playerpos_top %}
 				<tr>
 					{% if loop.index > 3 %}
 						<td style='text-align:center;'> {{loop.index}} </td>
@@ -30,6 +30,54 @@
 				</tr>
 			{% endfor %}
 			</tbody>
+	</table>
+	<h3>Worst Overall Players</h3>
+	<table class='padded'>
+		<thead>
+			<tr>
+				<th scope='col' style='text-align:center;'>#</th>
+				{% for h in header %}
+					<th scope='col'> {{h}} </th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in playerpos_bottom %}
+				<tr>
+					<td style='text-align:center;'> {{loop.index}} </td>
+					{% for field in row %}
+						{% if loop.index0 == 0 %}
+							<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
+						{% else %}
+							<td>{{field}}</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
+			{% endfor %}
+			</tbody>
+	</table>
+	<h3>Ladder Leaders and Losers</h3>
+	<table class='padded' style="width:60%">
+		<thead>
+			<tr>
+				<th scope='col' >Leader</th>
+				<th scope='col' >Ladder</th>
+				<th scope='col' >Loser</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in leaders %}
+				<tr>
+					{% for field in row %}
+						{% if loop.index0 != 1 %}
+							<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
+						{% else %}
+							<td>{{field}}</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</tbody>
 	</table>
 <div>
 {% endblock %}
