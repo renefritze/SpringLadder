@@ -3,6 +3,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from sqlalchemy import exc
+import traceback
 import datetime
 from db_entities import *
 from ranking import *
