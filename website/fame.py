@@ -17,17 +17,18 @@ try:
 		pid = pid[0]
 		ladders = s.query( Ladder ).filter( Ladder.id.in_( s.query( Result.ladder_id ).filter( Result.player_id == pid ).group_by( Result.ladder_id ) ) )
 		score = 0
+		l_names = []
 		for l in ladders:
 			player_per_ladder = s.query( Result.player_id ).filter( Result.ladder_id == l.id ).group_by( Result.player_id ).count()
 			pos = db.GetPlayerPosition( l.id, pid )
-			score += ( 1 - ( pos / float( player_per_ladder ) ) ) * float( player_per_ladder )
+			score += ( 1 - ( pos / float( player_per_ladder ) ) ) 
+			l_names.append( '%s (%d)'%(l.name,pos) )
 		if ladders.count() > 0:
-			#score /= float( ladders.count() )
 			playername = s.query( Player.nick ).filter( Player.id == pid ).first()[0]
-			playerpos.append( (playername, score ) )
+			playerpos.append( (playername, round(score,3), ' '.join(l_names) ) )
 
 	playerpos.sort( lambda x, y: cmp(y[1], x[1]) )
-	header = ['Name', 'Score' ]
+	header = ['Name', 'Score', 'Active on' ]
 	print template.render( playerpos=playerpos[0:10], header=header )
 	
 except Exception, m:
