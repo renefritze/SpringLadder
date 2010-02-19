@@ -339,7 +339,7 @@ class Main:
 
 			if len(command) > 0 and command[0] == "!":
 				if not self.db.AccessCheck( -1, who, Roles.User ):
-					self.sayPermissionDenied( socket, who, command )
+					self.sayPermissionDenied( self.socket, who, command )
 					#log
 					return
 			else:
@@ -461,7 +461,7 @@ class Main:
 					ladderid = self.ladderid
 					try:
 						if not self.db.AccessCheck( ladderid, who, Roles.LadderAdmin ):
-							self.sayPermissionDenied( socket, who, command )
+							self.sayPermissionDenied( self.socket, who, command )
 							#log
 							return
 						ladder = self.db.GetLadder( ladderid )
@@ -528,7 +528,7 @@ class Main:
 
 			if command == "!score":
 				if not self.db.AccessCheck( -1, who, Roles.User ):
-					self.self.sayPermissionDenied(  socket, who, command )
+					self.self.sayPermissionDenied( self.socket, who, command )
 					#log
 					return
 				if len(args) > 2:
