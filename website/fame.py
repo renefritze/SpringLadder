@@ -8,6 +8,7 @@ cgitb.enable()
 env = Environment(loader=FileSystemLoader('templates'))
 
 try:
+	limit = 10
 	template = env.get_template('fame.html')
 	s = db.sessionmaker()
 	player_ids = s.query( Result.player_id ).group_by( Result.player_id )
@@ -21,15 +22,15 @@ try:
 		for l in ladders:
 			player_per_ladder = s.query( Result.player_id ).filter( Result.ladder_id == l.id ).group_by( Result.player_id ).count()
 			pos = db.GetPlayerPosition( l.id, pid )
-			score += ( 1 - ( pos / float( player_per_ladder ) ) ) 
+			score += ( 1 - ( pos / float( player_per_ladder ) ) ) * 1000
 			l_names.append( '%s (%d)'%(l.name,pos) )
 		if ladders.count() > 0:
 			playername = s.query( Player.nick ).filter( Player.id == pid ).first()[0]
-			playerpos.append( (playername, round(score,3), ' '.join(l_names) ) )
+			playerpos.append( (playername, int(score), ' '.join(l_names) ) )
 
 	playerpos.sort( lambda x, y: cmp(y[1], x[1]) )
 	header = ['Name', 'Score', 'Active on' ]
-	print template.render( playerpos=playerpos[0:10], header=header )
+	print template.render( playerpos=playerpos[0:limit], header=header )
 	
 except Exception, m:
 	template = env.get_template('error.html')
