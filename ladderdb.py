@@ -320,7 +320,7 @@ class LadderDB:
 		session.close()
 		return res
 
-	def GetPlayerPostion(self, ladder_id, player_id):
+	def GetPlayerPosition(self, ladder_id, player_id):
 		session = self.sessionmaker()
 		player = session.query( Player ).filter( Player.id == player_id ).first()
 		pos = -1

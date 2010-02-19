@@ -21,7 +21,7 @@ try:
 		played = dict()
 		positions = dict()
 		for ladder in ladders:
-			positions[ladder.id] = db.GetPlayerPostion( ladder.id, player.id )
+			positions[ladder.id] = db.GetPlayerPosition( ladder.id, player.id )
 			played[ladder.id] = s.query( Result.id ).filter( Result.ladder_id == ladder.id ).filter( Result.player_id == player.id ).count()
 
 		results = s.query( Result ).filter( Result.player_id == player.id).order_by(Result.date.desc())[0:5]

@@ -1,5 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>nothing here yet</h2>
+<div id='results'>
+	<h3>Best Overall Players</h3>
+	<table>
+		<thead>
+			<tr>
+				<th scope='col' style='text-align:center;'>#</th>
+				{% for h in header %}
+					<th scope='col'> {{h}} </th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in playerpos %}
+				<tr>
+					{% if loop.index > 3 %}
+						<td style='text-align:center;'> {{loop.index}} </td>
+					{% else %}
+						<td style='text-align:center;'> <img src="/place_{{loop.index}}_big.png" /> </td>
+					{% endif %}
+					{% for field in row %}
+						{% if loop.index0 == 0 %}
+							<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
+						{% else %}
+							<td>{{field}}</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
+			{% endfor %}
+			</tbody>
+	</table>
+<div>
 {% endblock %}
