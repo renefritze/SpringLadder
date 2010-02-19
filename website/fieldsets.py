@@ -95,5 +95,5 @@ class MatchInfoToTableAdapter:
 		self.rows.append( [ 'date'		, match.date] )
 		self.rows.append( [ 'modname'	, match.modname] )
 		self.rows.append( [ 'mapname'	, match.mapname] )
-		self.rows.append( [ 'replay'	, match.replay ] )
+		self.rows.append( [ 'replay'	, '<a href="%s" >%s</a>'%(match.replay,match.replay.split('/')[-1]) ] )
 		self.rows.append( [ 'duration'	, match.duration] )
