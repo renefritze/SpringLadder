@@ -619,3 +619,17 @@ class LadderDB:
 				self.RecalcRankings( ladderid )
 			self.BanPlayer( -1, from_nick )
 		return result
+
+	def GetRankAndPositionInfo(self, players, ladder_id ):
+		session = self.sessionmaker()
+		ladder = self.GetLadder( ladder_id )
+		res = dict()
+		for player in session.query( Player ).filter( Player.nick.in_(players) ):
+			aloginstance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
+			algoname = aloginstance.__class__.__name__
+			entityType = aloginstance.GetDbEntityType()
+			rank = session.query( entityType ).filter( entityType.ladder_id == ladder.id ).filter(entityType.player_id == player.id).first()
+			pos = self.GetPlayerPosition( ladder_id, player.id )
+			if rank:
+				res[player.nick] = ( ( rank, pos, entityType ) )
+		return res

@@ -77,6 +77,13 @@ class Main:
 	def startspring(self,socket,g):
 		currentworkingdir = os.getcwd()
 		try:
+			players = []
+			for player in self.battle_statusmap:
+				status = self.battle_statusmap[player]
+				if not status.spec and player != self.app.config["nick"]:
+					players.append(player)
+			pregame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
+			
 			if self.ingame == True:
 				self.saybattle( self.socket, self.battleid, "Error: game is already running")
 				return
@@ -119,6 +126,9 @@ class Main:
 					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
 					matchid = self.db.ReportMatch( mr, True )
 					self.saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+					postgame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
+					news_string = '\n'.join( self.GetRankInfoDifference( pregame_rankinfo, postgame_rankinfo ) )
+					#self.saybattle( self.socket, self.battleid, news_string )
 					reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: " + self.db.GetLadderName(self.ladderid) )
 					replaysiteok = reply.split()[0] == 'SUCCESS'
 					if replaysiteok:
@@ -413,7 +423,8 @@ class Main:
 				else:
 					output = fakeoutput.fakeoutput[-1]
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				#self.saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
+				players = ['doofus', 'idiot']
+				pregame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
 				self.saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
 					mr = AutomaticMatchToDbWrapper( output, self.ladderid )
@@ -429,6 +440,8 @@ class Main:
 
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				self.saybattle( self.socket, self.battleid, 'after:\n' +upd )
+				postgame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
+				self.saybattle( self.socket, self.battleid, '\n'.join( self.GetRankInfoDifference( pregame_rankinfo, postgame_rankinfo ) ) )
 			if command == '!stress':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
@@ -671,3 +684,19 @@ class Main:
 
 	def sayPermissionDenied(self,socket, command, username ):
 		socket.send("SAYPRIVATE %s You do not have sufficient access right to execute %s on this bot\n" %( username, command ) )
+
+	def GetRankInfoDifference(self, pre, post ):
+		#we cannot assume same ordering or even players in pre and post
+		res = []
+		for nick, info in post.iteritems():
+			post_rank = info[0]
+			post_pos = info[1]
+			rank_type = info[2]
+			if not nick in pre:
+				pre_rank = rank_type()
+				pre_pos = 0 #make num player on ladder +1
+			else:
+				pre_rank = pre[nick][0]
+				pre_pos = pre[nick][1]
+			res.append( '%s:\tNew position: %d (%d)\t New Rank: %s (was %s)'%(nick, post_pos, (pre_pos - post_pos),str(post_rank), str(pre_rank) ) )
+		return res

@@ -180,6 +180,9 @@ class SimpleRanks(Base):
 
 	player			= relation("Player")
 
+	def __str__(self):
+		return '%d points'%self.points
+
 class GlickoRanks(Base):
 	__tablename__	= 'glickoranks'
 	id 				= Column( Integer, primary_key=True )
@@ -193,6 +196,9 @@ class GlickoRanks(Base):
 		self.rd		=  350
 
 	player			= relation("Player")
+
+	def __str__(self):
+		return '%f/%f (rating/rating deviation)'%(self.rating,self.rd)
 
 class Config(Base):
 	__tablename__	= 'config'
