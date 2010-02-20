@@ -31,13 +31,12 @@ def postReplay( abs_filepath, lobby_nick, description):
 	c = pycurl.Curl()
 	c.setopt(c.POST, 1)
 	c.setopt(c.URL, "http://replays.adune.nl/?act=upload&do=upload&secretzon=lamafaarao")
-	isladder = True
 	f = CurlForm()
 	f.add_file( 'tiedosto', abs_filepath )
 	f.add_string( 'postdata[lobbynick]', lobby_nick )
 	if description != '':
 		f.add_string( 'postdata[description]', description )
-	f.add_string('postdata[replaytype]', str(isladder) )
+	f.add_string('postdata[replaytype]', "1" ) # 0 - normal game, 1 - ladder
 	c.setopt(c.HTTPPOST, f)
 	c.setopt(c.WRITEFUNCTION, t.body_callback)
 	c.perform()
