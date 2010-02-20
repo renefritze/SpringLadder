@@ -15,7 +15,6 @@ class CurlForm(list):
 		self += (name, tuple(options)),
 
 	def add_file(self, name, file, type=None, filename=None):
-		assert file is not __builtins__.file
 		options = [pycurl.FORM_FILE, file]
 		self.__add_optional(options, pycurl.FORM_CONTENTTYPE, type)
 		self.__add_optional(options, pycurl.FORM_FILENAME, filename)
