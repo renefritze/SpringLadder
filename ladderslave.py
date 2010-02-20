@@ -2,6 +2,7 @@
 from customlog import *
 from ParseConfig import *
 import commands, thread, signal, os, time, subprocess, traceback, platform, sys
+import replay_upload
 from db_entities import *
 from ladderdb import *
 from match import *
@@ -116,8 +117,14 @@ class Main:
 			elif doSubmit:
 				try:
 					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
-					self.db.ReportMatch( mr, True )
+					matchid = self.db.ReportMatch( mr, True )
 					self.saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+					reply = replay_upload.postReplay( self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: " + self.db.GetLadderName(self.ladderid) ) )
+					replaysiteok = reply.split()[0] == 'SUCCESS'
+					if replaysiteok:
+						self.saybattleex(self.socket, self.battleid, reply.split()[1] )
+					else:
+						self.saybattleex(self.socket, self.battleid, "error uploading replay to http://replays.adune.nl")
 				except:
 					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )

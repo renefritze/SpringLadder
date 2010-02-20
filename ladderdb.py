@@ -280,7 +280,18 @@ class LadderDB:
 		"""false skips validation check of output against ladder rules"""
 		if not isinstance( matchresult, MatchToDbWrapper ):
 			raise TypeError
-		matchresult.CommitMatch(self,doValidation)
+		return matchresult.CommitMatch(self,doValidation)
+
+	def GetMatchReplay( self, match_id ):
+		session = self.sessionmaker()
+		match = session.query( Match ).filter( Match.id == match_id ).first()
+		if match:
+			replaypath = match.replay
+			session.close()
+			return replaypath
+		else:
+			session.close()
+			except ElementNotFoundException( str(match_id) )
 
 	def GetRanks( self, ladder_id, player_name=None,limit=-1 ):
 		session = self.sessionmaker()
@@ -332,7 +343,7 @@ class LadderDB:
 			i += 1
 		session.close()
 		return pos
-		
+
 	def AccessCheck( self, ladder_id, username, role ):
 		session = self.sessionmaker()
 		try:

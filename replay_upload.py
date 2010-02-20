@@ -41,10 +41,3 @@ def postReplay( abs_filepath, lobby_nick, description):
 	c.perform()
 	c.close()
 	return t.contents
-
-reply = postReplay( '/share/spring/data/demos/20100131_152343_TheColdPlace_0.81+.1.sdf', 'LadderBot', 'no description' )
-ok = reply.split()[0] == 'SUCCESS'
-if ok:
-	print "url: %s"%reply.split()[1]
-else:
-	print reply
