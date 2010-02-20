@@ -119,7 +119,7 @@ class Main:
 					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
 					matchid = self.db.ReportMatch( mr, True )
 					self.saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
-					reply = replay_upload.postReplay( self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: " + self.db.GetLadderName(self.ladderid) ) )
+					reply = replay_upload.postReplay( self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: " + self.db.GetLadderName(self.ladderid) )
 					replaysiteok = reply.split()[0] == 'SUCCESS'
 					if replaysiteok:
 						self.saybattleex(self.socket, self.battleid, reply.split()[1] )
