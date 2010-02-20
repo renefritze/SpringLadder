@@ -239,27 +239,25 @@ class LadderDB:
 	def AssignServerID(self,name, serverplayerid ):
 		session = self.sessionmaker()
 		player = session.query( Player ).filter( Player.nick == name ).first()
-		playerfound = False
 		if player:
-			playerfound = True
 			player.server_id = serverplayerid
 			session.add( player )
 			session.commit()
-		session.close()
-		if not playerfound:
+			session.close()
+		else:
+			session.close()
 			raise ElementNotFoundException( str(serverplayerid) )
 
 	def RenamePlayer(self,serverplayerid,newname):
 		session = self.sessionmaker()
 		player = session.query( Player ).filter( Player.server_id == serverplayerid ).first()
-		playerfound = False
 		if player:
-			playerfound = True
 			player.nick = newname
 			session.add(player)
 			session.commit()
-		session.close()
-		if not playerfound:
+			session.close()
+		else:
+			session.close()
 			raise ElementNotFoundException( str(serverplayerid) )
 
 	def GetPlayer( self, name ):
