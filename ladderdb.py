@@ -265,7 +265,7 @@ class LadderDB:
 		player = session.query( Player ).filter( Player.nick == name ).first()
 		if not player:
 			self.AddPlayer( name, Roles.User )
-			#player = session.query( Player ).filter( Player.nick == name ).first()
+			player = session.query( Player ).filter( Player.nick == name ).first()
 		session.close()
 		return player
 
