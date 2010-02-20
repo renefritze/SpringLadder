@@ -291,7 +291,7 @@ class LadderDB:
 			return replaypath
 		else:
 			session.close()
-			except ElementNotFoundException( str(match_id) )
+			raise ElementNotFoundException( str(match_id) )
 
 	def GetRanks( self, ladder_id, player_name=None,limit=-1 ):
 		session = self.sessionmaker()
