@@ -5,6 +5,7 @@ from sqlalchemy.orm import *
 from sqlalchemy import exc
 import traceback
 import datetime
+import math
 from db_entities import *
 from ranking import *
 from match import *
@@ -416,22 +417,23 @@ class LadderDB:
 		session.commit()
 		session.close()
 
-	def GetAvgMatchDelta( self, ladder_id, maxDate=None ):
+	def GetAvgMatchDelta( self, ladder_id ):
+		ladder = self.GetLadder( ladder_id )
+		if ladder.match_average != -1:
+			return ladder.match_average
+		else:
+			return 1
+
+	def UpdateAvgMatchDelta( self, ladder_id, player_delta ):
+		ladder = self.GetLadder( ladder_id )
 		session = self.sessionmaker()
-		if maxDate:
-			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).filter(Match.date <= maxDate ).order_by(Match.date.desc()).all()
+		if ladder.match_average == -1:
+			ladder.match_average = player_delta
 		else:
-			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.desc()).all()
-		total = 0.0
-		for i in range( len(matches) -1 ):
-			diff = time.mktime(matches[i].date.timetuple())
-			diff -= time.mktime(matches[i+1].date.timetuple())
-			total += diff
+			ladder.match_average = math.sqrt(player_delta*ladder.match_average) # use geometrical average because it's handy wrt variable sizes
+		session.add( ladder )
+		session.commit()
 		session.close()
-		if len(matches) > 2:
-			return max(total,1) / float( len(matches) - 1  )
-		else:
-			return 1.0
 
 	def RecalcRankings( self, ladder_id ):
 		session = self.sessionmaker()
