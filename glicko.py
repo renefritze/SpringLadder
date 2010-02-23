@@ -50,29 +50,19 @@ class GlickoRankAlgo(IRanking):
 
 		#step one
 		pre = dict() #name -> GlickoRanks
-		match_query = session.query( Match ).filter( Match.ladder_id == ladder_id ).filter( Match.date <= match.date ).order_by( Match.date.desc() )
-		num_matches = match_query.count()
-		if num_matches > 0:
-			prior_match = match_query.first()
-			first_match = match_query[num_matches-1]
-			first_match_unixT = time.mktime(first_match.date.timetuple())
-		else:
-			first_match_unixT = time.mktime(datetime.now().timetuple())
-		last_match_unixT = first_match_unixT
 		avg_match_delta = db.GetAvgMatchDelta( ladder_id )
+		last_match_unixT = time.mktime(datetime.now().timetuple())
 		print "match delta: %d" % avg_match_delta
 		for name,result in result_dict.iteritems():
 			#get number of matches since last for player
 			#if match_query.count() < 2:
-			p_result_query = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).filter(Result.date <= match.date).order_by( Result.id.desc() )
-			if p_result_query.count() > 1:
-				prev_result = p_result_query[1]
-				for m in match_query[1:] :
-					if prev_result.match_id == m.id:
-						last_match_unixT = time.mktime(m.date.timetuple())
-						break
-			delta = last_match_unixT - first_match_unixT
-			print "last_match: %d prev_match: %d, delta: %d" %( last_match_unixT, first_match_unixT, delta )
+			p_result_query = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).filter(Result.date < match.date).order_by( Result.id.desc() )
+			if p_result_query.count() > 0:
+				prev_match_unixT = time.mktime(p_result_query[0].date.timetuple())
+			else:
+				prev_match_unixT = time.mktime(datetime.now().timetuple())
+			delta = last_match_unixT - prev_match_unixT
+			print "last_match: %d prev_match: %d, delta: %d" %( last_match_unixT, prev_match_unixT, delta )
 			t = delta / avg_match_delta
 			db.UpdateAvgMatchDelta( ladder_id, delta )
 
