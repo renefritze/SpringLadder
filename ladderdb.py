@@ -419,20 +419,17 @@ class LadderDB:
 
 	def GetAvgMatchDelta( self, ladder_id ):
 		ladder = self.GetLadder( ladder_id )
-		if ladder.match_average != -1:
-			return ladder.match_average
-		else:
+		if ladder.match_average_count == 0:
 			return 1
+		return ladder.match_average_sum / ladder.match_average_count
 
 	def UpdateAvgMatchDelta( self, ladder_id, player_delta ):
 		if player_delta == 0:
 			return
 		ladder = self.GetLadder( ladder_id )
 		session = self.sessionmaker()
-		if ladder.match_average == -1:
-			ladder.match_average = player_delta
-		else:
-			ladder.match_average = math.sqrt(player_delta*ladder.match_average) # use geometrical average because it's handy wrt variable sizes
+		ladder.match_average_sum += player_delta
+		ladder.match_average_count += 1
 		session.add( ladder )
 		session.commit()
 		session.close()
@@ -440,7 +437,8 @@ class LadderDB:
 	def RecalcRankings( self, ladder_id ):
 		session = self.sessionmaker()
 		ladder = self.GetLadder( ladder_id )
-		ladder.match_average = -1 # reset match average count
+		ladder.match_average_sum = 0
+		ladder.match_average_count = 0
 		session.add( ladder )
 		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
 		entityType = algo_instance.GetDbEntityType()
