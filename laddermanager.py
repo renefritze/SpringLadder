@@ -674,12 +674,9 @@ class Main:
 					#log
 					return
 				else:
-					try:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Beginning to recalculate rankings." )
-						self.db.RecalcRankings(ladderid)
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Done recalculating the ranks." )
-					except:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't recalulcate the ranks." )
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Beginning to recalculate rankings." )
+					self.db.RecalcRankings(ladderid)
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Done recalculating the ranks." )
 			if command == "!laddermergeaccounts":
 				if len(args) < 2 or len(args) > 3:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
