@@ -52,7 +52,7 @@ class GlickoRankAlgo(IRanking):
 		pre = dict() #name -> GlickoRanks
 		avg_match_delta = db.GetAvgMatchDelta( ladder_id )
 		for name,result in result_dict.iteritems():
-			previous_match = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).filter(Result.date < match.date).order_by( Result.id.desc() ).first()
+			previous_match = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).filter(Result.date < match.date).order_by( Result.date.desc() ).filter( Result.id != match.id ).first()
 			if previous_match:
 				last_match_unixT = time.mktime(match.date.timetuple())
 				prev_match_unixT = time.mktime(previous_match.date.timetuple())
