@@ -51,7 +51,7 @@ class GlickoRankAlgo(IRanking):
 		#step one
 		pre = dict() #name -> GlickoRanks
 		avg_match_delta = db.GetAvgMatchDelta( ladder_id )
-		last_match_unixT = time.mktime(datetime.now().timetuple())
+		last_match_unixT = time.mktime(time.datetime.now().timetuple())
 		print "match delta: %d" % avg_match_delta
 		for name,result in result_dict.iteritems():
 			#get number of matches since last for player
