@@ -60,7 +60,7 @@ class GlickoRankAlgo(IRanking):
 			if p_result_query.count() > 0:
 				prev_match_unixT = time.mktime(p_result_query[0].date.timetuple())
 			else:
-				prev_match_unixT = time.mktime(datetime.now().timetuple())
+				prev_match_unixT = last_match_unixT
 			delta = last_match_unixT - prev_match_unixT
 			print "last_match: %d prev_match: %d, delta: %d" %( last_match_unixT, prev_match_unixT, delta )
 			t = delta / avg_match_delta
