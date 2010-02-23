@@ -8,7 +8,7 @@ class GlickoRankAlgo(IRanking):
 	q = math.log( 10.0 ) / 400.0
 
 	def __init__(self):
-		self.c = 64.0
+		self.c = 16.0
 		self.rd_lower_bound = 50.0
 
 	def Update(self,ladder_id,match,db):
