@@ -441,7 +441,7 @@ class LadderDB:
 		session = self.sessionmaker()
 		ladder = self.GetLadder( ladder_id )
 		ladder.match_average = -1 # reset match average count
-		session.commit( ladder )
+		session.add( ladder )
 		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
 		entityType = algo_instance.GetDbEntityType()
 		ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()
