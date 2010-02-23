@@ -72,7 +72,7 @@ class GlickoRankAlgo(IRanking):
 						last_match_unixT = time.mktime(m.date.timetuple())
 						break
 			delta = last_match_unixT - first_match_unixT
-			print "last_match: %d prev_match: %d" %( last_match_unixT, first_match_unixT, delta )
+			print "last_match: %d prev_match: %d, delta: %d" %( last_match_unixT, first_match_unixT, delta )
 			t = delta / avg_match_delta
 			db.UpdateAvgMatchDelta( ladder_id, delta )
 
