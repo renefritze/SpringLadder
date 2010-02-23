@@ -71,7 +71,7 @@ class GlickoRankAlgo(IRanking):
 						last_match_unixT = time.mktime(m.date.timetuple())
 						break
 			t = ( last_match_unixT - first_match_unixT ) / avg_match_delta
-			self.db.UpdateAvgMatchDelta( ladder_id, last_match_unixT - first_match_unixT )
+			db.UpdateAvgMatchDelta( ladder_id, last_match_unixT - first_match_unixT )
 
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( GlickoRanks ).filter( GlickoRanks.ladder_id == ladder_id ).filter( GlickoRanks.player_id == player_id ).first()
