@@ -425,6 +425,8 @@ class LadderDB:
 			return 1
 
 	def UpdateAvgMatchDelta( self, ladder_id, player_delta ):
+		if player_delta == 0:
+			return
 		ladder = self.GetLadder( ladder_id )
 		session = self.sessionmaker()
 		if ladder.match_average == -1:
