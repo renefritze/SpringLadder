@@ -432,6 +432,14 @@ class Main:
 				if self.db.AccessCheck( -1, fromwho, Roles.LadderAdmin ):
 					self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_ladder_admin )
 				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
+			if command == "!help":
+				ispm = True
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
+				if self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
+					self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_global_admin )
+				if self.db.AccessCheck( -1, fromwho, Roles.LadderAdmin ):
+					self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_ladder_admin )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
 			if command == "!laddercopy":
 				if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
