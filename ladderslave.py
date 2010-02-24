@@ -359,7 +359,7 @@ class Main:
 			except:
 				pass
 
-			if command == "!checksetup":
+			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -402,7 +402,7 @@ class Main:
 			if command == "!ladderhelp":
 				self.saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				self.saybattle( self.socket, self.battleid, helpstring_user )
-			if command == '!debug':
+			if command == '!ladderdebug':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
 					#log
@@ -430,7 +430,7 @@ class Main:
 
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				self.saybattle( self.socket, self.battleid, 'after:\n' +upd )
-			if command == '!stress':
+			if command == '!ladderstress':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
 					#log
