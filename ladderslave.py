@@ -84,9 +84,9 @@ class Main:
 			self.ingame = True
 			doSubmit = self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0)
 			if doSubmit:
-				self.saybattleex(socket, self.battleid, "will submit to the ladder the score results")
+				self.saybattleex(socket, self.battleid, "will submit the result to the ladder")
 			else:
-				self.saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
+				self.saybattleex(socket, self.battleid, "won't submit the result to the ladder")
 			sendstatus( self, socket )
 			st = time.time()
 			self.log.Info("*** Starting spring: command line \"%s %s\"" % (self.app.config["springdedclientpath"], os.path.join(self.scriptbasepath,"%f.txt" % g )) )
@@ -119,7 +119,7 @@ class Main:
 				try:
 					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
 					matchid = self.db.ReportMatch( mr, True )
-					self.saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
+					self.saybattleex(self.socket, self.battleid, "has submitted the score update to the ladder: http://ladder.springrts.com/viewmatch.py?id=%d"%matchid)
 				except:
 					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
