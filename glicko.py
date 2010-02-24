@@ -154,7 +154,7 @@ class GlickoRankAlgo(IRanking):
 		ret = '#position playername (Rating/Rating Deviation):\n'
 		s = db.sessionmaker()
 		count = 0
-		previousrating = 0
+		previousrating = -1
 		same_rating_in_a_row = 0
 		for rank in rank_list:
 			s.add( rank )

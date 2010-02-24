@@ -336,12 +336,22 @@ class LadderDB:
 		player = session.query( Player ).filter( Player.id == player_id ).first()
 		pos = -1
 		ranks = self.GetRanks( ladder_id )
-		i = 1
+		count = 0
+		previousrating = -1
+		same_rating_in_a_row = 0
 		for r in ranks:
+			if r.rating != previousrating: # give the same position to players with the same rank
+				if same_rating_in_a_row == 0:
+					count += 1
+				else:
+					count += same_rating_in_a_row
+					same_rating_in_a_row = 0
+			else:
+				same_rating_in_a_row += 1
 			if r.player_id == player_id:
-				pos = i
+				pos = count
 				break
-			i += 1
+			previousrating = r.rating
 		session.close()
 		return pos
 
