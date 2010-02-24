@@ -162,7 +162,7 @@ class GlickoRankAlgo(IRanking):
 				if same_rating_in_a_row == 0:
 					count += 1
 				else:
-					count += same_rating_in_a_row + 1
+					count += same_rating_in_a_row
 					same_rating_in_a_row = 0
 			else:
 				same_rating_in_a_row += 1
