@@ -153,11 +153,21 @@ class GlickoRankAlgo(IRanking):
 	def GetPrintableRepresentation(rank_list,db):
 		ret = '#position playername (Rating/Rating Deviation):\n'
 		s = db.sessionmaker()
-		count = 1
+		count = 0
+		previousrating = 0
+		same_rating_in_a_row = 0
 		for rank in rank_list:
 			s.add( rank )
+			if rank.rating != previousrating: # give the same position to players with the same rank
+				if same_rating_in_a_row == 0:
+					count += 1
+				else:
+					count += same_rating_in_a_row + 1
+					same_rating_in_a_row = 0
+			else:
+				same_rating_in_a_row += 1
 			ret += '#%d %s\t\t(%2f/%4f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
-			count = count +1
+			previousrating = rank.rating
 		s.close()
 		return ret
 
