@@ -151,7 +151,7 @@ class GlickoRankAlgo(IRanking):
 
 	@staticmethod
 	def GetPrintableRepresentation(rank_list,db):
-		ret = '#position playername (Rating/RatingDeviation):\n'
+		ret = '#position playername\t\t\t(Rating/RatingDeviation):\n'
 		s = db.sessionmaker()
 		count = 0
 		previousrating = -1
@@ -166,7 +166,7 @@ class GlickoRankAlgo(IRanking):
 					same_rating_in_a_row = 0
 			else:
 				same_rating_in_a_row += 1
-			ret += '#%d %s\t\t(%4.2f/%3.0f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
+			ret += '#%d %s\t\t\t(%4.2f/%3.0f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
 			previousrating = rank.rating
 		s.close()
 		return ret
