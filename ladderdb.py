@@ -5,6 +5,7 @@ from sqlalchemy.orm import *
 from sqlalchemy import exc
 import traceback
 import datetime
+import math
 from db_entities import *
 from ranking import *
 from match import *
@@ -335,12 +336,22 @@ class LadderDB:
 		player = session.query( Player ).filter( Player.id == player_id ).first()
 		pos = -1
 		ranks = self.GetRanks( ladder_id )
-		i = 1
+		count = 0
+		previousrating = -1
+		same_rating_in_a_row = 0
 		for r in ranks:
+			if r.rating != previousrating: # give the same position to players with the same rank
+				if same_rating_in_a_row == 0:
+					count += 1
+				else:
+					count += same_rating_in_a_row +1
+					same_rating_in_a_row = 0
+			else:
+				same_rating_in_a_row += 1
 			if r.player_id == player_id:
-				pos = i
+				pos = count
 				break
-			i += 1
+			previousrating = r.rating
 		session.close()
 		return pos
 
@@ -416,26 +427,29 @@ class LadderDB:
 		session.commit()
 		session.close()
 
-	def GetAvgMatchDelta( self, ladder_id, maxDate=None ):
+	def GetAvgMatchDelta( self, ladder_id ):
+		ladder = self.GetLadder( ladder_id )
+		if ladder.match_average_count == 0:
+			return 1
+		return ladder.match_average_sum / ladder.match_average_count
+
+	def UpdateAvgMatchDelta( self, ladder_id, player_delta ):
+		if player_delta == 0:
+			return
+		ladder = self.GetLadder( ladder_id )
 		session = self.sessionmaker()
-		if maxDate:
-			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).filter(Match.date <= maxDate ).order_by(Match.date.desc()).all()
-		else:
-			matches = session.query(Match).filter(Match.ladder_id == ladder_id ).order_by(Match.date.desc()).all()
-		total = 0.0
-		for i in range( len(matches) -1 ):
-			diff = time.mktime(matches[i].date.timetuple())
-			diff -= time.mktime(matches[i+1].date.timetuple())
-			total += diff
+		ladder.match_average_sum += player_delta
+		ladder.match_average_count += 1
+		session.add( ladder )
+		session.commit()
 		session.close()
-		if len(matches) > 2:
-			return max(total,1) / float( len(matches) - 1  )
-		else:
-			return 1.0
 
 	def RecalcRankings( self, ladder_id ):
 		session = self.sessionmaker()
 		ladder = self.GetLadder( ladder_id )
+		ladder.match_average_sum = 0
+		ladder.match_average_count = 0
+		session.add( ladder )
 		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
 		entityType = algo_instance.GetDbEntityType()
 		ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()

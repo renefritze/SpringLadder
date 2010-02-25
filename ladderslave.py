@@ -91,9 +91,9 @@ class Main:
 			self.ingame = True
 			doSubmit = self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0)
 			if doSubmit:
-				self.saybattleex(socket, self.battleid, "will submit to the ladder the score results")
+				self.saybattleex(socket, self.battleid, "will submit the result to the ladder")
 			else:
-				self.saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
+				self.saybattleex(socket, self.battleid, "won't submit the result to the ladder")
 			sendstatus( self, socket )
 			st = time.time()
 			self.log.Info("*** Starting spring: command line \"%s %s\"" % (self.app.config["springdedclientpath"], os.path.join(self.scriptbasepath,"%f.txt" % g )) )
@@ -122,23 +122,24 @@ class Main:
 				self.log.Error( "Error: Spring exited with status %i" % status )
 				self.log.Error( self.output )
 			elif doSubmit:
+				matchid = -1
 				try:
 					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
 					matchid = self.db.ReportMatch( mr, True )
-					self.saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
 					postgame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
 					news_string = '\n'.join( self.GetRankInfoDifference( pregame_rankinfo, postgame_rankinfo ) )
 					#self.saybattle( self.socket, self.battleid, news_string )
-					reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: " + self.db.GetLadderName(self.ladderid) )
-					replaysiteok = reply.split()[0] == 'SUCCESS'
-					if replaysiteok:
-						self.saybattleex(self.socket, self.battleid, reply.split()[1] )
-					else:
-						self.saybattleex(self.socket, self.battleid, "error uploading replay to http://replays.adune.nl")
+					self.saybattleex(self.socket, self.battleid, "has submitted the score update to the ladder: http://ladder.springrts.com/viewmatch.py?id=%d"%matchid)
 				except:
 					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
 					self.saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
+				reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: %s, Match #%d" % ( self.db.GetLadderName(self.ladderid), matchid ) )
+				replaysiteok = reply.split()[0] == 'SUCCESS'
+				if replaysiteok:
+					self.saybattleex(self.socket, self.battleid, reply.split()[1] )
+				else:
+					self.saybattleex(self.socket, self.battleid, "error uploading replay to http://replays.adune.nl")
 			else:
 				self.log.Info( "*** Spring has exited with status %i" % status )
 
@@ -368,7 +369,7 @@ class Main:
 			except:
 				pass
 
-			if command == "!checksetup":
+			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -411,7 +412,7 @@ class Main:
 			if command == "!ladderhelp":
 				self.saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				self.saybattle( self.socket, self.battleid, helpstring_user )
-			if command == '!debug':
+			if command == '!ladderdebug':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
 					#log
@@ -442,7 +443,7 @@ class Main:
 				self.saybattle( self.socket, self.battleid, 'after:\n' +upd )
 				postgame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
 				self.saybattle( self.socket, self.battleid, '\n'.join( self.GetRankInfoDifference( pregame_rankinfo, postgame_rankinfo ) ) )
-			if command == '!stress':
+			if command == '!ladderstress':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
 					#log

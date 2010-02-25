@@ -8,7 +8,7 @@ class GlickoRankAlgo(IRanking):
 	q = math.log( 10.0 ) / 400.0
 
 	def __init__(self):
-		self.c = 64.0
+		self.c = 32.0
 		self.rd_lower_bound = 50.0
 
 	def Update(self,ladder_id,match,db):
@@ -50,27 +50,17 @@ class GlickoRankAlgo(IRanking):
 
 		#step one
 		pre = dict() #name -> GlickoRanks
-		match_query = session.query( Match ).filter( Match.ladder_id == ladder_id ).filter( Match.date <= match.date ).order_by( Match.date.desc() )
-		num_matches = match_query.count()
-		if num_matches > 0:
-			prior_match = match_query.first()
-			first_match = match_query[num_matches-1]
-			first_match_unixT = time.mktime(first_match.date.timetuple())
-		else:
-			first_match_unixT = time.mktime(datetime.now().timetuple())
-		last_match_unixT = first_match_unixT
-		avg_match_delta = db.GetAvgMatchDelta( ladder_id, match.date )
+		avg_match_delta = db.GetAvgMatchDelta( ladder_id )
 		for name,result in result_dict.iteritems():
-			#get number of matches since last for player
-			#if match_query.count() < 2:
-			p_result_query = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).filter(Result.date <= match.date).order_by( Result.id.desc() )
-			if p_result_query.count() > 1:
-				prev_result = p_result_query[1]
-				for m in match_query[1:] :
-					if prev_result.match_id == m.id:
-						last_match_unixT = time.mktime(m.date.timetuple())
-						break
-			t = ( last_match_unixT - first_match_unixT ) / avg_match_delta
+			previous_match = session.query( Result ).filter( Result.player_id == result.player_id ).filter( Result.ladder_id == ladder_id ).filter(Result.date < match.date).order_by( Result.date.desc() ).filter( Result.id != match.id ).first()
+			if previous_match:
+				last_match_unixT = time.mktime(match.date.timetuple())
+				prev_match_unixT = time.mktime(previous_match.date.timetuple())
+			else:
+				prev_match_unixT = last_match_unixT = 0
+			delta = last_match_unixT - prev_match_unixT
+			t = delta / avg_match_delta
+			db.UpdateAvgMatchDelta( ladder_id, delta )
 
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id
 			rank = session.query( GlickoRanks ).filter( GlickoRanks.ladder_id == ladder_id ).filter( GlickoRanks.player_id == player_id ).first()
@@ -163,11 +153,21 @@ class GlickoRankAlgo(IRanking):
 	def GetPrintableRepresentation(rank_list,db):
 		ret = '#position playername (Rating/Rating Deviation):\n'
 		s = db.sessionmaker()
-		count = 1
+		count = 0
+		previousrating = -1
+		same_rating_in_a_row = 0
 		for rank in rank_list:
 			s.add( rank )
+			if rank.rating != previousrating: # give the same position to players with the same rank
+				if same_rating_in_a_row == 0:
+					count += 1
+				else:
+					count += same_rating_in_a_row +1
+					same_rating_in_a_row = 0
+			else:
+				same_rating_in_a_row += 1
 			ret += '#%d %s\t\t(%2f/%4f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
-			count = count +1
+			previousrating = rank.rating
 		s.close()
 		return ret
 
