@@ -124,7 +124,7 @@ class Main:
 					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
 					self.saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
-				reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: %s , Match #%d" % ( self.db.GetLadderName(self.ladderid), matchid ) )
+				reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: %s, Match #%d" % ( self.db.GetLadderName(self.ladderid), matchid ) )
 				replaysiteok = reply.split()[0] == 'SUCCESS'
 				if replaysiteok:
 					self.saybattleex(self.socket, self.battleid, reply.split()[1] )
