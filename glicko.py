@@ -166,7 +166,7 @@ class GlickoRankAlgo(IRanking):
 					same_rating_in_a_row = 0
 			else:
 				same_rating_in_a_row += 1
-			ret += '#%d %25s\t(%4.2f/%3.0f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
+			ret += '#%d %s\t(%4.2f/%3.0f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
 			previousrating = rank.rating
 		s.close()
 		return ret
