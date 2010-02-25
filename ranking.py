@@ -11,7 +11,7 @@ class EmptyRankingListException( Exception ):
 		return "no ranks, doh"
 
 class IRanking():
-	
+
 	def Update(self,ladder_id,match,db):
 		raise NotImplemented
 
@@ -20,7 +20,7 @@ class IRanking():
 
 	def GetWebRepresentation(self,rank_list,db):
 		raise NotImplemented
-		
+
 	def GetDbEntityType(self):
 		raise NotImplemented
 
@@ -29,12 +29,12 @@ class IRanking():
 
 class RankingAlgoSelector:
 	algos = dict()
-	available_ranking_algos = []	
-		
+	available_ranking_algos = []
+
 	def RegisterAlgo( self, instance ):
 		RankingAlgoSelector.available_ranking_algos.append( instance.__class__.__name__ )
 		RankingAlgoSelector.algos[RankingAlgoSelector.available_ranking_algos[-1]] =  instance
-		
+
 	def GetInstance(self, name ):
 		if not name in RankingAlgoSelector.available_ranking_algos:
 			raise ElementNotFoundException( name )
@@ -93,19 +93,19 @@ class SimpleRankAlgo(IRanking):
 		#calculate order of deaths
 		deaths = dict()
 		scores = dict()
-			
+
 		for name,player in result_dict.iteritems():
 			if player.died > 0:
 				deaths[name] = player.died
-			if player.timeout:
-				scores[name] = -1
-			if player.disconnect > -1:
-				scores[name] = -2
-			if player.quit:
-				scores[name] = -5
+#			if player.timeout:
+#				scores[name] = -1
+#			if player.disconnect > -1:
+#				scores[name] = -2
+#			if player.quit:
+#				scores[name] = -5
 			if player.desync > -1:
 				scores[name] = 0
-		
+
 		#find last team standing
 		for name in result_dict.keys():
 			if name not in deaths.keys() and name not in scores.keys():
@@ -146,8 +146,8 @@ class SimpleRankAlgo(IRanking):
 			ret.rows.append( [rank.player.nick , round(rank.points,3) ] )
 		s.close()
 		return ret
-		
-			
+
+
 	def GetDbEntityType(self):
 		return SimpleRanks
 
