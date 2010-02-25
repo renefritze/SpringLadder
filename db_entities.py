@@ -33,6 +33,8 @@ class Ladder(Base):
 	min_ai_count	= Column( Integer )
 	max_ai_count	= Column( Integer )
 	ranking_algo_id	= Column( String(30) )
+	match_average_sum = Column( Integer )
+	match_average_count = Column( Integer )
 
 	def __init__(self, name="noname"):
 		self.name = name
@@ -46,6 +48,8 @@ class Ladder(Base):
 		self.max_team_count = 2
 		self.min_ai_count	= 0
 		self.max_ai_count	= 0
+		self.match_average_sum = 0
+		self.match_average_count  = 0
 
 	def __str__(self):
 		try:
@@ -180,6 +184,9 @@ class SimpleRanks(Base):
 
 	player			= relation("Player")
 
+	def __str__(self):
+		return '%d points'%self.points
+
 class GlickoRanks(Base):
 	__tablename__	= 'glickoranks'
 	id 				= Column( Integer, primary_key=True )
@@ -193,6 +200,9 @@ class GlickoRanks(Base):
 		self.rd		=  350
 
 	player			= relation("Player")
+
+	def __str__(self):
+		return '%f/%f (rating/rating deviation)'%(self.rating,self.rd)
 
 class Config(Base):
 	__tablename__	= 'config'

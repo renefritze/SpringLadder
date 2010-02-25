@@ -432,6 +432,14 @@ class Main:
 				if self.db.AccessCheck( -1, fromwho, Roles.LadderAdmin ):
 					self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_ladder_admin )
 				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
+			if command == "!help":
+				ispm = True
+				self.notifyuser( socket, fromwho, fromwhere, ispm, "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
+				if self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
+					self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_global_admin )
+				if self.db.AccessCheck( -1, fromwho, Roles.LadderAdmin ):
+					self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_ladder_admin )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, helpstring_user )
 			if command == "!laddercopy":
 				if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
 					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
@@ -674,12 +682,9 @@ class Main:
 					#log
 					return
 				else:
-					try:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Beginning to recalculate rankings." )
-						self.db.RecalcRankings(ladderid)
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Done recalculating the ranks." )
-					except:
-						self.notifyuser( socket, fromwho, fromwhere, ispm, "Couldn't recalulcate the ranks." )
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Beginning to recalculate rankings." )
+					self.db.RecalcRankings(ladderid)
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Done recalculating the ranks." )
 			if command == "!laddermergeaccounts":
 				if len(args) < 2 or len(args) > 3:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )

@@ -77,6 +77,13 @@ class Main:
 	def startspring(self,socket,g):
 		currentworkingdir = os.getcwd()
 		try:
+			players = []
+			for player in self.battle_statusmap:
+				status = self.battle_statusmap[player]
+				if not status.spec and player != self.app.config["nick"]:
+					players.append(player)
+			pregame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
+			
 			if self.ingame == True:
 				self.saybattle( self.socket, self.battleid, "Error: game is already running")
 				return
@@ -84,9 +91,9 @@ class Main:
 			self.ingame = True
 			doSubmit = self.ladderid != -1 and self.db.LadderExists( self.ladderid ) and self.CheckValidSetup(self.ladderid,False,0)
 			if doSubmit:
-				self.saybattleex(socket, self.battleid, "will submit to the ladder the score results")
+				self.saybattleex(socket, self.battleid, "will submit the result to the ladder")
 			else:
-				self.saybattleex(socket, self.battleid, "won't submit to the ladder the score results")
+				self.saybattleex(socket, self.battleid, "won't submit the result to the ladder")
 			sendstatus( self, socket )
 			st = time.time()
 			self.log.Info("*** Starting spring: command line \"%s %s\"" % (self.app.config["springdedclientpath"], os.path.join(self.scriptbasepath,"%f.txt" % g )) )
@@ -115,20 +122,24 @@ class Main:
 				self.log.Error( "Error: Spring exited with status %i" % status )
 				self.log.Error( self.output )
 			elif doSubmit:
+				matchid = -1
 				try:
 					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
 					matchid = self.db.ReportMatch( mr, True )
-					self.saybattleex(self.socket, self.battleid, "has submitted ladder score updates")
-					reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: " + self.db.GetLadderName(self.ladderid) )
-					replaysiteok = reply.split()[0] == 'SUCCESS'
-					if replaysiteok:
-						self.saybattleex(self.socket, self.battleid, reply.split()[1] )
-					else:
-						self.saybattleex(self.socket, self.battleid, "error uploading replay to http://replays.adune.nl")
+					postgame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
+					news_string = '\n'.join( self.GetRankInfoDifference( pregame_rankinfo, postgame_rankinfo ) )
+					#self.saybattle( self.socket, self.battleid, news_string )
+					self.saybattleex(self.socket, self.battleid, "has submitted the score update to the ladder: http://ladder.springrts.com/viewmatch.py?id=%d"%matchid)
 				except:
 					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
 					self.saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
+				reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: %s, Match #%d" % ( self.db.GetLadderName(self.ladderid), matchid ) )
+				replaysiteok = reply.split()[0] == 'SUCCESS'
+				if replaysiteok:
+					self.saybattleex(self.socket, self.battleid, reply.split()[1] )
+				else:
+					self.saybattleex(self.socket, self.battleid, "error uploading replay to http://replays.adune.nl")
 			else:
 				self.log.Info( "*** Spring has exited with status %i" % status )
 
@@ -358,7 +369,7 @@ class Main:
 			except:
 				pass
 
-			if command == "!checksetup":
+			if command == "!ladderchecksetup":
 				ladderid = self.ladderid
 				if len(args) == 1 and args[0].isdigit():
 					ladderid = int(args[0])
@@ -401,7 +412,7 @@ class Main:
 			if command == "!ladderhelp":
 				self.saybattle( self.socket, self.battleid,  "Hello, I am a bot to manage and keep stats of ladder games.\nYou can use the following commands:")
 				self.saybattle( self.socket, self.battleid, helpstring_user )
-			if command == '!debug':
+			if command == '!ladderdebug':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
 					#log
@@ -413,7 +424,8 @@ class Main:
 				else:
 					output = fakeoutput.fakeoutput[-1]
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
-				#self.saybattle( self.socket, self.battleid, 'output used:\n' + output + 'produced:\n' )
+				players = ['doofus', 'idiot']
+				pregame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
 				self.saybattle( self.socket, self.battleid, 'before:\n' + upd )
 				try:
 					mr = AutomaticMatchToDbWrapper( output, self.ladderid )
@@ -429,7 +441,9 @@ class Main:
 
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				self.saybattle( self.socket, self.battleid, 'after:\n' +upd )
-			if command == '!stress':
+				postgame_rankinfo = self.db.GetRankAndPositionInfo( players, self.ladderid )
+				self.saybattle( self.socket, self.battleid, '\n'.join( self.GetRankInfoDifference( pregame_rankinfo, postgame_rankinfo ) ) )
+			if command == '!ladderstress':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
 					#log
@@ -671,3 +685,19 @@ class Main:
 
 	def sayPermissionDenied(self,socket, command, username ):
 		socket.send("SAYPRIVATE %s You do not have sufficient access right to execute %s on this bot\n" %( username, command ) )
+
+	def GetRankInfoDifference(self, pre, post ):
+		#we cannot assume same ordering or even players in pre and post
+		res = []
+		for nick, info in post.iteritems():
+			post_rank = info[0]
+			post_pos = info[1]
+			rank_type = info[2]
+			if not nick in pre:
+				pre_rank = rank_type()
+				pre_pos = 0 #make num player on ladder +1
+			else:
+				pre_rank = pre[nick][0]
+				pre_pos = pre[nick][1]
+			res.append( '%s:\tNew position: %d (%d)\t New Rank: %s (was %s)'%(nick, post_pos, (pre_pos - post_pos),str(post_rank), str(pre_rank) ) )
+		return res
