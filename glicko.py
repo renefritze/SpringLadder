@@ -148,7 +148,7 @@ class GlickoRankAlgo(IRanking):
 			session.add( playerrank )
 		playerminvalue = playerrank.rating - playerrank.rd
 		playermaxvalue = playerrank.rating - playerrank.rd
-		opponentranks = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ).filter( GlickoRanks.ladder_id == ladder_id ).filter( ( (GlickoRanks.rating + GlickoRanks.rd) > playerminvalue and ( GlickoRanks.rating - GlickoRanks.rd ) < playermaxvalue ) or ( playermaxvalue > ( GlickoRanks.rating - GlickoRanks.rd ) and playermaxvalue < (GlickoRanks.rating + GlickoRanks.rd) ) )#.order_by( abs(GlickoRanks.rating - playerrank.rating ).asc() )
+		opponentranks = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ).filter( GlickoRanks.ladder_id == ladder_id ).filter( ( (GlickoRanks.rating + GlickoRanks.rd) >= playerminvalue and ( GlickoRanks.rating + GlickoRanks.rd ) =< playermaxvalue ) or ( playermaxvalue >= ( GlickoRanks.rating - GlickoRanks.rd ) and playermaxvalue ?< (GlickoRanks.rating + GlickoRanks.rd) ) )#.order_by( abs(GlickoRanks.rating - playerrank.rating ).asc() )
 		opponents = []
 		for player in opponentranks:
 			opponents.append(session.query( Player ).filter( Player.id == player.id ).first().nick)
