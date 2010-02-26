@@ -156,13 +156,15 @@ class GlickoRankAlgo(IRanking):
 			.filter( and_( ( playermaxvalue >=  ( GlickoRanks.rating - GlickoRanks.rd ) ), \
 								( playermaxvalue <= (GlickoRanks.rating + GlickoRanks.rd) ) )  ) \
 			#.order_by( math.fabs(GlickoRanks.rating - playerrank.rating ) )
-		opponents = dict()
+		opponents = []
+		opponents_ranks = dict()
 		ops = ops1.all() + ops2.all()
 		ops.sort( lambda x,y : cmp( math.fabs( x.rating - playerrank.rating ), math.fabs( y.rating - playerrank.rating ) ) )
 		for op in ops:
-			opponents[op.player.nick] = '#%d %s\t(%4.2f/%3.0f)\n'%(db.GetPlayerPosition(ladder_id, op.player.id),op.player.nick,op.rating, op.rd)
+			opponents.append(op.player.nick)
+			opponents_ranks[op.player.nick] = '#%d %s\t(%4.2f/%3.0f)\n'%(db.GetPlayerPosition(ladder_id, op.player.id),op.player.nick,op.rating, op.rd)
 		session.close()
-		return opponents
+		return opponents, opponents_ranks
 
 	def GetWebRepresentation(self,rank_list,db):
 		ret = RankingTable()
