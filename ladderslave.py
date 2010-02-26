@@ -564,7 +564,7 @@ class Main:
 
 			if command == "!score":
 				if not self.db.AccessCheck( -1, who, Roles.User ):
-					self.self.sayPermissionDenied( self.socket, who, command )
+					self.sayPermissionDenied( self.socket, who, command )
 					#log
 					return
 				if len(args) > 2:
@@ -587,6 +587,29 @@ class Main:
 					elif ladderid == -1 and len(playername) != 0:
 						rep = GlobalRankingAlgoSelector.GetPrintableRepresentationPlayer( self.db.GetPlayerRanks( playername ), self.db )
 					self.saybattle( self.socket,self.battleid, rep )
+			if command == "!ladderopponent":
+				if len(args) != 1:
+					self.saybattle( self.socket,self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
+					return
+				ladderid = int(args[0])
+				if not self.db.AccessCheck( ladderid, who, Roles.User ):
+					self.sayPermissionDenied( self.socket, who, command )
+					#log
+					return
+				if not self.db.LadderExists( ladderid ):
+					self.saybattle( self.socket,self.battleid, "Invalid ladderID." )
+					return
+				userlist, ranks = GlobalRankingAlgoSelector.GetCandidateOpponents( fromwho, ladderid, self.db )
+				for user in userlist:
+					try:
+						userstatus = self.tsc.users[user]
+					except: # skip offline
+						continue
+					if userstatus.ingame:
+						continue
+					if userstatus.afk:
+						continue
+					self.saybattle( self.socket,self.battleid, ranks[user] )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
