@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block head %}
-<link type="text/css" href="/jquery/css/redmond/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+<!--<link type="text/css" href="/jquery/css/redmond/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
 <link type="text/css" href="/jquery/fa.jquery.min.css" rel="stylesheet" />
-<script type="text/javascript" src="/jquery/fa.jquery.min.js"></script>
+<script type="text/javascript" src="/jquery/fa.jquery.min.js"></script>-->
 {% endblock %}
 
 {% block content %}
 {{ note }}
-<form name="input" action="change_ladder.py" method="post">
+<form name="input" action="/admin/ladder" method="GET">
 <input type="hidden" value="{{ ladder_id }}" id="id" name="id" >
 {{ formcontent }}
 <br/>
@@ -20,5 +20,5 @@
 <input type="submit" name="new" value="add new option"/>
 </form>
 <br/>
-<a href="/index.py" > back to index </a>
+<a href="/" > back to index </a>
 {% endblock %}

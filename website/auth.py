@@ -49,9 +49,7 @@ class AuthDecorator(object):
 				return self._401Response()
 
 			header = bottle.request.environ['HTTP_AUTHORIZATION']
-			print 'auth heaeder ', header
 			username,password = self._parseBasicAuth(header)
-			print '2: %s - %s'%(username,password)
 			if (username == None) | (password == None):
 				return self._401Response()
 

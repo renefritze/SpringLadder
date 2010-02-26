@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from jinja2 import Environment, FileSystemLoader
 from bottle import route, run, debug, PasteServer, send_file, redirect, abort, request, default_app
-import ParseConfig, os, index, viewmatch, viewplayer, viewladder, viewrules, help, fame, scoreboard
+import ParseConfig, os, index, viewmatch, viewplayer, viewladder, viewrules, help, fame, scoreboard, change_ladder
 from customlog import Log
 from ladderdb import LadderDB
 from auth import AuthDecorator
@@ -41,10 +41,10 @@ def scoreboard_():
 def help_():
 	return help.output( db, env, request )
 
-@route('/admin')
+@route('/admin/ladder')
 @AuthDecorator( Roles.Owner, db )
-def admin_dupe():
-	return help.output( db, env, request )
+def admin_ladder():
+	return change_ladder.output( db, env, request )
 
 @route('/fame')
 def fame_():
@@ -55,8 +55,11 @@ def static_file(filename):
 	send_file( filename, root=os.getcwd()+'/static/' )
 
 @route('/demos/:filename')
-def static_file(filename):
+def demos(filename):
 	send_file( filename, root=os.getcwd()+'/demos/' )
+@route('/jquery/:filename')
+def jquery(filename):
+	send_file( filename, root=os.getcwd()+'/jquery/' )
 
 port = config['port']
 staging = 'staging' in config.keys()
