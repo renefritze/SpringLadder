@@ -713,16 +713,16 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladderID." )
 					return
 				userlist = GlobalRankingAlgoSelector.GetCandidateOpponents( fromwho, ladderid, self.db )
-				for user in userlist:
+				for usertuple in userlist:
 					try:
-						userstatus = self.tsc.users[user]
+						userstatus = self.tsc.users[usertuple[0]]
 					except: # skip offline
 						continue
 					if userstatus.ingame:
 						continue
 					if userstatus.afk:
 						continue
-					self.notifyuser( socket, fromwho, fromwhere, ispm, user )
+					self.notifyuser( socket, fromwho, fromwhere, ispm, usertuple[1] )
 
 		except DbConnectionLostException, e:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Database temporarily lost in processing your command, please try again" )
