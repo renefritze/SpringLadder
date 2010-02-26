@@ -715,6 +715,7 @@ class Main:
 				userlist = GlobalRankingAlgoSelector.GetCandidateOpponents( fromwho, ladderid, self.db )
 				for user in userlist:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, user )
+				self.notifyuser( socket, fromwho, fromwhere, ispm, '#no ops%d'%len(userlist) )
 
 		except DbConnectionLostException, e:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Database temporarily lost in processing your command, please try again" )

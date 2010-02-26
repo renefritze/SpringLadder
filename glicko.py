@@ -150,19 +150,19 @@ class GlickoRankAlgo(IRanking):
 			session.add( playerrank )
 		playerminvalue = playerrank.rating - playerrank.rd
 		playermaxvalue = playerrank.rating + playerrank.rd
-		opponent_ranks = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ) \
-			.filter( GlickoRanks.ladder_id == ladder_id ) \
-			.filter( or_( \
-							and_ ( ( (GlickoRanks.rating + GlickoRanks.rd) >= playerminvalue ), \
-								 ( ( GlickoRanks.rating + GlickoRanks.rd ) <= playermaxvalue ) ) \
-					, (
-							and_( ( playermaxvalue >= ( GlickoRanks.rating - GlickoRanks.rd ) ), \
+		opponent_q = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ) \
+			.filter( GlickoRanks.ladder_id == ladder_id )
+		ops1 = opponent_q \
+			.filter( and_ ( ( (GlickoRanks.rating + GlickoRanks.rd) >= playerminvalue ), \
+								 ( ( GlickoRanks.rating + GlickoRanks.rd ) <= playermaxvalue ) ) )
+		ops2 = opponent_q \
+			.filter( and_( ( playermaxvalue >=  ( GlickoRanks.rating - GlickoRanks.rd ) ), \
 								( playermaxvalue <= (GlickoRanks.rating + GlickoRanks.rd) ) )  ) \
-					)\
-					)
 			#.order_by( math.fabs(GlickoRanks.rating - playerrank.rating ) )
 		opponents = []
-		for opponent in opponent_ranks:
+		for opponent in ops1:
+			opponents.append(opponent.player.nick)
+		for opponent in ops2:
 			opponents.append(opponent.player.nick)
 		session.close()
 		return opponents
