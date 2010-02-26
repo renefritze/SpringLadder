@@ -93,6 +93,7 @@ def calculateWinnerOrder(match,db):
 		deaths = dict()
 		scores = dict()
 
+		playercount = len(result_dict)
 		for name,player in result_dict.iteritems():
 			if player.died > -1 and player.died < match.last_frame:
 				deaths[name] = player.died
