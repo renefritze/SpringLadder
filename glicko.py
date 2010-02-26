@@ -157,10 +157,10 @@ class GlickoRankAlgo(IRanking):
 								( playermaxvalue <= (GlickoRanks.rating + GlickoRanks.rd) ) )  ) \
 			#.order_by( math.fabs(GlickoRanks.rating - playerrank.rating ) )
 		opponents = []
-		for opponent in ops1:
-			opponents.append(opponent.player.nick)
-		for opponent in ops2:
-			opponents.append(opponent.player.nick)
+		ops = ops1.all() + ops2.all()
+		ops.sort( lambda x,y : cmp( math.fabs( x.rating - playerrank.rating ), math.fabs( y.rating - playerrank.rating ) ) )
+		for op in ops:
+			opponents.append(op.player.nick)
 		session.close()
 		return opponents
 
