@@ -712,7 +712,7 @@ class Main:
 				if not self.db.LadderExists( ladderid ):
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladderID." )
 					return
-				userlist = GlobalRankingAlgoSelector.GetPrintableRepresentation( fromwho, ladderid, self.db )
+				userlist = GlobalRankingAlgoSelector.GetCandidateOpponents( fromwho, ladderid, self.db )
 				for user in userlist:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, user )
 
