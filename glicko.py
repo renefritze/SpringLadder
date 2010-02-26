@@ -138,8 +138,9 @@ class GlickoRankAlgo(IRanking):
 		return ret
 
 	def GetCandidateOpponents(self,player_nick,ladder_id,db):
+		player = db.GetPlayer( player_nick )
+		player_id = player.id
 		session = db.sessionmaker()
-		player_id = session.query( Player.id ).filter( Player.nick == player_nick ).first()
 		playerrank = session.query( GlickoRanks ).filter( GlickoRanks.player_id == player_id ).filter( GlickoRanks.ladder_id == ladder_id ).first()
 		if not playerrank:
 			playerrank = GlickoRanks()
