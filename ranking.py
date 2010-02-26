@@ -56,7 +56,7 @@ class RankingAlgoSelector:
 			return ''
 
 	def GetCandidateOpponents(self,player_nick,ladder_id,db):
-			ladder_ranking_algo = self.GetLadder( ladder_id ).ranking_algo_id
+			ladder_ranking_algo = db.GetLadder( ladder_id ).ranking_algo_id
 			algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder_ranking_algo )
 			for algo in self.algos.values():
 				if isinstance( ladder_ranking_algo, algo.GetDbEntityType() ):
