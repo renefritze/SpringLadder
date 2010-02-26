@@ -3,9 +3,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from sqlalchemy import exc
-import traceback
-import datetime
-import math
+import traceback, datetime, math, hashlib
 from db_entities import *
 from ranking import *
 from match import *
@@ -646,4 +644,21 @@ class LadderDB:
 			pos = self.GetPlayerPosition( ladder_id, player.id )
 			if rank:
 				res[player.nick] = ( ( rank, pos, entityType ) )
+		session.close()
 		return res
+
+	def SetPassword( self, nick, password ):
+		session = self.sessionmaker()
+		try:
+			player = self.GetPlayer( nick )
+			player.SetPassword( password )
+			#print "%s: %s"%(nick,player.pwhash)
+			session.add( player )
+			session.commit()
+			session.close()
+			return True
+		except ElementNotFoundException, e:
+			pass
+		session.close()
+		return False
+	

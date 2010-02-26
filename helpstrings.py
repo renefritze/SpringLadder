@@ -43,7 +43,8 @@ helpstring_user_manager ="""!ladderlist : lists available ladders with their IDs
 !score ladderID : lists scores for all the players for the given ladderID
 !score playername : lists scores for the given player in all ladders
 !score ladderID playername : lists score for the given player for the given ladderID
-!ladderlistmatches ladderID : list all matches for ladderID, newest first"""
+!ladderlistmatches ladderID : list all matches for ladderID, newest first
+!ladderauth password : set your user password (no spaces, no reuse of important passwords)"""
 
 helpstring_user_slave = """!ladderlist : lists available ladders with their IDs
 !ladder ladderID: sets the ladder to report scores to, -1 to disable reporting

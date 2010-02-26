@@ -3,6 +3,7 @@ from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import *
 from datetime import datetime
+import hashlib
 
 Base = declarative_base()
 
@@ -94,6 +95,14 @@ class Player(Base):
 	def __str__(self):
 		return "Player(id:%d,server_id:%d) %s "%(self.id, self.server_id, self.nick)
 
+	def validate( self, password ):
+		if self.pwhash == '':
+			return False
+		return self.pwhash == hashlib.sha224(password).hexdigest()
+
+	def SetPassword( self, password ):
+		self.pwhash = hashlib.sha224(password).hexdigest()
+		
 class Match(Base):
 	__tablename__ 	= 'matches'
 	id 				= Column( Integer, primary_key=True )

@@ -700,6 +700,17 @@ class Main:
 					else:
 						answer = self.db.MergeAccounts( args[0], args[1], bool(args[2]) )
 					self.notifyuser( socket, fromwho, fromwhere, ispm, answer )
+			if command == "!ladderauth":
+				if len(args) != 1:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
+					return
+				else:
+					ok = self.db.SetPassword( fromwho, args[0] )
+					if ok:
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Password sucessfully set" )
+					else:
+						self.notifyuser( socket, fromwho, fromwhere, ispm, "Password setting failed" )
+				
 		except DbConnectionLostException, e:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Database temporarily lost in processing your command, please try again" )
 			err = 'DbConnectionLostException: %s\nargs: %s\ncmd" %s\nwho: %s\nwhere" \n'%(e.getTrace(), args, command, fromwho,fromwhere )
