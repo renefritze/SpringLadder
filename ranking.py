@@ -58,7 +58,7 @@ class RankingAlgoSelector:
 	def GetCandidateOpponents(self,player_nick,ladder_id,db):
 			ladder_ranking_algo = db.GetLadder( ladder_id ).ranking_algo_id
 			algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder_ranking_algo )
-			return algo_instance.GetCandidateOpponents( player_id,ladder_id, db )
+			return algo_instance.GetCandidateOpponents( player_nick,ladder_id, db )
 
 	def GetPrintableRepresentationPlayer(self, rank_dict,db ):
 		if len(rank_dict) < 1:
