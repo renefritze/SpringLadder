@@ -53,5 +53,7 @@ def static_file(filename):
 def static_file(filename):
 	send_file( filename, root=os.getcwd()+'/demos/' )
 
-debug(True)
-run(server=PasteServer,host='localhost',port=8080, reloader=True)
+port = config['port']
+staging = 'staging' in config.keys()
+debug(staging)
+run(server=PasteServer,host='localhost',port=8080, reloader=staging)
