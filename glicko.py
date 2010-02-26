@@ -28,6 +28,7 @@ class GlickoRankAlgo(IRanking):
 		scores = dict()
 
 		playercount = len(result_dict)
+		print "last frame: %d" %(match.last_frame)
 		for name,player in result_dict.iteritems():
 			if player.died > 0 and player.died < match.last_frame:
 				deaths[name] = player.died
@@ -40,6 +41,7 @@ class GlickoRankAlgo(IRanking):
 					scores[name] = 0
 			if player.desync:
 				scores[name] = 0
+			print "%s: %d %d %b %b %b %b : %d" % (name,player.died,player.disconnect,player.quit,player.timeout,player.kicked,player.desync,scores[name]])
 
 		#find last team standing
 		for name in result_dict.keys():
