@@ -114,7 +114,7 @@ class Main:
 				self.saybattle( self.socket,self.battleid,"Error: Spring exited with status %i" % status)
 				self.log.Error( "Error: Spring exited with status %i" % status )
 				self.log.Error( self.output )
-			elif doSubmit:
+			if doSubmit:
 				matchid = -1
 				try:
 					mr = AutomaticMatchToDbWrapper( self.output, self.ladderid )
@@ -130,8 +130,6 @@ class Main:
 					self.saybattleex(self.socket, self.battleid, reply.split()[1] )
 				else:
 					self.saybattleex(self.socket, self.battleid, "error uploading replay to http://replays.adune.nl")
-			else:
-				self.log.Info( "*** Spring has exited with status %i" % status )
 
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
