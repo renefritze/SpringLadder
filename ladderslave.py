@@ -122,7 +122,7 @@ class Main:
 					self.saybattleex(self.socket, self.battleid, "has submitted the score update to the ladder: http://ladder.springrts.com/viewmatch.py?id=%d"%matchid)
 				except:
 					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
-					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
+					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END\nCLIENTLOG: BEGIN\n%s\nCLIENTLOG: END'%(exc,self.output) )
 					self.saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
 				reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: %s, Match #%d" % ( self.db.GetLadderName(self.ladderid), matchid ) )
 				replaysiteok = reply.split()[0] == 'SUCCESS'
