@@ -113,13 +113,13 @@ def calculateWinnerOrder(match,db):
 			elif name not in scores.keys():
 				reldeath = deaths[name] / float(match.last_frame)
 				scores[name] = reldeath * playercount
-		return deaths,scores,result_dict
+		return scores,result_dict
 
 class SimpleRankAlgo(IRanking):
 
 	def Update(self,ladder_id,match,db):
 
-		deaths, scores, result_dict = calculateWinnerOrder(match,db)
+		scores, result_dict = calculateWinnerOrder(match,db)
 		session = db.sessionmaker()
 
 		for name,player in result_dict.iteritems():

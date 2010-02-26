@@ -12,7 +12,7 @@ class GlickoRankAlgo(IRanking):
 		self.rd_lower_bound = 50.0
 
 	def Update(self,ladder_id,match,db):
-		deaths, scores, result_dict = calculateWinnerOrder(match,db)
+		scores, result_dict = calculateWinnerOrder(match,db)
 
 		session = db.sessionmaker()
 		#step one
