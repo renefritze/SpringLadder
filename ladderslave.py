@@ -124,12 +124,13 @@ class Main:
 					exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 					self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END\nCLIENTLOG: BEGIN\n%s\nCLIENTLOG: END'%(exc,self.output) )
 					self.saybattleex(self.socket, self.battleid, "could not submit ladder score updates")
-				reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: %s, Match #%d" % ( self.db.GetLadderName(self.ladderid), matchid ) )
-				replaysiteok = reply.split()[0] == 'SUCCESS'
-				if replaysiteok:
-					self.saybattleex(self.socket, self.battleid, reply.split()[1] )
-				else:
-					self.saybattleex(self.socket, self.battleid, "error uploading replay to http://replays.adune.nl")
+				if matchid != -1:
+					reply = replay_upload.postReplay( os.getcwd() + "/"+ self.db.GetMatchReplay( matchid ), 'LadderBot', "Ladder: %s, Match #%d" % ( self.db.GetLadderName(self.ladderid), matchid ) )
+					replaysiteok = reply.split()[0] == 'SUCCESS'
+					if replaysiteok:
+						self.saybattleex(self.socket, self.battleid, reply.split()[1] )
+					else:
+						self.saybattleex(self.socket, self.battleid, "error uploading replay to http://replays.adune.nl")
 
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
