@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from jinja2 import Environment, FileSystemLoader
 from bottle import route, run, debug, PasteServer, send_file, redirect, abort, request
-import ParseConfig, os, index, viewmatch, viewplayer
+import ParseConfig, os, index, viewmatch, viewplayer, viewladder, viewrules, help, fame, scoreboard
 from customlog import Log
 from ladderdb import LadderDB
 
@@ -24,6 +24,26 @@ def match():
 @route('/player')
 def player():
 	return viewplayer.output( db, env, request )
+
+@route('/ladder')
+def ladder():
+	return viewladder.output( db, env, request )
+
+@route('/rules')
+def rules():
+	return viewrules.output( db, env, request )
+
+@route('/scoreboard')
+def scoreboard_():
+	return scoreboard.output( db, env, request )
+
+@route('/help')
+def help_():
+	return help.output( db, env, request )
+
+@route('/fame')
+def fame_():
+	return fame.output( db, env, request )
 
 @route('/static/:filename')
 def static_file(filename):
