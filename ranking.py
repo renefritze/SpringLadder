@@ -76,9 +76,7 @@ class RankingAlgoSelector:
 			res += a + '\n'
 		return res
 
-class SimpleRankAlgo(IRanking):
-
-	def Update(self,ladder_id,match,db):
+def calculateWinnerOrder(match,db):
 		session = db.sessionmaker()
 		#session.add( match ) #w/o this match is unbound, no lazy load of results
 		result_dict = dict()
@@ -90,6 +88,7 @@ class SimpleRankAlgo(IRanking):
 			for r in match.results:
 				session.add( r )
 				result_dict[r.player.nick] = r
+		session.close()
 		#calculate order of deaths
 		deaths = dict()
 		scores = dict()
@@ -113,6 +112,14 @@ class SimpleRankAlgo(IRanking):
 			elif name not in scores.keys():
 				reldeath = deaths[name] / float(match.last_frame)
 				scores[name] = reldeath * playercount
+		return deaths,scores,result_dict
+
+class SimpleRankAlgo(IRanking):
+
+	def Update(self,ladder_id,match,db):
+
+		deaths, scores, result_dict = calculateWinnerOrder(match,db)
+		session = db.sessionmaker()
 
 		for name,player in result_dict.iteritems():
 			player_id = session.query( Player ).filter( Player.nick == name ).first().id

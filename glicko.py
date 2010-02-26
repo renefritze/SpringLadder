@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ranking import IRanking,RankingTable
+from ranking import IRanking,RankingTable,calculateWinnerOrder
 from db_entities import GlickoRanks,Player,Match,Result
 import math,time,datetime
 from sqlalchemy.exceptions import UnboundExecutionError
@@ -12,43 +12,9 @@ class GlickoRankAlgo(IRanking):
 		self.rd_lower_bound = 50.0
 
 	def Update(self,ladder_id,match,db):
+		deaths, scores, result_dict = calculateWinnerOrder(match,db)
+
 		session = db.sessionmaker()
-		#session.add( match ) #w/o this match is unbound, no lazy load of results
-		result_dict = dict()
-		try:
-			for r in match.results:
-				result_dict[r.player.nick] = r
-		except UnboundExecutionError,u:
-			session.add( match )
-			for r in match.results:
-				session.add( r )
-				result_dict[r.player.nick] = r
-		#calculate order of deaths
-		deaths = dict()
-		scores = dict()
-
-		playercount = len(result_dict)
-		for name,player in result_dict.iteritems():
-			if player.died > -1 and player.died < match.last_frame:
-				deaths[name] = player.died
-			if player.disconnect > -1 and player.disconnect < match.last_frame:
-				if player.quit:
-					scores[name] = -5
-				elif player.timeout:
-					scores[name] = -1
-				elif player.kicked:
-					scores[name] = 0
-			if player.desync > -1 and player.desync < match.last_frame:
-				scores[name] = 0
-
-		#find last team standing
-		for name in result_dict.keys():
-			if name not in deaths.keys() and name not in scores.keys():
-				scores[name] = playercount + 4
-			elif name not in scores.keys():
-				reldeath = deaths[name] / float(match.last_frame)
-				scores[name] = reldeath * playercount
-
 		#step one
 		pre = dict() #name -> GlickoRanks
 		avg_match_delta = db.GetAvgMatchDelta( ladder_id )
