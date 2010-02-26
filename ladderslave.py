@@ -603,6 +603,7 @@ class Main:
 					self.saybattle( self.socket,self.battleid, "Invalid ladderID." )
 					return
 				userlist, ranks = GlobalRankingAlgoSelector.GetCandidateOpponents( who, ladderid, self.db )
+				opponent_found = False
 				for user in userlist:
 					try:
 						userstatus = self.tsc.users[user]
@@ -612,7 +613,10 @@ class Main:
 						continue
 					if userstatus.afk:
 						continue
+					opponent_found = True
 					self.saybattle( self.socket,self.battleid, ranks[user] )
+				if not opponent_found:
+					self.saybattle( self.socket,self.battleid, "No suitable candidates as opponent are available currently, try again later." )
 		if command == "BATTLEOPENED" and len(args) > 12 and int(args[0]) == self.battleid:
 			self.battlefounder = args[3]
 			self.battleoptions["battletype"] = args[1]
