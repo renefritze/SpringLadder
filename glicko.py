@@ -160,7 +160,7 @@ class GlickoRankAlgo(IRanking):
 		ops = ops1.all() + ops2.all()
 		ops.sort( lambda x,y : cmp( math.fabs( x.rating - playerrank.rating ), math.fabs( y.rating - playerrank.rating ) ) )
 		for op in ops:
-			opponents[op.player.nick] = '#%d %s\t(%4.2f/%3.0f)\n'%(db.GetPlayerPosition(ladder_id, op.player.id),op.player.nick,osp.rating, op.rd)
+			opponents[op.player.nick] = '#%d %s\t(%4.2f/%3.0f)\n'%(db.GetPlayerPosition(ladder_id, op.player.id),op.player.nick,op.rating, op.rd)
 		session.close()
 		return opponents
 
