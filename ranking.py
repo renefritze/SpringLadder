@@ -95,7 +95,7 @@ class SimpleRankAlgo(IRanking):
 		scores = dict()
 
 		for name,player in result_dict.iteritems():
-			if player.died > -1 and player.died < match.last_frame:
+			if player.died > 0 and player.died < match.last_frame:
 				deaths[name] = player.died
 			if player.disconnect > -1 and player.disconnect < match.last_frame:
 				if player.quit:
