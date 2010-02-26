@@ -140,10 +140,10 @@ class GlickoRankAlgo(IRanking):
 	def GetCandidateOpponents(self,player_nick,ladder_id,db):
 		session = db.sessionmaker()
 		player_id = session.query( Player ).filter( Player.nick == player_nick ).first()
-		playerrank = session.query( GlickoRanks ).filter( GlickoRanks.player_id == player_id ).filter( GlickoRanks.ladder_id = ladder_id ).first()
+		playerrank = session.query( GlickoRanks ).filter( GlickoRanks.player_id == player_id ).filter( GlickoRanks.ladder_id == ladder_id ).first()
 		playerminvalue = playerrank.rating - playerrank.rd
 		playermaxvalue = playerrank.rating - playerrank.rd
-		opponentranks = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ).filter( GlickoRanks.ladder_id = ladder_id ).filter( ( (GlickoRanks.rating + GlickoRanks.rd) > playerminvalue and ( GlickoRanks.rating - GlickoRanks.rd ) < playermaxvalue ) or ( playermaxvalue > ( GlickoRanks.rating - GlickoRanks.rd ) and playermaxvalue < (GlickoRanks.rating + GlickoRanks.rd) ) ).order_by( math.fabs(GlickoRanks.rating - playerrank.rating ).asc() )
+		opponentranks = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ).filter( GlickoRanks.ladder_id == ladder_id ).filter( ( (GlickoRanks.rating + GlickoRanks.rd) > playerminvalue and ( GlickoRanks.rating - GlickoRanks.rd ) < playermaxvalue ) or ( playermaxvalue > ( GlickoRanks.rating - GlickoRanks.rd ) and playermaxvalue < (GlickoRanks.rating + GlickoRanks.rd) ) ).order_by( math.fabs(GlickoRanks.rating - playerrank.rating ).asc() )
 		opponents = []
 		for player in opponentranks:
 			opponents.append(session.query( Player ).filter( Player.id == player.id ).first().nick)
