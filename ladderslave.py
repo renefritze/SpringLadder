@@ -588,10 +588,13 @@ class Main:
 						rep = GlobalRankingAlgoSelector.GetPrintableRepresentationPlayer( self.db.GetPlayerRanks( playername ), self.db )
 					self.saybattle( self.socket,self.battleid, rep )
 			if command == "!ladderopponent":
-				if len(args) != 1:
+				if len(args) > 1:
 					self.saybattle( self.socket,self.battleid, "Invalid command syntax, check !ladderhelp for usage." )
 					return
-				ladderid = int(args[0])
+				if len(args) == 1:
+					ladderid = int(args[0])
+				else:
+					ladderid = self.ladderid
 				if not self.db.AccessCheck( ladderid, who, Roles.User ):
 					self.sayPermissionDenied( self.socket, who, command )
 					#log
@@ -599,7 +602,7 @@ class Main:
 				if not self.db.LadderExists( ladderid ):
 					self.saybattle( self.socket,self.battleid, "Invalid ladderID." )
 					return
-				userlist, ranks = GlobalRankingAlgoSelector.GetCandidateOpponents( fromwho, ladderid, self.db )
+				userlist, ranks = GlobalRankingAlgoSelector.GetCandidateOpponents( who, ladderid, self.db )
 				for user in userlist:
 					try:
 						userstatus = self.tsc.users[user]

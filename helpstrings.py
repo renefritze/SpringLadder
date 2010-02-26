@@ -56,4 +56,5 @@ helpstring_user_slave = """!ladderlist : lists available ladders with their IDs
 !score playername : lists scores for the given player in the current ladder
 !score ladderid: lists scores for all the players for given ladderid
 !score ladderID playername : lists score for the given player for the given ladderID
-!ladderopponent ladderID : list opponents with similar skills suitable for a fight, best candidates first"""
+!ladderopponent ladderID : list opponents with similar skills suitable for a fight for given ladderID, best candidates first
+!ladderopponent ladderID : list opponents with similar skills suitable for a fight for current ladder, best candidates first"""
