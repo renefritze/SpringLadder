@@ -280,6 +280,29 @@ class Main:
 		else:
 			return True
 
+	def JoinGame(self):
+		if self.joinedbattle:
+			sendstatus( self, self.socket )
+			if not self.gamestarted:
+				return
+			if self.ingame:
+				return
+			#start spring
+			g = time.time()
+			if platform.system() == "Linux":
+				f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
+			else:
+				f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
+			self.script = "[GAME]\n{"
+			self.script += "\n\tHostIP=" + self.hostip + ";"
+			self.script += "\n\tHostPort=" + self.hostport + ";"
+			self.script += "\n\tIsHost=0;"
+			self.script += "\n\tMyPlayerName=" + self.app.config["nick"] + ";"
+			self.script += "\n}"
+			f.write(self.script)
+			f.close()
+			thread.start_new_thread(self.startspring,(s,g))
+
 	def onload(self,tasc):
 		self.app = tasc.main
 		self.tsc = tasc
@@ -428,6 +451,12 @@ class Main:
 
 				upd = GlobalRankingAlgoSelector.GetPrintableRepresentation( self.db.GetRanks( self.ladderid ), self.db )
 				self.saybattle( self.socket, self.battleid, 'after:\n' +upd )
+			if command == "!ladderforcestart":
+				if not self.db.AccessCheck( self.ladderid, who, Roles.User ):
+					self.sayPermissionDenied( self.socket, who, command )
+					#log
+					return
+				self.JoinGame()
 			if command == '!ladderstress':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
@@ -573,27 +602,7 @@ class Main:
 
 		if command == "CLIENTSTATUS" and len(args) > 1 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
 			self.gamestarted = getingame(int(args[1]))
-			if self.joinedbattle:
-				sendstatus( self, self.socket )
-				if not self.gamestarted:
-					return
-				if self.ingame:
-					return
-				#start spring
-				g = time.time()
-				if platform.system() == "Linux":
-					f = open(os.path.join(os.environ['HOME'],"%f.txt" % g),"a")
-				else:
-					f = open(os.path.join(os.environ['USERPROFILE'],"%f.txt" % g),"a")
-				self.script = "[GAME]\n{"
-				self.script += "\n\tHostIP=" + self.hostip + ";"
-				self.script += "\n\tHostPort=" + self.hostport + ";"
-				self.script += "\n\tIsHost=0;"
-				self.script += "\n\tMyPlayerName=" + self.app.config["nick"] + ";"
-				self.script += "\n}"
-				f.write(self.script)
-				f.close()
-				thread.start_new_thread(self.startspring,(s,g))
+			self.JoinGame()
 		if command == "CLIENTBATTLESTATUS":
 			if len(args) != 3:
 				error( "invalid CLIENTBATTLESTATUS:%s"%(args) )

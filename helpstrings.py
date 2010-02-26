@@ -51,6 +51,7 @@ helpstring_user_slave = """!ladderlist : lists available ladders with their IDs
 !ladderlistoptions: lists enforced options for currently active ladderID
 !ladderchecksetup : checks that all options and player setup are compatible with current set ladder
 !ladderchecksetup ladderID: checks that all options and player setup are compatible for given ladderID
+!ladderforcestart : forces the client to start spring
 !score playername : lists scores for the given player in the current ladder
 !score ladderid: lists scores for all the players for given ladderid
 !score ladderID playername : lists score for the given player for the given ladderID
