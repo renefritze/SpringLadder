@@ -56,4 +56,4 @@ def static_file(filename):
 port = config['port']
 staging = 'staging' in config.keys()
 debug(staging)
-run(server=PasteServer,host='localhost',port=8080, reloader=staging)
+run(server=PasteServer,host='localhost',port=port , reloader=staging)
