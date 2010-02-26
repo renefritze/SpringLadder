@@ -6,7 +6,7 @@
 {% endif %}
 <ul>
 {% for l in matches %}
-  <li>({{l.date}}) {{ l.modname }}: <a href="/viewmatch.py?id={{ l.id }}">details</a> </li>
+  <li>({{l.date}}) {{ l.modname }}: <a href="/match?id={{ l.id }}">details</a> </li>
 {% endfor %}
 </ul>
 <br/>

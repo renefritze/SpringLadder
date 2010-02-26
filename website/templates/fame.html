@@ -22,7 +22,7 @@
 					{% endif %}
 					{% for field in row %}
 						{% if loop.index0 == 0 %}
-							<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
+							<td><a href="/player?player={{field}}">{{field}}</a></td>
 						{% else %}
 							<td>{{field}}</td>
 						{% endif %}
@@ -47,7 +47,7 @@
 					<td style='text-align:center;'> {{loop.index}} </td>
 					{% for field in row %}
 						{% if loop.index0 == 0 %}
-							<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
+							<td><a href="/player?player={{field}}">{{field}}</a></td>
 						{% else %}
 							<td>{{field}}</td>
 						{% endif %}
@@ -70,7 +70,7 @@
 				<tr>
 					{% for field in row %}
 						{% if loop.index0 != 1 %}
-							<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
+							<td><a href="/player?player={{field}}">{{field}}</a></td>
 						{% else %}
 							<td>{{field}}</td>
 						{% endif %}

@@ -13,12 +13,12 @@
 				{% else %}
 					<td class="unevengridcell">
 				{% endif %}
-					<h3><a href="/viewladder.py?id={{ l.id }}">{{ l.name }}</a>
+					<h3><a href="/ladder?id={{ l.id }}">{{ l.name }}</a>
 						{% if l.description %} - {{l.description}} {% endif %}
 					</h3>
 					<div>
-							{{l.player_count}} <a href="/viewplayer.py?ladder={{l.id}}">Players</a>,
-							{{l.match_count}} <a href="/viewmatch.py?ladder={{l.id}}">Matches</a>
+							{{l.player_count}} <a href="/player?ladder={{l.id}}">Players</a>,
+							{{l.match_count}} <a href="/match?ladder={{l.id}}">Matches</a>
 					</div>
 					<div >
 						{% if l.ranks.rows|length > 0 %}
@@ -29,10 +29,10 @@
 										{% if loop.index > 3 %}
 											<td style='text-align:center;width:10%;'> {{loop.index}}. </td>
 										{% else %}
-											<td style='text-align:center;;width:10%;'> <img src="/place_{{loop.index}}_small.png" /> </td>
+											<td style='text-align:center;;width:10%;'> <img src="/static/place_{{loop.index}}_small.png" /> </td>
 										{% endif %}
 										<td style='text-align:left;'>
-											<a href="/viewmatch.py?ladder={{l.id}}&player={{row[0]}}"> {{row[0]}}</a>
+											<a href="/match?ladder={{l.id}}&player={{row[0]}}"> {{row[0]}}</a>
 										</td>
 									</tr>
 								{% endfor %}
@@ -46,7 +46,7 @@
 									{{l.last_match.mapname}}
 									<br/>
 								{% endif %}
-								<a href="/viewmatch.py?id={{l.last_match.id}}">{{l.last_match.date}}</a>
+								<a href="/match?id={{l.last_match.id}}">{{l.last_match.date}}</a>
 						</div>
 					{% endif %}
 				<!--		<a href="/admin/change_ladder.py?id={{ l.id }}">edit</a>-->

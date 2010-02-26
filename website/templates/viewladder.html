@@ -7,7 +7,7 @@
 		<p>{{ladder.description}}
 		</p>
 	{% endif %}
-	<a href="/viewrules.py?id={{ladder.id}}">Rules</a>
+	<a href="/rules?id={{ladder.id}}">Rules</a>
 	<div style="clear:both;"></div>
 	<table style='width:80%;'>
 		<tr>
@@ -19,10 +19,10 @@
 							{% if loop.index > 3 %}
 								<td style='text-align:center;'> {{loop.index}}. </td>
 							{% else %}
-								<td style='text-align:center;'> <img src="/place_{{loop.index}}_small.png" /> </td>
+								<td style='text-align:center;'> <img src="/static/place_{{loop.index}}_small.png" /> </td>
 							{% endif %}
 							<td>
-								<a href="/viewmatch.py?ladder={{ladder.id}}&player={{row[0]}}"> {{row[0]}}</a>
+								<a href="/match?ladder={{ladder.id}}&player={{row[0]}}"> {{row[0]}}</a>
 							</td>
 						</tr>
 					{% endfor %}
@@ -33,17 +33,17 @@
 				<h2>Last {{ matches|length }} matches</h2>
 				<ul>
 					{% for l in matches %}
-						<li><a href="/viewmatch.py?id={{ l.id }}">({{l.date}})</a> </li>
+						<li><a href="/match?id={{ l.id }}">({{l.date}})</a> </li>
 					{% endfor %}
 				</ul>
 			</td>
 		</tr>
 		<tr>
 			<td>
-				<a href="/scoreboard.py?id={{ladder.id}}">full list</a>
+				<a href="/scoreboard?id={{ladder.id}}">full list</a>
 			</td>
 			<td>
-				<a href="/viewmatch.py?ladder={{ladder.id}}">all matches</a>
+				<a href="/match?ladder={{ladder.id}}">all matches</a>
 			</td>
 		</tr>
 	</table>

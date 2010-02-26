@@ -16,7 +16,7 @@
 		<theader>
 			<tr>
 				<th scope='col'>
-					<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
+					<a href="/player?offset={{offset}}&limit={{limit}}
 						{% if order == 'nick'%}
 							&asc={{new_asc}}
 						{% else %}
@@ -26,7 +26,7 @@
 					Nickname</a>
 				</th>
 				<th scope='col'>
-					<a href="/viewplayer.py?offset={{offset}}&limit={{limit}}
+					<a href="/player?offset={{offset}}&limit={{limit}}
 						{% if order == 'played'%}
 							&asc={{new_asc}}
 						{% else %}
@@ -42,7 +42,7 @@
 			{% set p = tuple[0] %}
 			{% set c = tuple[1] %}
 			<tr>
-				<td><a href="/viewplayer.py?player={{ p.nick }}">{{ p.nick }}</a> </li>
+				<td><a href="/player?player={{ p.nick }}">{{ p.nick }}</a> </li>
 				<td> {{ c }}</td>
 			</tr>
 		{% endfor %}

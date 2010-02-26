@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Match #{{matchinfo.match.id}}</h1>
 <div>
-	<h3>Ladder: <a href="/viewladder.py?id={{ladder.id}}" >{{ladder.name}}</a>
+	<h3>Ladder: <a href="/ladder?id={{ladder.id}}" >{{ladder.name}}</a>
 	</h3>
 	<h3>General info</h3>
 	<table class="padded">
@@ -51,7 +51,7 @@
 				{% endif %}
 			>
 					<td >{{loop.index}}</td>
-					<td><a href="/viewplayer.py?player={{r.player.nick}}">{{r.player.nick}}</a></td>
+					<td><a href="/player?player={{r.player.nick}}">{{r.player.nick}}</a></td>
 					<td>{{r.team}}</td>
 					<td>{{r.ally}}</td>
 					<td>

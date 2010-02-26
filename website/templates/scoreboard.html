@@ -18,11 +18,11 @@
 					{% if loop.index > 3 %}
 						<td style='text-align:center;'> {{loop.index}} </td>
 					{% else %}
-						<td style='text-align:center;'> <img src="/place_{{loop.index}}_big.png" /> </td>
+						<td style='text-align:center;'> <img src="/static/place_{{loop.index}}_big.png" /> </td>
 					{% endif %}
 					{% for field in row %}
 						{% if loop.index0 == 0 %}
-							<td><a href="/viewplayer.py?player={{field}}">{{field}}</a></td>
+							<td><a href="/player?player={{field}}">{{field}}</a></td>
 						{% else %}
 							<td>{{field}}</td>
 						{% endif %}
@@ -32,7 +32,7 @@
 		</tbody>
 	</table>
 	<br/>
-	<a href="/viewladder.py?id={{ladder.id}}" > back to ladder </a>
+	<a href="/ladder?id={{ladder.id}}" > back to ladder </a>
 </div>
 {% endblock %}
 
