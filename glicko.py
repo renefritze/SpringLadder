@@ -2,7 +2,6 @@
 from ranking import IRanking,RankingTable,calculateWinnerOrder
 from db_entities import GlickoRanks,Player,Match,Result
 import math,time,datetime
-from sqlalchemy.exceptions import UnboundExecutionError
 class GlickoRankAlgo(IRanking):
 
 	q = math.log( 10.0 ) / 400.0

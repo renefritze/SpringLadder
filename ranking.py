@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from db_entities import *
+from sqlalchemy.exceptions import UnboundExecutionError
 
 class RankingTable:
 	header 	= []
