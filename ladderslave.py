@@ -280,7 +280,7 @@ class Main:
 		else:
 			return True
 
-	def JoinGame(self):
+	def JoinGame(self,s):
 		if self.joinedbattle:
 			sendstatus( self, self.socket )
 			if not self.gamestarted:
@@ -456,7 +456,7 @@ class Main:
 					self.sayPermissionDenied( self.socket, who, command )
 					#log
 					return
-				self.JoinGame()
+				self.JoinGame(s)
 			if command == '!ladderstress':
 				if not self.db.AccessCheck( self.ladderid, who, Roles.Owner ):
 					self.sayPermissionDenied( self.socket, who, command )
@@ -602,7 +602,7 @@ class Main:
 
 		if command == "CLIENTSTATUS" and len(args) > 1 and len(self.battlefounder) != 0 and args[0] == self.battlefounder:
 			self.gamestarted = getingame(int(args[1]))
-			self.JoinGame()
+			self.JoinGame(s)
 		if command == "CLIENTBATTLESTATUS":
 			if len(args) != 3:
 				error( "invalid CLIENTBATTLESTATUS:%s"%(args) )
