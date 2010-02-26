@@ -104,10 +104,6 @@ class Main:
 			if springdatapath!= None:
 				os.environ['SPRING_DATADIR'] = springdatapath
 			self.pr = subprocess.Popen((self.app.config["springdedclientpath"],os.path.join(self.scriptbasepath,"%f.txt" % g )),stdout=subprocess.PIPE,stderr=subprocess.STDOUT,cwd=springdatapath)
-			try:
-				os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
-			except:
-				pass
 			l = self.pr.stdout.readline()
 			while len(l) > 0:
 				self.output += l
@@ -138,6 +134,10 @@ class Main:
 		except:
 			exc = traceback.format_exception(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
 			self.log.Error( 'EXCEPTION: BEGIN\n%s\nEXCEPTION: END'%exc )
+		try:
+			os.remove(os.path.join(self.scriptbasepath,"%f.txt" % g))
+		except:
+			pass
 		os.chdir(currentworkingdir)
 		self.ingame = False
 		sendstatus( self, socket )
