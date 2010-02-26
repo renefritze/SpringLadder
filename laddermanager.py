@@ -720,7 +720,7 @@ class Main:
 						continue
 					if userstatus.ingame:
 						continue
-					if userstatus.away:
+					if userstatus.afk:
 						continue
 					self.notifyuser( socket, fromwho, fromwhere, ispm, user )
 
