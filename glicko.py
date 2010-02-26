@@ -142,11 +142,8 @@ class GlickoRankAlgo(IRanking):
 		player_id = player.id
 		session = db.sessionmaker()
 		playerrank = session.query( GlickoRanks ).filter( GlickoRanks.player_id == player_id ).filter( GlickoRanks.ladder_id == ladder_id ).first()
-		if not playerrank:
+		if not playerrank: # use default rank, but don't add it to the db yet
 			playerrank = GlickoRanks()
-			playerrank.player_id = player_id
-			playerrank.ladder_id = ladder_id
-			session.add( playerrank )
 		playerminvalue = playerrank.rating - playerrank.rd
 		playermaxvalue = playerrank.rating + playerrank.rd
 		opponent_ranks = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ) \
