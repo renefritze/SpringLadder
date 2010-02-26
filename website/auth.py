@@ -5,11 +5,10 @@ import time
 import base64
 import random
 from db_entities import Roles, Player
-import json
-#try:
-    
-#except:
-    #import simplejson as json
+try:
+    import json
+except ImportError:
+    import simplejson as json 
 
 
 # copied and adjusted from helper class in torque( http://github.com/jreid42/torque )
