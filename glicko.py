@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from ranking import IRanking,RankingTable,calculateWinnerOrder
 from db_entities import GlickoRanks,Player,Match,Result
+from sqlalchemy import or_, and_
 import math,time,datetime
 class GlickoRankAlgo(IRanking):
 
@@ -151,10 +152,14 @@ class GlickoRankAlgo(IRanking):
 		playermaxvalue = playerrank.rating + playerrank.rd
 		opponent_ranks = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ) \
 			.filter( GlickoRanks.ladder_id == ladder_id ) \
-			.filter( ( 	( (GlickoRanks.rating + GlickoRanks.rd) >= playerminvalue ) \
-						and ( ( GlickoRanks.rating + GlickoRanks.rd ) <= playermaxvalue ) ) \
-					or  ( ( playermaxvalue >= ( GlickoRanks.rating - GlickoRanks.rd ) ) \
-						and ( playermaxvalue <= (GlickoRanks.rating + GlickoRanks.rd) ) ) )
+			.filter( or_( \
+							and_ ( ( (GlickoRanks.rating + GlickoRanks.rd) >= playerminvalue ), \
+								 ( ( GlickoRanks.rating + GlickoRanks.rd ) <= playermaxvalue ) ) \
+					, (
+							and_( ( playermaxvalue >= ( GlickoRanks.rating - GlickoRanks.rd ) ), \
+								( playermaxvalue <= (GlickoRanks.rating + GlickoRanks.rd) ) )  ) \
+					)\
+					)
 			#.order_by( math.fabs(GlickoRanks.rating - playerrank.rating ) )
 		opponents = []
 		for opponent in opponent_ranks:
