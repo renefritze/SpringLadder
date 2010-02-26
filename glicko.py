@@ -156,7 +156,7 @@ class GlickoRankAlgo(IRanking):
 			.filter( and_( ( playermaxvalue >=  ( GlickoRanks.rating - GlickoRanks.rd ) ), \
 								( playermaxvalue <= (GlickoRanks.rating + GlickoRanks.rd) ) )  ) \
 			#.order_by( math.fabs(GlickoRanks.rating - playerrank.rating ) )
-		opponents = []
+		opponents = dict()
 		ops = ops1.all() + ops2.all()
 		ops.sort( lambda x,y : cmp( math.fabs( x.rating - playerrank.rating ), math.fabs( y.rating - playerrank.rating ) ) )
 		for op in ops:
