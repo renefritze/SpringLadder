@@ -1,38 +1,28 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import cgi,ParseConfig
-from ladderdb import *
-from db_entities import *
+#from db_entities import *
 from formalchemy import FieldSet, Grid, ValidationError, FieldRenderer
-from customlog import Log
 
-config = ParseConfig.readconfigfile( 'Main.conf' )
-Log.Init( 'website.log', 'website.log' )
-db = LadderDB(config['alchemy-uri'])
-session = db.getSession()
+def unicodeField( field ):
+	return unicode(field, 'utf-8', 'replace')
 
-fields = cgi.FieldStorage()
-
-def getFieldsByPrefix( prefix ):
-	global fields
+def getFieldsByPrefix( prefix, request ):
 	filtered = dict()
-	for k in fields.keys():
+	for k in request.GET.keys():
 		if k.startswith( prefix ):
-			filtered[k] = fields.getvalue(k)
+			filtered[k] = unicodeField(request.GET[k])
 	return filtered
 
-def getAllFields( prefix ):
-	global fields
+def getAllFields( prefix, request ):
 	filtered = dict()
-	for k in fields.keys():
-		filtered[k] = fields.getvalue(k)
+	for k in request.GET.keys():
+		filtered[k] = unicodeField(request.GET[key])
 	return filtered
 
-def getSingleField( key, default=None ):
-	global fields
-	if key in fields.keys():
-		return fields.getvalue(key)
+def getSingleField( key, request, default=None ):
+	if key in request.GET.keys():
+		return unicodeField(request.GET[key])
 	else:
 		return default
 

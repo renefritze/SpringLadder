@@ -15,13 +15,13 @@
 					<h3>
 						<!--<a href="/viewmatch.py?id={{ l.id }}">Match #{{ l.id }}</a>
 						- <a href="/viewladder.py?id={{l.ladder.id}}">{{l.ladder.name}} </a>-->
-						<a href="/viewmatch.py?id={{ l.id }}">{{l.ladder.name}} match</a>
+						<a href="/match?id={{ l.id }}">{{l.ladder.name}} match</a>
 					</h3>
 					<div >
 						<ol>
 							{% for r in l.results %}
 								<li>
-									<a href="/viewplayer.py?ladder={{l.ladder.id}}&player={{r.player.nick}}"> {{r.player.nick}}</a>
+									<a href="/player?ladder={{l.ladder.id}}&player={{r.player.nick}}"> {{r.player.nick}}</a>
 								</li>
 							{% endfor %}
 						</ol>
@@ -41,7 +41,7 @@
 	</tbody>
 	</table>
 	{% if limit > 0 %}
-		<h5>Showing last {{ matches|length }} matches -- <a href="/viewmatch.py?limit=-1">show all</a></h5>
+		<h5>Showing last {{ matches|length }} matches -- <a href="/match?limit=-1">show all</a></h5>
 	{% endif %}
 </div>
 {% endblock %}

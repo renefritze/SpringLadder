@@ -1,13 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-from jinja2 import Environment, FileSystemLoader
 from ladderdb import *
 from sqlalchemy import func
 
-def output( db ):
-	env = Environment(loader=FileSystemLoader('templates'))
-
+def output( db, env ):
 	try:
 		s = db.sessionmaker()
 		limit = 10
