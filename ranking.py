@@ -25,6 +25,9 @@ class IRanking():
 	def GetDbEntityType(self):
 		raise NotImplemented
 
+	def GetCandidateOpponents(self,player_id,ladder_id):
+		raise NotImplemented
+
 	def OrderByKey(self):
 		raise NotImplemented
 
@@ -50,6 +53,15 @@ class RankingAlgoSelector:
 				if isinstance( el, algo.GetDbEntityType() ):
 					return algo.GetPrintableRepresentation( rank_list,db )
 			print 'no suitable algo for printing rank list found '
+			return ''
+
+	def GetCandidateOpponents(self,player_nick,ladder_id,db):
+			ladder_ranking_algo = self.GetLadder( ladder_id ).ranking_algo_id
+			algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder_ranking_algo )
+			for algo in self.algos.values():
+				if isinstance( ladder_ranking_algo, algo.GetDbEntityType() ):
+					return algo.GetCandidateOpponents( player_id,ladder_id, db )
+			print 'no suitable algo for finding an opponent found '
 			return ''
 
 	def GetPrintableRepresentationPlayer(self, rank_dict,db ):
