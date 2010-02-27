@@ -5,7 +5,9 @@ from fieldsets import *
 import forms
 from ladderdb import ElementNotFoundException, EmptyRankingListException
 from db_entities import Option
-from wtforms import Form, BooleanField, TextField, validators, FieldList, FormField, HiddenField
+from wtforms import Form, BooleanField, TextField, validators, FieldList, \
+	FormField, HiddenField, BooleanField, IntegerField, SelectField
+
 
 def output( db, env, request ):
 
@@ -35,14 +37,11 @@ def output( db, env, request ):
 			form.populate_obj( lad )
 			session.add( lad )
 			session.commit()
-			note='added'
-		if form.errors:
-			print form.errors
+			note='Ladder updated'
 		textfields = []
 		for var in vars(form).keys():
-			#print var
 			attr = getattr(form, var) 
-			if isinstance( attr, TextField ):
+			if isinstance( attr, TextField ) or isinstance( attr, SelectField ) :
 				textfields.append( attr )
 		template = env.get_template('change_ladder.html')
 		

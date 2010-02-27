@@ -293,6 +293,15 @@ a.nav:hover {
 	display: inline;
 }
 
+.invalid_field {
+	background-color: #eee;
+}
+
+.invalid_field_errors {
+	color: #f00;
+	font-family: monospace;
+}
+
 /*---------------------pagination-----------------------------*/
 
 

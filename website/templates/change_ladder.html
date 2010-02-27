@@ -3,33 +3,49 @@
 {% block head %}
 
 {% endblock %}
-
+{% macro with_errors(field) %}
+    {% if field.errors %}
+		<td class="invalid_field">
+			{% set css_class = 'has_error ' + kwargs.pop('class', '') %}
+			{{ field(class=css_class, **kwargs) }}
+			<span class="invalid_field_errors">
+				{% for error in field.errors %}
+					{{ error|e }} {% if not loop.last %} , {% endif %}
+				{% endfor %}
+			</span>
+    {% else %}
+		<td >
+			{{ field(**kwargs) }}
+    {% endif %}
+    </td>
+{% endmacro %}
 {% block content %}
-<h1>{{ note }}</h1>
+<h3>{{ note }}</h3>
 <form name="input" action="/admin/ladder" method="POST">
 
 <br/>
+
 <table>
 {% for field in textfields %}
     <tr>
 		<td>{{ field.label }}</td>
-		<td>{{ field(class="css_class") }}</td>
+		{{ with_errors(field) }}
 	</tr>
 {% endfor %}
-<tr><td>whitelist options</td><td></td></tr>
-{% for option in form.options if option.data['is_whitelist'] %}
+<tr><td>---</td><td></td></tr>
+{% for option in form.options  %}
 		<tr>
-			<td>{{ option.data['is_whitelist'] }}</td>
+			<td></td>
 			<td>{{ option(class="css_class") }}</td>
 		</tr>
 {% endfor %}
-<tr><td>blacklist options</td><td></td></tr>
+<!--<tr><td>blacklist options</td><td></td></tr>
 {% for option in form.options if not option.data['is_whitelist'] %}
 		<tr>
 			<td>{{ option.data['is_whitelist'] }}</td>
 			<td>{{ option(class="css_class") }}</td>
 		</tr>
-{% endfor %}
+{% endfor %}-->
 </table>
 <br/>
 <input type="submit" name="submit" value="submit"/>
