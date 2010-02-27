@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from wtforms import Form, BooleanField, TextField, validators, FieldList, \
-	FormField, HiddenField, BooleanField, IntegerField, SelectField
+	FormField, HiddenField, BooleanField, IntegerField, SelectField, widgets
 
 import ranking
 
@@ -16,8 +16,29 @@ class Option(Form):
 	key 			= TextField('key',[validators.Length(max=100), validators.Required()])
 	value 			= TextField('value',[validators.Length(max=100), validators.Required()])
 	is_whitelist 	= BooleanField('is_whitelist' )
-
 	#adminkey		= 'ladderadmin'
+
+class OptionWidget(object):
+	def __init__(self, with_table_tag=False):
+		self.with_table_tag = with_table_tag
+
+	def __call__(self, field, **kwargs):
+		html = []
+		if self.with_table_tag:
+			kwargs.setdefault('id', field.id)
+			html.append(u'<table %s>' % html_params(**kwargs))
+		hidden = u''
+		for subfield in field:
+			if subfield.type == 'HiddenField':
+				hidden += unicode(subfield)
+			else:
+				html.append(u'<td>%s</td>' % unicode(subfield))
+				hidden = u''
+		if self.with_table_tag:
+			html.append(u'</table>')
+		if hidden:
+			html.append(hidden)
+		return u''.join(html)
 
 class Ladder(Form):
 	id				= HiddenField('id', [validators.Required(),validators.NumberRange(1)] )
@@ -37,7 +58,10 @@ class Ladder(Form):
 	ranking_algo_id	= SelectField('ranking_algo_id',choices=tupleizelist(ranking.RankingAlgoSelector.available_ranking_algos), \
 		validators=[validators.Required(), validators.AnyOf(ranking.RankingAlgoSelector.available_ranking_algos)] )
 
-	options			= FieldList( FormField(Option) )
+	options			= FieldList( FormField(Option, widget=OptionWidget()) )
+
+	field_order = ['name','description','min_team_size','max_team_size','min_ally_size','max_ally_size',\
+		'min_team_count','max_team_count','min_ally_count','max_ally_count','min_ai_count','max_ai_count']
 
 #class Player(Base):
 	#__tablename__ 	= 'players'

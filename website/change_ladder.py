@@ -39,10 +39,8 @@ def output( db, env, request ):
 			session.commit()
 			note='Ladder updated'
 		textfields = []
-		for var in vars(form).keys():
-			attr = getattr(form, var) 
-			if isinstance( attr, TextField ) or isinstance( attr, SelectField ) :
-				textfields.append( attr )
+		for var in forms.Ladder.field_order:
+			textfields.append( getattr(form, var)  )
 		template = env.get_template('change_ladder.html')
 		
 		return template.render( form=form, ladder_id=id, note=note, textfields=textfields )

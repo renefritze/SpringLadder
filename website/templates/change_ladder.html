@@ -20,36 +20,32 @@
     </td>
 {% endmacro %}
 {% block content %}
+<h1>Editing Ladder #{{ ladder_id }}</h1>
 <h3>{{ note }}</h3>
 <form name="input" action="/admin/ladder" method="POST">
+	<table>
+		<tbody>
+			{% for field in textfields %}
+				<tr>
+					<td>{{ field.label }}</td>
+					{{ with_errors(field) }}
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<table>
+		<thead>
+		<tr><th>Key</th><th>Value</th><th>Whitelist?</th></tr>
+		</thead>
+		<tbody>
+			{% for option in form.options  %}
+					<tr>{{ option(class="css_class") }}</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 
-<br/>
-
-<table>
-{% for field in textfields %}
-    <tr>
-		<td>{{ field.label }}</td>
-		{{ with_errors(field) }}
-	</tr>
-{% endfor %}
-<tr><td>---</td><td></td></tr>
-{% for option in form.options  %}
-		<tr>
-			<td></td>
-			<td>{{ option(class="css_class") }}</td>
-		</tr>
-{% endfor %}
-<!--<tr><td>blacklist options</td><td></td></tr>
-{% for option in form.options if not option.data['is_whitelist'] %}
-		<tr>
-			<td>{{ option.data['is_whitelist'] }}</td>
-			<td>{{ option(class="css_class") }}</td>
-		</tr>
-{% endfor %}-->
-</table>
-<br/>
-<input type="submit" name="submit" value="submit"/>
-<input type="submit" name="new" value="add new option"/>
+	<input type="submit" name="submit" value="submit"/>
+<!-- <input type="submit" name="new" value="add new option"/> -->
 </form>
 <br/>
 <a href="/" > back to index </a>
