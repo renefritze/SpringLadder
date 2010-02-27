@@ -28,12 +28,15 @@ class OptionWidget(object):
 			kwargs.setdefault('id', field.id)
 			html.append(u'<table %s>' % html_params(**kwargs))
 		hidden = u''
+		errors = ''
 		for subfield in field:
 			if subfield.type == 'HiddenField':
 				hidden += unicode(subfield)
 			else:
 				html.append(u'<td>%s</td>' % unicode(subfield))
 				hidden = u''
+				errors += ', '.join(subfield.errors)
+		html.append(u'<td>%s</td>' % unicode(errors))
 		if self.with_table_tag:
 			html.append(u'</table>')
 		if hidden:
@@ -61,7 +64,8 @@ class Ladder(Form):
 	options			= FieldList( FormField(Option, widget=OptionWidget()) )
 
 	field_order = ['name','description','min_team_size','max_team_size','min_ally_size','max_ally_size',\
-		'min_team_count','max_team_count','min_ally_count','max_ally_count','min_ai_count','max_ai_count']
+		'min_team_count','max_team_count','min_ally_count','max_ally_count','min_ai_count','max_ai_count',\
+		'ranking_algo_id','id']
 
 #class Player(Base):
 	#__tablename__ 	= 'players'

@@ -27,7 +27,12 @@
 		<tbody>
 			{% for field in textfields %}
 				<tr>
-					<td>{{ field.label }}</td>
+					<td>
+<!-- 						TODO:make this check for hidden instead -->					
+						{% if field.type != 'HiddenField' %}
+							{{ field.label }}
+						{% endif %}
+					</td>
 					{{ with_errors(field) }}
 				</tr>
 			{% endfor %}
@@ -35,7 +40,7 @@
 	</table>
 	<table>
 		<thead>
-		<tr><th>Key</th><th>Value</th><th>Whitelist?</th></tr>
+		<tr><th>Key</th><th>Value</th><th>Whitelist?</th><th></th></tr>
 		</thead>
 		<tbody>
 			{% for option in form.options  %}
