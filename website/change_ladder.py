@@ -32,6 +32,13 @@ def output( db, env, request ):
 		lad = db.GetLadder( id )
 		session.add( lad )
 		options = lad.options
+		if getSingleFieldPOST( 'new', request  ) == 'add new option':
+			opt = Option('','')
+			opt.ladder_id = id
+			session.add( opt )
+			session.commit()
+			session.add( lad )
+			options = lad.options
 		form = forms.Ladder(request.POST, lad, options=options )
 		if getSingleFieldPOST( 'submit', request  ) == 'submit' and form.validate():
 			form.populate_obj( lad )

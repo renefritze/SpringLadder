@@ -27,8 +27,7 @@
 		<tbody>
 			{% for field in textfields %}
 				<tr>
-					<td>
-<!-- 						TODO:make this check for hidden instead -->					
+					<td>		
 						{% if field.type != 'HiddenField' %}
 							{{ field.label }}
 						{% endif %}
@@ -44,13 +43,13 @@
 		</thead>
 		<tbody>
 			{% for option in form.options  %}
-					<tr>{{ option(class="css_class") }}</tr>
+				<tr>{{ option(class="css_class") }}</tr>
 			{% endfor %}
 		</tbody>
 	</table>
 
 	<input type="submit" name="submit" value="submit"/>
-<!-- <input type="submit" name="new" value="add new option"/> -->
+	<input type="submit" name="new" value="add new option"/>
 </form>
 <br/>
 <a href="/" > back to index </a>
