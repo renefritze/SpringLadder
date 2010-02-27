@@ -62,11 +62,6 @@ def static_file(filename):
 def demos(filename):
 	return send_file( filename, root=os.getcwd()+'/demos/' )
 
-@route('/jquery/(?P<path>.+)')
-def jquery(path):
-	print path
-	return send_file( path, root=os.getcwd()+'/jquery/' )
-
 port = config['port']
 staging = 'staging' in config.keys()
 debug(staging)
