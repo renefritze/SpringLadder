@@ -37,6 +37,8 @@ class Ladder(Base):
 	match_average_sum = Column( Integer )
 	match_average_count = Column( Integer )
 
+	options = relation( 'Option' )
+
 	def __init__(self, name="noname"):
 		self.name = name
 		self.min_team_size 	= 1

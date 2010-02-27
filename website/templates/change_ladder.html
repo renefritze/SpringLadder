@@ -15,13 +15,20 @@
 		<td>{{ field.label }}</td>
 		<td>{{ field(class="css_class") }}</td>
 	</tr>
-<!--     <div>{{ form.description.label }}: {{ form.description() }}</div> -->
 {% endfor %}
-{% for option in form.options %}
-    <tr>
-		<td>{{ option.label }}</td>
-		<td>{{ option(class="css_class") }}</td>
-	</tr>	
+<tr><td>whitelist options</td><td></td></tr>
+{% for option in form.options if option.data['is_whitelist'] %}
+		<tr>
+			<td>{{ option.data['is_whitelist'] }}</td>
+			<td>{{ option(class="css_class") }}</td>
+		</tr>
+{% endfor %}
+<tr><td>blacklist options</td><td></td></tr>
+{% for option in form.options if not option.data['is_whitelist'] %}
+		<tr>
+			<td>{{ option.data['is_whitelist'] }}</td>
+			<td>{{ option(class="css_class") }}</td>
+		</tr>
 {% endfor %}
 </table>
 <br/>

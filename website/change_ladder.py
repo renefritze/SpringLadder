@@ -28,11 +28,11 @@ def output( db, env, request ):
 
 	try:
 		lad = db.GetLadder( id )
-		options = session.query(Option).filter(Option.ladder_id == id).all()
+		session.add( lad )
+		options = lad.options
 		form = forms.Ladder(request.POST, lad, options=options )
 		if getSingleFieldPOST( 'submit', request  ) == 'submit' and form.validate():
-			lad.name 		= form.name.data
-			lad.description = form.description.data
+			form.populate_obj( lad )
 			session.add( lad )
 			session.commit()
 			note='added'
@@ -45,6 +45,7 @@ def output( db, env, request ):
 			if isinstance( attr, TextField ):
 				textfields.append( attr )
 		template = env.get_template('change_ladder.html')
+		
 		return template.render( form=form, ladder_id=id, note=note, textfields=textfields )
 
 	except ElementNotFoundException, e:
