@@ -41,25 +41,31 @@ def scoreboard_():
 def help_():
 	return help.output( db, env, request )
 
-@route('/admin/ladder')
+@route('/admin/ladder', method='POST')
 @AuthDecorator( Roles.Owner, db )
 def admin_ladder():
 	return change_ladder.output( db, env, request )
-
+@route('/admin/ladder', method='GET')
+@AuthDecorator( Roles.Owner, db )
+def admin_ladder_():
+	return change_ladder.output( db, env, request )
+	
 @route('/fame')
 def fame_():
 	return fame.output( db, env, request )
 
 @route('/static/:filename')
 def static_file(filename):
-	send_file( filename, root=os.getcwd()+'/static/' )
+	return send_file( filename, root=os.getcwd()+'/static/' )
 
 @route('/demos/:filename')
 def demos(filename):
-	send_file( filename, root=os.getcwd()+'/demos/' )
-@route('/jquery/:filename')
-def jquery(filename):
-	send_file( filename, root=os.getcwd()+'/jquery/' )
+	return send_file( filename, root=os.getcwd()+'/demos/' )
+
+@route('/jquery/(?P<path>.+)')
+def jquery(path):
+	print path
+	return send_file( path, root=os.getcwd()+'/jquery/' )
 
 port = config['port']
 staging = 'staging' in config.keys()

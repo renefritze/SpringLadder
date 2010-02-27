@@ -26,6 +26,19 @@ def getSingleField( key, request, default=None ):
 	else:
 		return default
 
+def getSingleFieldPOST( key, request, default=None ):
+	if key in request.POST.keys():
+		return request.POST[key]
+	else:
+		return default
+
+def getFieldsByPrefixPOST( prefix, request ):
+	filtered = dict()
+	for k in request.POST.keys():
+		if k.startswith( prefix ):
+			filtered[k] = request.POST[k]
+	return filtered
+
 def SortAsc( condition, ascending = 'True' ):
 	if ascending == 'True':
 		return condition.asc()
@@ -35,8 +48,8 @@ def SortAsc( condition, ascending = 'True' ):
 class SubmitRenderer(FieldRenderer):
 	def render(self):
 		value= self._value and self._value or ''
-		#return '<input name="delete" type="submit" value="%s" title="delete"/>'%(value)
-		return '<a href="/admin/change_ladder.py?delete=%s" >delete</a>'%(value)
+		return '<input name="delete" type="submit" value="%s" title="delete"/>'%(value)
+		#return '<a href="/admin/ladder?delete=%s" >delete</a>'%(value)
 
 class Submit:
 	dummy = None

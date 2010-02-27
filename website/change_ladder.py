@@ -8,15 +8,16 @@ from db_entities import Option
 
 def output( db, env, request ):
 
-	id = getSingleField( 'id', request, -1  )
+	id = getSingleField( 'id', request, getSingleFieldPOST('id', request )  )
 	session = db.sessionmaker()
 	note = ''
 	ladderFields = dict()
 	optionFields = dict()
 
-	if getSingleField( 'submit', request  ) == 'submit':
-		ladderFields = getFieldsByPrefix('Ladder', request )
-		optionFields = getFieldsByPrefix('Option', request )
+	if getSingleFieldPOST( 'submit', request  ) == 'submit':
+		ladderFields = getFieldsByPrefixPOST('Ladder', request )
+		optionFields = getFieldsByPrefixPOST('Option', request )
+		print optionFields
 
 	todelete = getSingleField( 'delete', request  )
 	if  todelete:
@@ -27,7 +28,7 @@ def output( db, env, request ):
 	try:
 		lad = db.GetLadder( id )
 		options = session.query(Option).filter(Option.ladder_id == id).all()
-		if getSingleField( 'new', request ) == 'add new option':
+		if getSingleFieldPOST( 'new', request ) == 'add new option':
 			new_opt = Option()
 			new_opt.ladder_id = id
 			session.add( new_opt )
@@ -35,7 +36,7 @@ def output( db, env, request ):
 			options.append( new_opt )
 			note = 'new field'
 		grid = Grid( Option, options )
-	#return fields
+
 		try:
 			if len(ladderFields) > 0:
 				fs2 = FieldSet(lad,data=ladderFields)
@@ -45,7 +46,7 @@ def output( db, env, request ):
 			else:
 				fs2 = FieldSet(lad)
 			if len(optionFields) > 0:
-				grid = Grid( Option, options, data=optionFields )
+				grid = Grid( Option, options, data=request.POST )
 				if grid.validate():
 					grid.sync()
 					session.commit()
@@ -60,9 +61,9 @@ def output( db, env, request ):
 
 		grid.append(but)
 		#grid.configure(include=[grid.JJ.with_renderer(SubmitRenderer)])
-
+		gdata=grid.render()
 		template = env.get_template('change_ladder.html')
-		return template.render( formcontent=fs2.render(),griddata=grid.render(), ladder_id=id, note=note )
+		return template.render( formcontent=fs2.render(),griddata=gdata, ladder_id=id, note=note )
 
 	except ElementNotFoundException, e:
 		template = env.get_template('error.html')

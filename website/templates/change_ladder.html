@@ -8,7 +8,7 @@
 
 {% block content %}
 {{ note }}
-<form name="input" action="/admin/ladder" method="GET">
+<form name="input" action="/admin/ladder" method="POST">
 <input type="hidden" value="{{ ladder_id }}" id="id" name="id" >
 {{ formcontent }}
 <br/>
