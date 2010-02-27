@@ -7,7 +7,7 @@ from ladderdb import ElementNotFoundException, EmptyRankingListException
 from db_entities import Option
 from wtforms import Form, BooleanField, TextField, validators, FieldList, \
 	FormField, HiddenField, BooleanField, IntegerField, SelectField
-
+import bottle
 
 def output( db, env, request ):
 
@@ -32,6 +32,17 @@ def output( db, env, request ):
 		lad = db.GetLadder( id )
 		session.add( lad )
 		options = lad.options
+		to_delete = getFieldsByPrefixPOST('delete', request )
+		if to_delete and len(to_delete) > 0:
+			print to_delete
+			del_key = to_delete.keys()[0]
+			if to_delete[del_key] == 'delete':
+				del_idx = int(del_key.split('-')[-1])
+				del_opt = options[del_idx]
+				session.delete( del_opt )
+				session.commit()
+				#redirect to same page here cause i had troubles with double session elements otherwise
+				return bottle.redirect('/admin/ladder?id=%s'%id)
 		if getSingleFieldPOST( 'new', request  ) == 'add new option':
 			opt = Option('','')
 			opt.ladder_id = id
@@ -49,9 +60,10 @@ def output( db, env, request ):
 		for var in forms.Ladder.field_order:
 			textfields.append( getattr(form, var)  )
 		template = env.get_template('change_ladder.html')
-		
+		session.close()
 		return template.render( form=form, ladder_id=id, note=note, textfields=textfields )
 
 	except ElementNotFoundException, e:
 		template = env.get_template('error.html')
+		session.close()
 		return template.render( err_msg="ladder with id %s not found"%(str(id)) )

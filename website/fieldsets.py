@@ -45,17 +45,6 @@ def SortAsc( condition, ascending = 'True' ):
 	else:
 		return condition.desc()
 
-class SubmitRenderer(FieldRenderer):
-	def render(self):
-		value= self._value and self._value or ''
-		return '<input name="delete" type="submit" value="%s" title="delete"/>'%(value)
-		#return '<a href="/admin/ladder?delete=%s" >delete</a>'%(value)
-
-class Submit:
-	dummy = None
-
-Grid.default_renderers[Submit] = SubmitRenderer
-
 class LadderInfoToTableAdapter:
 	def __init__(self,ladder):
 		self.ladder = ladder

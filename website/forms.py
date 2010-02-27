@@ -29,13 +29,19 @@ class OptionWidget(object):
 			html.append(u'<table %s>' % html_params(**kwargs))
 		hidden = u''
 		errors = ''
+		i = 0
 		for subfield in field:
 			if subfield.type == 'HiddenField':
 				hidden += unicode(subfield)
 			else:
-				html.append(u'<td>%s</td>' % unicode(subfield))
+				if i == 4:
+					del_button = '<input type="submit" name="delete_%s" value="delete"/>'%field.id
+					html.append(u'<td>%s%s</td>' % (unicode(subfield),del_button) )
+				else:
+					html.append(u'<td>%s</td>' % unicode(subfield))
 				hidden = u''
 				errors += ', '.join(subfield.errors)
+			i += 1
 		html.append(u'<td>%s</td>' % unicode(errors))
 		if self.with_table_tag:
 			html.append(u'</table>')
