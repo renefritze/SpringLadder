@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from fieldsets import *
-from formalchemy import Field, types
+import forms
 from ladderdb import ElementNotFoundException, EmptyRankingListException
 from db_entities import Option
+from wtforms import Form, BooleanField, TextField, validators, FieldList, FormField, HiddenField
 
 def output( db, env, request ):
 
@@ -14,56 +15,37 @@ def output( db, env, request ):
 	ladderFields = dict()
 	optionFields = dict()
 
-	if getSingleFieldPOST( 'submit', request  ) == 'submit':
-		ladderFields = getFieldsByPrefixPOST('Ladder', request )
-		optionFields = getFieldsByPrefixPOST('Option', request )
-		print optionFields
+	#if getSingleFieldPOST( 'submit', request  ) == 'submit':
+		#ladderFields = getFieldsByPrefixPOST('Ladder', request )
+		#optionFields = getFieldsByPrefixPOST('Option', request )
+		#print optionFields
 
-	todelete = getSingleField( 'delete', request  )
-	if  todelete:
-		option = session.query(Option).filter(Option.ladder_id == id).filter(Option.id == int(todelete)).first()
-		session.delete( option )
-		session.commit()
+	#todelete = getSingleField( 'delete', request  )
+	#if  todelete:
+		#option = session.query(Option).filter(Option.ladder_id == id).filter(Option.id == int(todelete)).first()
+		#session.delete( option )
+		#session.commit()
 
 	try:
 		lad = db.GetLadder( id )
 		options = session.query(Option).filter(Option.ladder_id == id).all()
-		if getSingleFieldPOST( 'new', request ) == 'add new option':
-			new_opt = Option()
-			new_opt.ladder_id = id
-			session.add( new_opt )
+		form = forms.Ladder(request.POST, lad, options=options )
+		if getSingleFieldPOST( 'submit', request  ) == 'submit' and form.validate():
+			lad.name 		= form.name.data
+			lad.description = form.description.data
+			session.add( lad )
 			session.commit()
-			options.append( new_opt )
-			note = 'new field'
-		grid = Grid( Option, options )
-
-		try:
-			if len(ladderFields) > 0:
-				fs2 = FieldSet(lad,data=ladderFields)
-				if fs2.validate():
-					fs2.sync()
-					session.commit()
-			else:
-				fs2 = FieldSet(lad)
-			if len(optionFields) > 0:
-				grid = Grid( Option, options, data=request.POST )
-				if grid.validate():
-					grid.sync()
-					session.commit()
-			else:
-				grid = Grid( Option, options )
-		except ValidationError, e:
-			note = '<h3> Validation failed </h3>'
-
-
-		but = Field(' ', type=Submit, value=lambda item: item.id)
-
-
-		grid.append(but)
-		#grid.configure(include=[grid.JJ.with_renderer(SubmitRenderer)])
-		gdata=grid.render()
+			note='added'
+		if form.errors:
+			print form.errors
+		textfields = []
+		for var in vars(form).keys():
+			#print var
+			attr = getattr(form, var) 
+			if isinstance( attr, TextField ):
+				textfields.append( attr )
 		template = env.get_template('change_ladder.html')
-		return template.render( formcontent=fs2.render(),griddata=gdata, ladder_id=id, note=note )
+		return template.render( form=form, ladder_id=id, note=note, textfields=textfields )
 
 	except ElementNotFoundException, e:
 		template = env.get_template('error.html')
