@@ -10,11 +10,15 @@
 				<a href="/admin/recalc?id={{l.id}}">recalculate rankings</a>&nbsp;
 				{% if isglobal %}
 					<a href="/admin/deleteladder?id={{l.id}}">delete</a>&nbsp;
+					<a href="/admin/match?id={{l.id}}">matches</a>&nbsp;
 					<!--<a href="/admin/copyladder?id={{l.id}}">copy</a>&nbsp;-->
 				{% endif %}
 			</li>
 		{% endfor %}
 	</ul>
+</div>
+<div>
+		<a href="/admin/match">All matches</a>&nbsp;
 </div>
 {% if isglobal %}
 	<div >

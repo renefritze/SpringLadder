@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<ul>
+{% for l in matches %}
+	<li>{{ l.ladder.name }} -- {{l.date}}:
+		<a href="/match?id={{ l.id }}">details</a>
+		{% if lid %}
+			<a href="/admin/match?id={{l.ladder_id}}&lid={{l.ladder_id}}&mid={{ l.id }}">delete</a></li>
+		{% else %}
+			<a href="/admin/match?lid={{l.ladder_id}}&mid={{ l.id }}">delete</a></li>
+		{% endif %}
+{% endfor %}
+</ul>
+{% endblock %}
