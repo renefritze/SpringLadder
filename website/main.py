@@ -43,6 +43,15 @@ def scoreboard_():
 def help_():
 	return help.output( db, env, request )
 
+@route('/admin', method='GET')
+@AuthDecorator( Roles.User, db )
+def adminindex_():
+	return adminindex.output( db, env, request )
+@route('/admin', method='POST')
+@AuthDecorator( Roles.User, db )
+def adminindexp_():
+	return adminindex.output( db, env, request )
+
 @route('/admin/ladder', method='POST')
 @AuthDecorator( Roles.User, db )
 def admin_ladder():
@@ -51,11 +60,6 @@ def admin_ladder():
 @AuthDecorator( Roles.User, db )
 def admin_ladder_():
 	return change_ladder.output( db, env, request )
-
-@route('/admin/', method='GET')
-@AuthDecorator( Roles.User, db )
-def adminindex_():
-	return adminindex.output( db, env, request )
 
 @route('/admin/recalc', method='GET')
 @AuthDecorator( Roles.User, db )

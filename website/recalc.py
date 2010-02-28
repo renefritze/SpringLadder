@@ -27,6 +27,12 @@ def output( db, env, request ):
 		return template.render( pre=pre, post=post, ladder=lad )
 
 	except ElementNotFoundException, e:
-		template = env.get_template('error.html')
-		session.close()
-		return template.render( err_msg=str(e) )
+		err = str(e)
+
+	except EmptyRankingListException:
+		err = 'This ladder does not have any ranks to recalculate yet'
+
+	template = env.get_template('error.html')
+	session.close()
+	print request.environ
+	return template.render( err_msg=err )

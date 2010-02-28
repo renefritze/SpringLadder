@@ -13,6 +13,21 @@ def output( db, env, request ):
 	session = db.sessionmaker()
 	user = request.player
 	try:
+		if getSingleFieldPOST( 'addladder', request  ) == 'add':
+			if user.role >= Roles.GlobalAdmin:
+				name = getSingleFieldPOST( 'laddername', request )
+				if name and len(name) > 0 and len(name) <= 100:
+					ladderid = db.AddLadder( name )
+					session.close()
+					return bottle.redirect( '/admin/ladder?id=%d'%ladderid )
+				else:
+					template = env.get_template('error.html')
+					session.close()
+					return template.render( err_msg="you're not allowed to add a ladder" )
+			else:
+				template = env.get_template('error.html')
+				session.close()
+				return template.render( err_msg="you're not allowed to add a ladder" )
 		if user.role < Roles.GlobalAdmin:
 			ladder_ids = session.query( Option.ladder_id ).filter( Option.key == Option.adminkey ) \
 				.filter( Option.value == user.nick ).group_by( Option.ladder_id )
