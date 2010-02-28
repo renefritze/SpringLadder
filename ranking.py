@@ -93,7 +93,8 @@ class SimpleRankAlgo(IRanking):
 		#calculate order of deaths
 		deaths = dict()
 		scores = dict()
-			
+
+		playercount = len(result_dict)
 		for name,player in result_dict.iteritems():
 			if player.died > 0:
 				deaths[name] = player.died
