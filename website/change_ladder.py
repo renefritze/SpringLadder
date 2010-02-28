@@ -4,7 +4,7 @@
 from fieldsets import *
 import forms
 from ladderdb import ElementNotFoundException, EmptyRankingListException
-from db_entities import Option
+from db_entities import Option, Roles
 from wtforms import Form, BooleanField, TextField, validators, FieldList, \
 	FormField, HiddenField, BooleanField, IntegerField, SelectField
 import bottle
@@ -14,8 +14,11 @@ def output( db, env, request ):
 	id = getSingleField( 'id', request, getSingleFieldPOST('id', request )  )
 	session = db.sessionmaker()
 	note = ''
-
 	try:
+		if not db.AccessCheck( id, request.player.nick, Roles.LadderAdmin ):
+			template = env.get_template('error.html')
+			session.close()
+			return template.render( err_msg="you're not allowed to edit ladder #%s"%(str(id)) )
 		lad = db.GetLadder( id )
 		session.add( lad )
 		options = lad.options
