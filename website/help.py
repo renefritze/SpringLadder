@@ -9,6 +9,9 @@ def tokenizeHelp( string ):
 			ret.append( (items[0], items[1] ) )
 	return ret
 
+from globe import cache
+
+@cache.cache('help_output', expire=3600)
 def output( db, env, request ):
 	try:
 		template = env.get_template('help.html')
