@@ -14,19 +14,6 @@ def output( db, env, request ):
 	id = getSingleField( 'id', request, getSingleFieldPOST('id', request )  )
 	session = db.sessionmaker()
 	note = ''
-	ladderFields = dict()
-	optionFields = dict()
-
-	#if getSingleFieldPOST( 'submit', request  ) == 'submit':
-		#ladderFields = getFieldsByPrefixPOST('Ladder', request )
-		#optionFields = getFieldsByPrefixPOST('Option', request )
-		#print optionFields
-
-	#todelete = getSingleField( 'delete', request  )
-	#if  todelete:
-		#option = session.query(Option).filter(Option.ladder_id == id).filter(Option.id == int(todelete)).first()
-		#session.delete( option )
-		#session.commit()
 
 	try:
 		lad = db.GetLadder( id )
