@@ -6,7 +6,8 @@
 	<ul>
 		{% for l in ladders %}
 			<li>
-				<a href="/admin/ladder?id={{l.id}}">{{ l.name }}</a>
+				<a href="/admin/ladder?id={{l.id}}">{{ l.name }}</a>&nbsp;
+				<a href="/admin/recalc?id={{l.id}}">recalculate rankings</a>
 			</li>
 		{% endfor %}
 	</ul>

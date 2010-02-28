@@ -21,7 +21,7 @@ def output( db, env, request ):
 		ladders = session.query( Ladder ).filter( Ladder.id.in_ ( ladder_ids ) ).all()
 		template = env.get_template('adminindex.html')
 		session.close()
-		return template.render( ladders=ladders )
+		return template.render( ladders=ladders, isglobal=user.role >= Roles.GlobalAdmin )
 
 	except ElementNotFoundException, e:
 		template = env.get_template('error.html')

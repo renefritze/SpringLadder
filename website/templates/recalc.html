@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block head %}
+
+{% endblock %}
+{% block content %}
+<div style='float:left;padding:20px;'>
+	<h2>Before Recalculation</h2>
+	<table>
+		<thead>
+			<tr>
+				<th scope='col' style='text-align:center;'>#</th>
+				{% for h in pre.header %}
+					<th scope='col'> {{h}} </th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in pre.rows %}
+				<tr>
+					<td style='text-align:center;'> {{loop.index}} </td>
+					{% for field in row %}
+						{% if loop.index0 == 0 %}
+							<td><a href="/player?player={{field}}">{{field}}</a></td>
+						{% else %}
+							<td>{{field}}</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+<div style='padding:20px;'>
+	<h2>After Recalculation</h2>
+	<table>
+		<thead>
+			<tr>
+				<th scope='col' style='text-align:center;'>#</th>
+				{% for h in post.header %}
+					<th scope='col'> {{h}} </th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in post.rows %}
+				<tr>
+					<td style='text-align:center;'> {{loop.index}} </td>
+					{% for field in row %}
+						{% if loop.index0 == 0 %}
+							<td><a href="/player?player={{field}}">{{field}}</a></td>
+						{% else %}
+							<td>{{field}}</td>
+						{% endif %}
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+{% endblock %}

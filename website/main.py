@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 from jinja2 import Environment, FileSystemLoader
 from bottle import route, run, debug, PasteServer, send_file, redirect, abort, request, default_app
-import ParseConfig, os, index, viewmatch, viewplayer, viewladder, viewrules, help, fame, scoreboard, change_ladder,adminindex
+import ParseConfig, os, index, viewmatch, viewplayer, viewladder, viewrules, \
+	help, fame, scoreboard, change_ladder,adminindex, recalc
 from customlog import Log
 from ladderdb import LadderDB
 from auth import AuthDecorator
@@ -55,6 +56,11 @@ def admin_ladder_():
 @AuthDecorator( Roles.User, db )
 def adminindex_():
 	return adminindex.output( db, env, request )
+
+@route('/admin/recalc', method='GET')
+@AuthDecorator( Roles.User, db )
+def recalc_():
+	return recalc.output( db, env, request )
 
 @route('/fame')
 def fame_():
