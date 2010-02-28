@@ -30,13 +30,11 @@ h1{
 p{
 }
 
-
 #header{
 	height:100px;
 	clear:both;
-	/*border-bottom: 1px dashed #555;*/
-/* 	border-right: 2px dashed #000; */
 }
+#header img {	border:0;text-decoration: none; }
 
 .logo{
 	padding:10px 0 0 0px;
@@ -47,7 +45,6 @@ p{
 	text-align: center;
 	font-weight: bolder;
 }
-
 
 /*---------------- menu tab----------------------*/
 #menu_top{
