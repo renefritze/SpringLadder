@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from jinja2 import Environment, FileSystemLoader
 from bottle import route, run, debug, PasteServer, send_file, redirect, abort, request, default_app
-import ParseConfig, os, index, viewmatch, viewplayer, viewladder, viewrules, help, fame, scoreboard, change_ladder
+import ParseConfig, os, index, viewmatch, viewplayer, viewladder, viewrules, help, fame, scoreboard, change_ladder,adminindex
 from customlog import Log
 from ladderdb import LadderDB
 from auth import AuthDecorator
@@ -42,25 +42,20 @@ def scoreboard_():
 def help_():
 	return help.output( db, env, request )
 
-if staging:
-	@route('/admin/ladder', method='POST')
-	@AuthDecorator( Roles.User, db )
-	def admin_ladder():
-		return change_ladder.output( db, env, request )
-	@route('/admin/ladder', method='GET')
-	@AuthDecorator( Roles.User, db )
-	def admin_ladder_():
-		return change_ladder.output( db, env, request )
-else:
-	@route('/admin/ladder', method='POST')
-	@AuthDecorator( Roles.Owner, db )
-	def admin_ladder():
-		return change_ladder.output( db, env, request )
-	@route('/admin/ladder', method='GET')
-	@AuthDecorator( Roles.Owner, db )
-	def admin_ladder_():
-		return change_ladder.output( db, env, request )
-		
+@route('/admin/ladder', method='POST')
+@AuthDecorator( Roles.User, db )
+def admin_ladder():
+	return change_ladder.output( db, env, request )
+@route('/admin/ladder', method='GET')
+@AuthDecorator( Roles.User, db )
+def admin_ladder_():
+	return change_ladder.output( db, env, request )
+
+@route('/admin/', method='GET')
+@AuthDecorator( Roles.User, db )
+def adminindex_():
+	return adminindex.output( db, env, request )
+
 @route('/fame')
 def fame_():
 	return fame.output( db, env, request )
