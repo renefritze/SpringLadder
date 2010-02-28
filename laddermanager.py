@@ -702,11 +702,18 @@ class Main:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, answer )
 
 			if command == "!ladderauth":
-				if len(args) != 1:
+				if len(args) < 1 or len(args) > 2:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
 					return
 				else:
-					ok = self.db.SetPassword( fromwho, args[0] )
+					nick = fromwho
+					if len(args) == 2:
+						if not self.db.AccessCheck( -1, fromwho, Roles.GlobalAdmin ):
+							self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+							#log
+							return
+						nick = args[1]
+					ok = self.db.SetPassword( nick, args[0] )
 					if ok:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Password sucessfully set" )
 					else:
