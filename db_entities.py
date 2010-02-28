@@ -182,6 +182,7 @@ class IRanks(Base):
 	id 				= Column( Integer, primary_key=True )
 	player_id 		= Column( Integer, ForeignKey( Player.id ) )
 	ladder_id 		= Column( Integer, ForeignKey( Ladder.id ) )
+	def compare(otherRank): return -1,0,1
 """
 class SimpleRanks(Base):
 	__tablename__	= 'simpleranks'
@@ -198,6 +199,12 @@ class SimpleRanks(Base):
 	def __str__(self):
 		return '%d points'%self.points
 
+	def compare(self,otherRank):
+		if otherRank:
+			return cmp( self.points, otherRank.points )
+		else:
+			return 1
+			
 class GlickoRanks(Base):
 	__tablename__	= 'glickoranks'
 	id 				= Column( Integer, primary_key=True )
@@ -214,6 +221,12 @@ class GlickoRanks(Base):
 
 	def __str__(self):
 		return '%f/%f (rating/rating deviation)'%(self.rating,self.rd)
+
+	def compare(self,otherRank):
+		if otherRank:
+			return cmp( self.rating, otherRank.rating )
+		else:
+			return 1
 
 class Config(Base):
 	__tablename__	= 'config'

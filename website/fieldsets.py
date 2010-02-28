@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+class DummyException:
+	"""usable as stand-in when one want to disable excp catching"""
+	pass
+	
 def unicodeField( field ):
 	return unicode(field, 'utf-8', 'replace')
 

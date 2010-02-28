@@ -335,10 +335,10 @@ class LadderDB:
 		pos = -1
 		ranks = self.GetRanks( ladder_id )
 		count = 0
-		previousrating = -1
+		previousrank = None
 		same_rating_in_a_row = 0
 		for r in ranks:
-			if r.rating != previousrating: # give the same position to players with the same rank
+			if r.compare( previousrank ) != 0: # give the same position to players with the same rank
 				if same_rating_in_a_row == 0:
 					count += 1
 				else:
@@ -349,7 +349,7 @@ class LadderDB:
 			if r.player_id == player_id:
 				pos = count
 				break
-			previousrating = r.rating
+			previousrank = r
 		session.close()
 		return pos
 
