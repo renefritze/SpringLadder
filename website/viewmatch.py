@@ -44,15 +44,15 @@ def output( db, env, request ):
 			opt_headers = ['key','val','wl/bl']
 			ret = template.render(ladder=match.ladder, matchinfo=MatchInfoToTableAdapter(match) )
 		s.close()
+		return ret
+		
 	except ElementNotFoundException, e:
-		if s:
-			s.close()
-		template = env.get_template('error.html')
-		ret = template.render( err_msg="ladder with id %s not found"%(str(id)) )
-	except EmptyRankingListException, m:
-		if s:
-			s.close()
-		template = env.get_template('error.html')
-		ret = template.render( err_msg=(str(m)) )
+		err_msg="ladder with id %s not found"%(str(id))
 
-	return ret
+	except EmptyRankingListException, m:
+		err_msg=(str(m))
+
+	if s:
+		s.close()
+	template = env.get_template('error.html')
+	return template.render( err_msg=err_msg )

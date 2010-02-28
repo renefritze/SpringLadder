@@ -56,10 +56,12 @@ def output( db, env, request ):
 			return template.render(ladder=ladder, rank_table=rank_table, matches=matches )
 
 	except ElementNotFoundException, e:
-		template = env.get_template('error.html')
-		s.close()
-		return template.render( err_msg="ladder with id %s not found"%(str(id)) )
+		err_msg="ladder with id %s not found"%(str(id))
+
 	except EmptyRankingListException, m:
-		template = env.get_template('error.html')
+		err_msg=str(m)
+		
+	template = env.get_template('error.html')
+	if s:
 		s.close()
-		return template.render( err_msg=(str(m)) )
+	return template.render( err_msg=err_msg )

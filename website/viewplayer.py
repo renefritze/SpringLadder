@@ -54,12 +54,11 @@ def output( db, env, request ):
 			return template.render(players=players,offset=offset,limit=limit,order=order,asc=asc )
 
 	except ElementNotFoundException, e:
-		if s:
-			s.close()
-		template = env.get_template('error.html')
-		return template.render( err_msg="player %s not found"%(str(player_name)) )
+		err_msg="player %s not found"%(str(player_name))
+
 	except EmptyRankingListException, m:
-		if s:
-			s.close()
-		template = env.get_template('error.html')
-		return template.render( err_msg=(str(m)) )
+		err_msg=(str(m))
+	if s:
+		s.close()
+	template = env.get_template('error.html')
+	return template.render( err_msg=err_msg )

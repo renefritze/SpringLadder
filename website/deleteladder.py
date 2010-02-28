@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 from fieldsets import *
-import forms
 from ladderdb import ElementNotFoundException, EmptyRankingListException
-from db_entities import Option, Roles, Ladder
-from wtforms import Form, BooleanField, TextField, validators, FieldList, \
-	FormField, HiddenField, BooleanField, IntegerField, SelectField
-from ranking import GlobalRankingAlgoSelector
-
+from db_entities import Roles
 def output( db, env, request ):
 
 	user = request.player
@@ -33,4 +28,4 @@ def output( db, env, request ):
 		err = str(f)
 
 	template = env.get_template('error.html')
-	return template.render( err_msg=str(e) )
+	return template.render( err_msg=err )

@@ -5,8 +5,6 @@ from fieldsets import *
 import forms
 from ladderdb import ElementNotFoundException, EmptyRankingListException
 from db_entities import Option, Roles
-from wtforms import Form, BooleanField, TextField, validators, FieldList, \
-	FormField, HiddenField, BooleanField, IntegerField, SelectField
 import bottle
 from ranking import GlobalRankingAlgoSelector
 

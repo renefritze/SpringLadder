@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-#from db_entities import *
-from formalchemy import FieldSet, Grid, ValidationError, FieldRenderer
-
 def unicodeField( field ):
 	return unicode(field, 'utf-8', 'replace')
 
