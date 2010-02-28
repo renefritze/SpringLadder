@@ -39,7 +39,6 @@ class OptionWidget(object):
 					html.append(u'<td>%s%s</td>' % (unicode(subfield),del_button) )
 				else:
 					html.append(u'<td>%s</td>' % unicode(subfield))
-				hidden = u''
 				errors += ', '.join(subfield.errors)
 			i += 1
 		html.append(u'<td>%s</td>' % unicode(errors))
