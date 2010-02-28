@@ -700,6 +700,7 @@ class Main:
 					else:
 						answer = self.db.MergeAccounts( args[0], args[1], bool(args[2]) )
 					self.notifyuser( socket, fromwho, fromwhere, ispm, answer )
+
 			if command == "!ladderauth":
 				if len(args) != 1:
 					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
@@ -711,6 +712,34 @@ class Main:
 					else:
 						self.notifyuser( socket, fromwho, fromwhere, ispm, "Password setting failed" )
 				
+			if command == "!ladderopponent":
+				if len(args) != 1:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid command syntax, check !ladderhelp for usage." )
+					return
+				ladderid = int(args[0])
+				if not self.db.AccessCheck( ladderid, fromwho, Roles.User ):
+					self.sayPermissionDenied( socket, command, fromwho, fromwhere, ispm )
+					#log
+					return
+				if not self.db.LadderExists( ladderid ):
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "Invalid ladderID." )
+					return
+				userlist, ranks = GlobalRankingAlgoSelector.GetCandidateOpponents( fromwho, ladderid, self.db )
+				opponent_found = False
+				for user in userlist:
+					try:
+						userstatus = self.tsc.users[user]
+					except: # skip offline
+						continue
+					if userstatus.ingame:
+						continue
+					if userstatus.afk:
+						continue
+					opponent_found = True
+					self.notifyuser( socket, fromwho, fromwhere, ispm, ranks[user] )
+				if not opponent_found:
+					self.notifyuser( socket, fromwho, fromwhere, ispm, "No suitable candidates as opponent are available currently, try again later." )
+
 		except DbConnectionLostException, e:
 			self.notifyuser( socket, fromwho, fromwhere, ispm, "Database temporarily lost in processing your command, please try again" )
 			err = 'DbConnectionLostException: %s\nargs: %s\ncmd" %s\nwho: %s\nwhere" \n'%(e.getTrace(), args, command, fromwho,fromwhere )

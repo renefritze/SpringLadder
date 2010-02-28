@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from ranking import IRanking,RankingTable
+from ranking import IRanking,RankingTable,calculateWinnerOrder
 from db_entities import GlickoRanks,Player,Match,Result
+from sqlalchemy import or_, and_
 import math,time,datetime
-from sqlalchemy.exceptions import UnboundExecutionError
 class GlickoRankAlgo(IRanking):
 
 	q = math.log( 10.0 ) / 400.0
@@ -12,42 +12,9 @@ class GlickoRankAlgo(IRanking):
 		self.rd_lower_bound = 50.0
 
 	def Update(self,ladder_id,match,db):
+		scores, result_dict = calculateWinnerOrder(match,db)
+
 		session = db.sessionmaker()
-		#session.add( match ) #w/o this match is unbound, no lazy load of results
-		result_dict = dict()
-		try:
-			for r in match.results:
-				result_dict[r.player.nick] = r
-		except UnboundExecutionError,u:
-			session.add( match )
-			for r in match.results:
-				session.add( r )
-				result_dict[r.player.nick] = r
-		#calculate order of deaths
-		deaths = dict()
-		scores = dict()
-
-		playercount = len(result_dict)
-		for name,player in result_dict.iteritems():
-			if player.died > 0:
-				deaths[name] = player.died
-			if player.timeout:
-				scores[name] = -1
-			if player.disconnect > -1:
-				scores[name] = -2
-			if player.quit:
-				scores[name] = -5
-			if player.desync > -1:
-				scores[name] = 0
-
-		#find last team standing
-		for name in result_dict.keys():
-			if name not in deaths.keys() and name not in scores.keys():
-				scores[name] = playercount + 4
-			elif name not in scores.keys():
-				reldeath = deaths[name] / float(match.last_frame)
-				scores[name] = reldeath * playercount
-
 		#step one
 		pre = dict() #name -> GlickoRanks
 		avg_match_delta = db.GetAvgMatchDelta( ladder_id )
@@ -151,7 +118,7 @@ class GlickoRankAlgo(IRanking):
 
 	@staticmethod
 	def GetPrintableRepresentation(rank_list,db):
-		ret = '#position playername (Rating/Rating Deviation):\n'
+		ret = '#position playername\t\t(Rating/RatingDeviation):\n'
 		s = db.sessionmaker()
 		count = 0
 		previousrating = -1
@@ -166,10 +133,38 @@ class GlickoRankAlgo(IRanking):
 					same_rating_in_a_row = 0
 			else:
 				same_rating_in_a_row += 1
-			ret += '#%d %s\t\t(%2f/%4f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
+			ret += '#%d %s\t(%4.2f/%3.0f)\n'%(count,rank.player.nick,rank.rating, rank.rd)
 			previousrating = rank.rating
 		s.close()
 		return ret
+
+	def GetCandidateOpponents(self,player_nick,ladder_id,db):
+		player = db.GetPlayer( player_nick )
+		player_id = player.id
+		session = db.sessionmaker()
+		playerrank = session.query( GlickoRanks ).filter( GlickoRanks.player_id == player_id ).filter( GlickoRanks.ladder_id == ladder_id ).first()
+		if not playerrank: # use default rank, but don't add it to the db yet
+			playerrank = GlickoRanks()
+		playerminvalue = playerrank.rating - playerrank.rd
+		playermaxvalue = playerrank.rating + playerrank.rd
+		opponent_q = session.query( GlickoRanks ).filter( GlickoRanks.player_id != player_id ) \
+			.filter( GlickoRanks.ladder_id == ladder_id )
+		ops1 = opponent_q \
+			.filter( and_ ( ( (GlickoRanks.rating + GlickoRanks.rd) >= playerminvalue ), \
+								 ( ( GlickoRanks.rating + GlickoRanks.rd ) <= playermaxvalue ) ) )
+		ops2 = opponent_q \
+			.filter( and_( ( playermaxvalue >=  ( GlickoRanks.rating - GlickoRanks.rd ) ), \
+								( playermaxvalue <= (GlickoRanks.rating + GlickoRanks.rd) ) )  ) \
+			#.order_by( math.fabs(GlickoRanks.rating - playerrank.rating ) )
+		opponents = []
+		opponents_ranks = dict()
+		ops = ops1.all() + ops2.all()
+		ops.sort( lambda x,y : cmp( math.fabs( x.rating - playerrank.rating ), math.fabs( y.rating - playerrank.rating ) ) )
+		for op in ops:
+			opponents.append(op.player.nick)
+			opponents_ranks[op.player.nick] = '#%d %s\t(%4.2f/%3.0f)\n'%(db.GetPlayerPosition(ladder_id, op.player.id),op.player.nick,op.rating, op.rd)
+		session.close()
+		return opponents, opponents_ranks
 
 	def GetWebRepresentation(self,rank_list,db):
 		ret = RankingTable()

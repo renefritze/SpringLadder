@@ -44,7 +44,9 @@ helpstring_user_manager ="""!ladderlist : lists available ladders with their IDs
 !score playername : lists scores for the given player in all ladders
 !score ladderID playername : lists score for the given player for the given ladderID
 !ladderlistmatches ladderID : list all matches for ladderID, newest first
-!ladderauth password : set your user password (no spaces, no reuse of important passwords)"""
+!ladderauth password : set your user password (no spaces, no reuse of important passwords)
+!ladderopponent ladderID : list opponents with similar skills suitable for a fight, best candidates first"""
+
 
 helpstring_user_slave = """!ladderlist : lists available ladders with their IDs
 !ladder ladderID: sets the ladder to report scores to, -1 to disable reporting
@@ -52,7 +54,9 @@ helpstring_user_slave = """!ladderlist : lists available ladders with their IDs
 !ladderlistoptions: lists enforced options for currently active ladderID
 !ladderchecksetup : checks that all options and player setup are compatible with current set ladder
 !ladderchecksetup ladderID: checks that all options and player setup are compatible for given ladderID
+!ladderforcestart : forces the client to start spring
 !score playername : lists scores for the given player in the current ladder
 !score ladderid: lists scores for all the players for given ladderid
 !score ladderID playername : lists score for the given player for the given ladderID
-"""
+!ladderopponent ladderID : list opponents with similar skills suitable for a fight for given ladderID, best candidates first
+!ladderopponent ladderID : list opponents with similar skills suitable for a fight for current ladder, best candidates first"""
