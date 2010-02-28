@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 from ladderdb import *
 from sqlalchemy import func
+from bottle import route,request
+from globe import db,env
 
-def output( db, env ):
+@route('/')
+def output():
 	try:
 		s = db.sessionmaker()
 		limit = 10

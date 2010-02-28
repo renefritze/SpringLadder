@@ -7,8 +7,13 @@ from db_entities import Option, Roles, Ladder
 from wtforms import Form, BooleanField, TextField, validators, FieldList, \
 	FormField, HiddenField, BooleanField, IntegerField, SelectField
 from ranking import GlobalRankingAlgoSelector
+from bottle import route,request
+from globe import db,env
+from auth import AuthDecorator
 
-def output( db, env, request ):
+@route('/admin/recalc', method='GET')
+@AuthDecorator( Roles.User, db )
+def output( ):
 
 	session = db.sessionmaker()
 	user = request.player

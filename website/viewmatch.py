@@ -3,8 +3,11 @@
 from formalchemy import Field, types
 from ladderdb import *
 from fieldsets import getSingleField, MatchInfoToTableAdapter
+from bottle import route,request
+from globe import db,env
 
-def output( db, env, request ):
+@route('/match')
+def output( ):
 	id = getSingleField( 'id', request )
 	player_name = getSingleField( 'player', request )
 	ladder_id = getSingleField( 'ladder', request )

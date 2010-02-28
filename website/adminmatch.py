@@ -2,7 +2,13 @@
 from fieldsets import *
 from ladderdb import ElementNotFoundException, EmptyRankingListException
 from db_entities import Option, Match, Ladder, Roles
-def output( db, env, request ):
+from bottle import route,request
+from globe import db,env
+from auth import AuthDecorator
+
+@route('/admin/match', method='GET')
+@AuthDecorator( Roles.User, db )
+def output( ):
 
 	user = request.player
 	try:

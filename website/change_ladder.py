@@ -7,6 +7,9 @@ from ladderdb import ElementNotFoundException, EmptyRankingListException
 from db_entities import Option, Roles
 import bottle
 from ranking import GlobalRankingAlgoSelector
+from bottle import route,request
+from globe import db,env
+from auth import AuthDecorator
 
 def getBodyContent( string ):
 	b = string.find('<body>')
@@ -26,8 +29,10 @@ def handleAlgoChange( db, env, request, ladder ):
 		print e
 	return None
 		
-
-def output( db, env, request ):
+@route('/admin/ladder', method='POST')
+@route('/admin/ladder', method='GET')
+@AuthDecorator( Roles.User, db )
+def output( ):
 
 	id = getSingleField( 'id', request, getSingleFieldPOST('id', request )  )
 	session = db.sessionmaker()

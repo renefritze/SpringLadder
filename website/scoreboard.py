@@ -3,8 +3,11 @@
 
 from fieldsets import getSingleField
 from ranking import GlobalRankingAlgoSelector
+from bottle import route,request
+from globe import db,env
 
-def output( db, env, request ):
+@route('/scoreboard')
+def output( ):
 	try:
 		id = getSingleField( 'id', request )
 		lad = db.GetLadder( id )

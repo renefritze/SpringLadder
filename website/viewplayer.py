@@ -5,8 +5,11 @@ from fieldsets import getSingleField, SortAsc
 from sqlalchemy import func
 from ladderdb import ElementNotFoundException, EmptyRankingListException
 from db_entities import Player, Result
+from bottle import route,request
+from globe import db,env
 
-def output( db, env, request ):
+@route('/player')
+def output( ):
 	player_name = getSingleField( 'player', request )
 	order = getSingleField( 'order', request , 'nick')
 	ladder_id = getSingleField( 'ladder', request )

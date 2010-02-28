@@ -5,8 +5,11 @@ from fieldsets import getSingleField
 from ladderdb import ElementNotFoundException, EmptyRankingListException
 from db_entities import Ladder, Match, Result
 from ranking import GlobalRankingAlgoSelector
+from bottle import route,request
+from globe import db,env
 
-def output( db, env, request ):
+@route('/ladder')
+def output( ):
 	id = getSingleField( 'id', request )
 	try:
 		s = db.sessionmaker()

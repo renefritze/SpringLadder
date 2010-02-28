@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from fieldsets import LadderOptionsAdapter, LadderInfoToTableAdapter, getSingleField
+from bottle import route,request
+from globe import db,env
 
-def output( db, env, request ):
+@route('/rules')
+def output( ):
 	id = getSingleField( 'id', request )
 
 	try:

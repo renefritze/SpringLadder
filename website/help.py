@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import helpstrings
+from bottle import route,request
+from globe import db,env,cache
 
 def tokenizeHelp( string ):
 	ret = []
@@ -9,10 +11,9 @@ def tokenizeHelp( string ):
 			ret.append( (items[0], items[1] ) )
 	return ret
 
-from globe import cache
-
 @cache.cache('help_output', expire=3600)
-def output( db, env, request ):
+@route('/help')
+def output( ):
 	try:
 		template = env.get_template('help.html')
 		return template.render(\

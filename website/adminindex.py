@@ -7,8 +7,14 @@ from db_entities import Option, Roles, Ladder
 from wtforms import Form, BooleanField, TextField, validators, FieldList, \
 	FormField, HiddenField, BooleanField, IntegerField, SelectField
 import bottle
+from bottle import route,request
+from globe import db,env
+from auth import AuthDecorator
 
-def output( db, env, request ):
+@route('/admin', method='GET')
+@route('/admin', method='POST')
+@AuthDecorator( Roles.User, db )
+def output( ):
 
 	session = db.sessionmaker()
 	user = request.player

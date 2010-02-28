@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from fieldsets import *
 from db_entities import Player, Result, Ladder
-from globe import cache 
+from bottle import route,request
+from globe import db,env,cache
 
+@route('/fame')
 @cache.cache('fame_output', expire=600)
-def output( db, env, request ):
+def output(  ):
 	try:
 		limit = 10
 		template = env.get_template('fame.html')
