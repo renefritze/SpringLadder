@@ -50,6 +50,13 @@
 
 	<input type="submit" name="submit" value="submit"/>
 	<input type="submit" name="new" value="add new option"/>
+	<br/>
+	{% if isglobal %}
+		<h3>Add ladderadmin</h3>
+		<label for="adminname">name</label>
+		<input id="adminname" name="adminname" type="text" value="" />
+		<input type="submit" name="addadmin" value="add"/>
+	{% endif %}
 </form>
 <br/>
 <a href="/" > back to index </a>

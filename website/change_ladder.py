@@ -13,6 +13,7 @@ def output( db, env, request ):
 
 	id = getSingleField( 'id', request, getSingleFieldPOST('id', request )  )
 	session = db.sessionmaker()
+	user = request.player
 	note = ''
 	try:
 		if not db.AccessCheck( id, request.player.nick, Roles.LadderAdmin ):
@@ -24,7 +25,6 @@ def output( db, env, request ):
 		options = lad.options
 		to_delete = getFieldsByPrefixPOST('delete', request )
 		if to_delete and len(to_delete) > 0:
-			print to_delete
 			del_key = to_delete.keys()[0]
 			if to_delete[del_key] == 'delete':
 				del_idx = int(del_key.split('-')[-1])
@@ -33,6 +33,15 @@ def output( db, env, request ):
 				session.commit()
 				#redirect to same page here cause i had troubles with double session elements otherwise
 				return bottle.redirect('/admin/ladder?id=%s'%id)
+		if getSingleFieldPOST( 'addadmin', request  ) == 'add':
+			if not db.AccessCheck( id, request.player.nick, Roles.GlobalAdmin ):
+				template = env.get_template('error.html')
+				session.close()
+				return template.render( err_msg="you're not allowed to add an admin to ladder #%s"%(str(id)) )
+			admin_name = getSingleFieldPOST( 'adminname', request, 'koko' )
+			db.AddLadderAdmin( id, admin_name )
+			session.close()
+			return bottle.redirect('/admin/ladder?id=%s'%id)
 		if getSingleFieldPOST( 'new', request  ) == 'add new option':
 			opt = Option('','')
 			opt.ladder_id = id
@@ -51,9 +60,9 @@ def output( db, env, request ):
 			textfields.append( getattr(form, var)  )
 		template = env.get_template('change_ladder.html')
 		session.close()
-		return template.render( form=form, ladder_id=id, note=note, textfields=textfields )
+		return template.render( form=form, ladder_id=id, note=note, textfields=textfields, isglobal=user.role >= Roles.GlobalAdmin )
 
 	except ElementNotFoundException, e:
 		template = env.get_template('error.html')
 		session.close()
-		return template.render( err_msg="ladder with id %s not found"%(str(id)) )
+		return template.render( err_msg=str(e) )
