@@ -4,11 +4,7 @@ from bottle import route, run, debug, PasteServer, send_file, redirect, abort, r
 import os, index, viewmatch, viewplayer, viewladder, viewrules, \
 	help, fame, scoreboard, change_ladder,adminindex, recalc, deleteladder, \
 	adminmatch
-
-from auth import AuthDecorator
-from db_entities import Roles
-from globe import db,config,staging,env
-
+from globe import config,staging
 
 @route('/static/:filename')
 def static_file(filename):
@@ -17,6 +13,10 @@ def static_file(filename):
 @route('/demos/:filename')
 def demos(filename):
 	return send_file( filename, root=os.getcwd()+'/demos/' )
+
+@route('/favicon.ico')
+def favi():
+	return send_file( 'favicon.ico', root=os.getcwd()+'/images/' )
 
 if __name__=="__main__":
 	port = config['port']
