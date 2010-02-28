@@ -26,9 +26,10 @@ def output( db, env ):
 
 
 		template = env.get_template('index.html')
+		ret = template.render( matches=matches, matches_header= matches_header, ladders_header=ladders_header, ladders=ladders, players_header=players_header, players=players  )
 		s.close()
-		return template.render( matches=matches, matches_header= matches_header, ladders_header=ladders_header, ladders=ladders, players_header=players_header, players=players  )
-
+		return ret
+		
 	except Exception, m:
 		if s:
 			s.close()
