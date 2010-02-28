@@ -59,7 +59,6 @@ class AuthDecorator(object):
 			except:
 				return self._401Response(msg='Username and password combination is invalid.')
 			else:
-				print 'nick: ',player.nick
 				if not player.validate(password):
 					return self._401Response(msg='Username and password combination is invalid.')
 
