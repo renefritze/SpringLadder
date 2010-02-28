@@ -36,6 +36,9 @@ def output( db, env, request ):
 		ladders = session.query( Ladder ).filter( Ladder.id.in_ ( ladder_ids ) ).all()
 		template = env.get_template('adminindex.html')
 		session.close()
+		if len(ladders) < 1:
+			#no admin whatsoever
+			return bottle.redirect( '/' )
 		return template.render( ladders=ladders, isglobal=user.role >= Roles.GlobalAdmin )
 
 	except ElementNotFoundException, e:
