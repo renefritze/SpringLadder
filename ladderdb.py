@@ -419,11 +419,18 @@ class LadderDB:
 
 	def SetLadderRankingAlgo( self, ladder_id, algoname ):
 		ladder = self.GetLadder( ladder_id )
-		session = self.sessionmaker()
-		ladder.ranking_algo_id = algoname
-		session.add( ladder )
-		session.commit()
-		session.close()
+		if ladder.ranking_algo_id != algoname:
+			session = self.sessionmaker()
+			ladder.ranking_algo_id = algoname
+			algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
+			entityType = algo_instance.GetDbEntityType()
+			ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id )
+			for r in ranks:
+				session.delete( r )
+			session.add( ladder )
+			session.commit()
+			session.close()
+			self.RecalcRankings( ladder_id )
 
 	def GetAvgMatchDelta( self, ladder_id ):
 		ladder = self.GetLadder( ladder_id )
@@ -450,7 +457,7 @@ class LadderDB:
 		session.add( ladder )
 		algo_instance = GlobalRankingAlgoSelector.GetInstance( ladder.ranking_algo_id )
 		entityType = algo_instance.GetDbEntityType()
-		ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id ).all()
+		ranks = session.query( entityType ).filter( entityType.ladder_id == ladder_id )
 		for r in ranks:
 			session.delete( r )
 		session.commit()

@@ -8,6 +8,26 @@ from db_entities import Option, Roles
 from wtforms import Form, BooleanField, TextField, validators, FieldList, \
 	FormField, HiddenField, BooleanField, IntegerField, SelectField
 import bottle
+from ranking import GlobalRankingAlgoSelector
+
+def getBodyContent( string ):
+	b = string.find('<body>')
+	e = string.find('</body>')
+	return string[b+len('<body>')+1:e-1]
+
+def handleAlgoChange( db, env, request, ladder ):
+	try:
+		new_algo = getSingleFieldPOST( 'ranking_algo_id', request )
+		old_algo = ladder.ranking_algo_id
+		if new_algo != old_algo:
+			pre = GlobalRankingAlgoSelector.GetWebRepresentation( db.GetRanks( ladder.id ), db )
+			db.SetLadderRankingAlgo( ladder.id, new_algo )
+			post = GlobalRankingAlgoSelector.GetWebRepresentation( db.GetRanks( ladder.id ), db )
+			return (pre,post)
+	except Exception,e:
+		print e
+	return None
+		
 
 def output( db, env, request ):
 
@@ -15,6 +35,7 @@ def output( db, env, request ):
 	session = db.sessionmaker()
 	user = request.player
 	note = ''
+	extrainfo = None
 	try:
 		if not db.AccessCheck( id, request.player.nick, Roles.LadderAdmin ):
 			template = env.get_template('error.html')
@@ -51,16 +72,20 @@ def output( db, env, request ):
 			options = lad.options
 		form = forms.Ladder(request.POST, lad, options=options )
 		if getSingleFieldPOST( 'submit', request  ) == 'submit' and form.validate():
+			extrainfo = handleAlgoChange( db, env, request, lad )
 			form.populate_obj( lad )
 			session.add( lad )
 			session.commit()
 			note='Ladder updated'
+		#else:#enable this for debug
+			#if len(form.errors) > 0:
+				#note= form.errors
 		textfields = []
 		for var in forms.Ladder.field_order:
 			textfields.append( getattr(form, var)  )
 		template = env.get_template('change_ladder.html')
 		session.close()
-		return template.render( form=form, ladder_id=id, note=note, textfields=textfields, isglobal=user.role >= Roles.GlobalAdmin )
+		return template.render( form=form, ladder_id=id, note=note, textfields=textfields, isglobal=user.role >= Roles.GlobalAdmin, extrainfo=extrainfo )
 
 	except ElementNotFoundException, e:
 		template = env.get_template('error.html')

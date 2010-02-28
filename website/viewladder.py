@@ -45,9 +45,13 @@ def output( db, env, request ):
 			ladder = db.GetLadder( id )
 			template = env.get_template('viewladder.html')
 			limit = 10
-			ranks = db.GetRanks( id, None, limit )
+			try:
+				ranks = db.GetRanks( id, None, limit )
+				rank_table = GlobalRankingAlgoSelector.GetWebRepresentation( ranks, db )
+			except:
+				rank_table = None
 			matches = s.query( Match ).filter( Match.ladder_id == id ).order_by(Match.date.desc())[:limit]
-			rank_table = GlobalRankingAlgoSelector.GetWebRepresentation( ranks, db )
+			
 			s.close()
 			return template.render(ladder=ladder, rank_table=rank_table, matches=matches )
 

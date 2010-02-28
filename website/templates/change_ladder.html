@@ -20,44 +20,106 @@
     </td>
 {% endmacro %}
 {% block content %}
-<h1>Editing Ladder #{{ ladder_id }}</h1>
-<h3>{{ note }}</h3>
-<form name="input" action="/admin/ladder" method="POST">
-	<table>
-		<tbody>
-			{% for field in textfields %}
-				<tr>
-					<td>		
-						{% if field.type != 'HiddenField' %}
-							{{ field.label }}
-						{% endif %}
-					</td>
-					{{ with_errors(field) }}
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
-	<table>
-		<thead>
-		<tr><th>Key</th><th>Value</th><th>Whitelist?</th><th></th></tr>
-		</thead>
-		<tbody>
-			{% for option in form.options  %}
-				<tr>{{ option(class="css_class") }}</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+<div>
+	<h1>Editing Ladder #{{ ladder_id }}</h1>
+	<h3>{{ note }}</h3>
+	<form name="input" action="/admin/ladder" method="POST">
+		<table>
+			<tbody>
+				{% for field in textfields %}
+					<tr>
+						<td>
+							{% if field.type != 'HiddenField' %}
+								{{ field.label }}
+							{% endif %}
+						</td>
+						{{ with_errors(field) }}
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<table>
+			<thead>
+			<tr><th>Key</th><th>Value</th><th>Whitelist?</th><th></th></tr>
+			</thead>
+			<tbody>
+				{% for option in form.options  %}
+					<tr>{{ option(class="css_class") }}</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 
-	<input type="submit" name="submit" value="submit"/>
-	<input type="submit" name="new" value="add new option"/>
-	<br/>
-	{% if isglobal %}
-		<h3>Add ladderadmin</h3>
-		<label for="adminname">name</label>
-		<input id="adminname" name="adminname" type="text" value="" />
-		<input type="submit" name="addadmin" value="add"/>
-	{% endif %}
-</form>
-<br/>
+		<input type="submit" name="submit" value="submit"/>
+		<input type="submit" name="new" value="add new option"/>
+		<br/>
+		{% if isglobal %}
+			<h3>Add ladderadmin</h3>
+			<label for="adminname">name</label>
+			<input id="adminname" name="adminname" type="text" value="" />
+			<input type="submit" name="addadmin" value="add"/>
+		{% endif %}
+	</form>
+</div>
+{% if extrainfo %}
+	{% set pre = extrainfo[0] %}
+	{% set post = extrainfo[1] %}
+	<div style='clear:both;'>
+		<h2>Ranking Algorithm has changed, displaying changes</h2>
+		<div style='float:left;padding:20px;'>
+			<h3>Before Recalculation</h3>
+			<table>
+				<thead>
+					<tr>
+						<th scope='col' style='text-align:center;'>#</th>
+						{% for h in pre.header %}
+							<th scope='col'> {{h}} </th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for row in pre.rows %}
+						<tr>
+							<td style='text-align:center;'> {{loop.index}} </td>
+							{% for field in row %}
+								{% if loop.index0 == 0 %}
+									<td><a href="/player?player={{field}}">{{field}}</a></td>
+								{% else %}
+									<td>{{field}}</td>
+								{% endif %}
+							{% endfor %}
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<div style='padding:20px;'>
+			<h3>After Recalculation</h3>
+			<table>
+				<thead>
+					<tr>
+						<th scope='col' style='text-align:center;'>#</th>
+						{% for h in post.header %}
+							<th scope='col'> {{h}} </th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for row in post.rows %}
+						<tr>
+							<td style='text-align:center;'> {{loop.index}} </td>
+							{% for field in row %}
+								{% if loop.index0 == 0 %}
+									<td><a href="/player?player={{field}}">{{field}}</a></td>
+								{% else %}
+									<td>{{field}}</td>
+								{% endif %}
+							{% endfor %}
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% endif %}
 <a href="/" > back to index </a>
 {% endblock %}
