@@ -3,7 +3,7 @@
 from jinja2 import Environment, FileSystemLoader
 from bottle import route, run, debug, PasteServer, send_file, redirect, abort, request, default_app
 import ParseConfig, os, index, viewmatch, viewplayer, viewladder, viewrules, \
-	help, fame, scoreboard, change_ladder,adminindex, recalc
+	help, fame, scoreboard, change_ladder,adminindex, recalc, deleteladder
 from customlog import Log
 from ladderdb import LadderDB
 from auth import AuthDecorator
@@ -60,6 +60,11 @@ def admin_ladder():
 @AuthDecorator( Roles.User, db )
 def admin_ladder_():
 	return change_ladder.output( db, env, request )
+
+@route('/admin/deleteladder', method='GET')
+@AuthDecorator( Roles.User, db )
+def deleteladder_():
+	return deleteladder.output( db, env, request )
 
 @route('/admin/recalc', method='GET')
 @AuthDecorator( Roles.User, db )

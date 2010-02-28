@@ -7,7 +7,11 @@
 		{% for l in ladders %}
 			<li>
 				<a href="/admin/ladder?id={{l.id}}">{{ l.name }}</a>&nbsp;
-				<a href="/admin/recalc?id={{l.id}}">recalculate rankings</a>
+				<a href="/admin/recalc?id={{l.id}}">recalculate rankings</a>&nbsp;
+				{% if isglobal %}
+					<a href="/admin/deleteladder?id={{l.id}}">delete</a>&nbsp;
+					<!--<a href="/admin/copyladder?id={{l.id}}">copy</a>&nbsp;-->
+				{% endif %}
 			</li>
 		{% endfor %}
 	</ul>

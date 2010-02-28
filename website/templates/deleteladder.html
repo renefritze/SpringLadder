@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if ask %}
+	<h1>Delete Ladder</h1>
+	<p>Do you really want to delete Ladder {{ladder.name}} (#{{ladder.id}}) and all associated data?
+		There is no recovering from this.</p
+	<a href="/admin" > back to index </a><br/>
+	<a href="/admin/deleteladder?id={{ladder.id}}&confirm=yes"> YES </a>
+{% else %}
+	<h2>
+		Ladder DELETED
+	</h2>
+{% endif %}
+{% endblock %}
