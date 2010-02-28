@@ -40,8 +40,11 @@ def output( db, env, request ):
 				continue #empty ladder
 		losers.sort( lambda x, y: cmp(x[1], y[1]) )
 		leaders.sort( lambda x, y: cmp(x[1], y[1]) )
+		s.close()
 		return template.render( playerpos_top=playerpos[0:limit],playerpos_bottom=playerpos[-limit:], header=header, leaders=leaders,losers=losers )
 
 	except Exception, m:
+		if s:
+			s.close()
 		template = env.get_template('error.html')
 		return template.render( err_msg=(str(m)) )

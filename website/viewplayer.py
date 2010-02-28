@@ -27,6 +27,7 @@ def output( db, env, request ):
 				matches.append( r.match )
 
 			template = env.get_template('viewplayer.html')
+			s.close()
 			return template.render(player=player,ladders=ladders, positions=positions,played=played,matches=matches )
 		else:
 			asc = getSingleField( 'asc', request, 'False' )
@@ -49,11 +50,16 @@ def output( db, env, request ):
 			offset = int(getSingleField( 'offset', request, 0 ))
 			players = q[offset:offset+limit-1]
 			template = env.get_template('viewplayerlist.html')
+			s.close()
 			return template.render(players=players,offset=offset,limit=limit,order=order,asc=asc )
 
 	except ElementNotFoundException, e:
+		if s:
+			s.close()
 		template = env.get_template('error.html')
 		return template.render( err_msg="player %s not found"%(str(player_name)) )
 	except EmptyRankingListException, m:
+		if s:
+			s.close()
 		template = env.get_template('error.html')
 		return template.render( err_msg=(str(m)) )

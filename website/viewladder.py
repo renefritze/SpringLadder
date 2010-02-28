@@ -39,6 +39,7 @@ def output( db, env, request ):
 					item['ranks'] = None
 				ladder_list.append( item )
 			template = env.get_template('viewladderlist.html')
+			s.close()
 			return template.render(ladders=ladder_list )
 		else:
 			ladder = db.GetLadder( id )
@@ -47,11 +48,14 @@ def output( db, env, request ):
 			ranks = db.GetRanks( id, None, limit )
 			matches = s.query( Match ).filter( Match.ladder_id == id ).order_by(Match.date.desc())[:limit]
 			rank_table = GlobalRankingAlgoSelector.GetWebRepresentation( ranks, db )
+			s.close()
 			return template.render(ladder=ladder, rank_table=rank_table, matches=matches )
 
 	except ElementNotFoundException, e:
 		template = env.get_template('error.html')
+		s.close()
 		return template.render( err_msg="ladder with id %s not found"%(str(id)) )
 	except EmptyRankingListException, m:
 		template = env.get_template('error.html')
+		s.close()
 		return template.render( err_msg=(str(m)) )
