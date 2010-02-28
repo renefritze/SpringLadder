@@ -9,12 +9,21 @@ from customlog import Log
 from ladderdb import LadderDB
 from auth import AuthDecorator
 from db_entities import Roles
+from beaker.cache import CacheManager
+from beaker.util import parse_cache_config_options
+
+cache_opts = {
+    'cache.type': 'memory',
+    'cache.data_dir': 'tmp/cache/data',
+    'cache.lock_dir': 'tmp/cache/lock'
+}
 
 config = ParseConfig.readconfigfile( 'Main.conf' )
 Log.Init( 'website.log', 'website.log' )
 db = LadderDB(config['alchemy-uri'])
 env = Environment(loader=FileSystemLoader('templates'))
 staging = 'staging' in config.keys()
+cache = CacheManager(**parse_cache_config_options(cache_opts))
 
 @route('/')
 def home():
@@ -89,7 +98,8 @@ def static_file(filename):
 def demos(filename):
 	return send_file( filename, root=os.getcwd()+'/demos/' )
 
-port = config['port']
-debug(staging)
-app = default_app()
-run(app=app,server=PasteServer,host='localhost',port=port , reloader=False)
+if __name__=="__main__":
+	port = config['port']
+	debug(staging)
+	app = default_app()
+	run(app=app,server=PasteServer,host='localhost',port=port , reloader=False)

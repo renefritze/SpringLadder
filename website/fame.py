@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from fieldsets import *
 from db_entities import Player, Result, Ladder
+from main import cache
 
+@cache.cache('fame_output', expire=600)
 def output( db, env, request ):
 	try:
 		limit = 10
